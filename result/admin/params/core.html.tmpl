@@ -1,0 +1,31 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%
+   title = "核心参数"
+   desc = "安装 Bugzilla 所必须设定的核心参数"
+%]
+
+[% param_descs = {
+  urlbase => "所有 $terms.Bugzilla 的基础网域名称。",
+
+  sslbase => "使用 HTTPS (SSL) 连线时 $terms.Bugzilla 网址的网域名称。",
+
+  ssl_redirect =>
+    "当此参数启用时， Bugzilla 会根据 <var>sslbase</var> 参数的设定，将所有的"
+    _ " HTTP 页面导到 HTTPS 的页面，以确保每一页均透过 SSL 存取。另外，"
+    _ " $terms.Bugzilla 也会在把电子邮件中的连结 <var>sslbase</var> 参数的设定显示，"
+    _ "而非原本的 <var>urlbase</var> 参数。",
+
+  cookiepath =>
+    "Bugzilla 的 cookie 路径。通常设定为网址的基准。"
+    _ "以斜线 (/) 开头。例如， Bugzilla 架在"
+    _ " 'http://www.somedomain.com/bugzilla/' 时，则将此值设定为"
+    _ " '/bugzilla/' 。设定为 / 时，将允许此网页伺服器的所有站台存取"
+    _ " Bugzilla 的 cookie 。",
+} %]

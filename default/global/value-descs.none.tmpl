@@ -1,0 +1,34 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# You can use this hash to localize (translate) the values displayed
+  # for drop-down and multiple-select fields. Lines starting with "#"
+  # are comments.
+  #%]
+[% value_descs = {
+  "bug_status" => {
+    # "UNCONFIRMED" => "UNCO",
+    # "NEW"         => "NEWISH",
+    "UNCONFIRMED" => "未確認 (UNCONFIRMED)",
+    "CONFIRMED"   => "已確認 (CONFIRMED)",
+    "IN_PROGRESS"  => "進行中 (IN_PROGRESS)",
+    "RESOLVED"    => "已解決 (RESOLVED)",
+    "VERIFIED"    => "已認證 (VERIFIED)"
+  },
+
+  "resolution" => {
+    # "FIXED"      => "NO LONGER AN ISSUE",
+    # "WORKSFORME" => "NOTMYPROBLEM!",
+    ""        => "---",
+    "FIXED"      => "已修復 (FIXED)",
+    "INVALID"    => "無效的 (INVALID)",
+    "WONTFIX"    => "不處理 (WONTFIX)",
+    "DUPLICATE"  => "重複 (DUPLICATE)",
+    "WORKSFORME" => "好好的 (WORKSFORME)"
+  }
+} %]

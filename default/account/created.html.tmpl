@@ -1,0 +1,24 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # login: string. The user's Bugzilla login email address.
+  #%]
+
+[% title = BLOCK %]
+  已送出建立新帳號 '[% login FILTER html %]' 的請求
+[% END %]
+
+[% PROCESS global/header.html.tmpl title = title %]
+
+<p>
+  已寄出一封含有認證用連結的電子郵件。如果帳號沒有被建立，該連結將會在
+  [% constants.MAX_TOKEN_AGE FILTER html %] 天後失效。
+</p>
+
+[% PROCESS global/footer.html.tmpl %]

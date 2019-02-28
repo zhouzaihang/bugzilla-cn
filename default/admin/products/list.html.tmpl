@@ -1,0 +1,93 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # products: array of Bugzilla::Product objects
+  #
+  # classification: Bugzilla::Classification object; If classifications
+  #                         are enabled, then this is
+  #                         the currently selected classification
+  # showbugcounts: boolean; true if bug counts should be included in the table
+  #%]
+
+[% IF classification %]
+  [% classification_url_part = BLOCK %]&amp;classification=
+    [%- classification.name FILTER uri %]
+  [%- END %]
+  [% classification_title = BLOCK %]
+    分類 '[% classification.name FILTER html %]' 中的
+  [% END %]
+[% END %]
+
+[% PROCESS global/header.html.tmpl
+  title = "選擇${classification_title}產品"
+  style_urls = ['skins/standard/admin.css']
+%]
+
+[% columns = [
+     {
+       name => "name"
+       heading => "編輯產品…"
+       contentlink => 'editproducts.cgi?action=edit&amp;product=%%name%%'
+     },
+     {
+       name => "description"
+       heading => "描述"
+       allow_html_content => 1
+     },
+     {
+       name => "is_active"
+       heading => "允許回報新的 $terms.bugs"
+       yesno_field => 1
+     },
+     {
+       name => "allows_unconfirmed"
+       heading => "允許狀態為" _ display_value('bug_status', 'UNCONFIRMED') _
+                  "的" _ terms.Bugs
+       yesno_field => 1
+     },
+] %]
+
+[% IF showbugcounts %]
+
+  [% columns.push({
+       name => "bug_count"
+       heading => "$terms.Bug 數目"
+       class => 'right'
+       contentlink => 'buglist.cgi?product=%%name%%'
+     })
+  %]
+
+[% END %]
+
+[% columns.push({
+       heading => "動作"
+       content => "刪除"
+       contentlink => 'editproducts.cgi?action=del&amp;product=%%name%%'
+     })
+%]
+
+[% Hook.process('before_table') %]
+
+[% PROCESS admin/table.html.tmpl
+     columns = columns
+     data = products
+%]
+
+[% IF !showbugcounts %]
+
+  <p><a href="editproducts.cgi?showbugcounts=1[% classification_url_part %]"
+     >以 [% terms.bug %] 數目重新顯示（較慢）</a></p>
+
+[% END %]
+
+[% PROCESS admin/products/footer.html.tmpl
+    no_edit_other_products_link = 1
+ %]
+
+[% PROCESS global/footer.html.tmpl %]

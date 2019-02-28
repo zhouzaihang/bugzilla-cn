@@ -1,0 +1,21 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[% PROCESS global/header.html.tmpl
+   title = "以 $terms.bug 編號搜尋"
+ %]
+
+<form method="get" action="show_bug.cgi">
+  <p>
+    你可以輸入 [% terms.bug %] 編號，來尋找特定的 [% terms.bug %] ：
+    <input name="id" size="6">
+    <input type="submit" id="show" value="我要看這個 [% terms.Bug %]">
+  </p>
+</form>
+
+[% PROCESS global/footer.html.tmpl %]

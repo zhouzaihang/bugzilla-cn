@@ -1,0 +1,82 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # settings:      a hash of hashes, keyed by setting_name.
+  #                Each hash contains:
+  #                 is_enabled    - boolean
+  #                 default_value - string (global default for this setting)
+  #                 value         - string (user-defined preference)
+  #                 is_default    - boolean (true if user has no preference)
+  #%]
+
+[% PROCESS global/header.html.tmpl
+  title = "预设的使用偏好"
+  style_urls = ['skins/standard/admin.css']
+ %]
+
+[% PROCESS "global/setting-descs.none.tmpl" %]
+
+<p>
+  此页面可让你编辑预设的使用偏好值。
+  每项偏好的「预设值」将会适用于所有未选择自己的偏好设定的使用者，以及未登入的访客。
+</p>
+
+<div>
+  「启用」的勾选框控制此一偏好值是否可供使用者选用：
+  <ul>
+    <li>
+      如果勾选，使用者可以在他们的偏好设定页面看见此一偏好设定，并可以选择是否变更。
+    </li>
+    <li>
+      如果不勾选，此一偏好设定将不会显示在偏好设定页面上，所有使用者将会使用预设值。
+    </li>
+  </ul>
+</div>
+
+    <form id="settings" method="post" action="editsettings.cgi">
+      <table id="admin_table">
+        <tr class="column_header">
+          <th>偏好</th>
+          <th>预设值</th>
+          <th>启用</th>
+        </tr>
+
+        [% FOREACH name = settings.keys.sort %]
+          [% checkbox_name = name _ '-enabled' %]
+          <tr>
+            <td>
+              [% setting_descs.$name OR name FILTER html %]
+            </td>
+            <td>
+              <select name="[% name FILTER html %]" id="[% name FILTER html %]">
+                [% FOREACH x = settings.${name}.legal_values %]
+                    <option value="[% x FILTER html %]"
+                      [% " selected=\"selected\"" IF x == settings.${name}.default_value %]>
+                      [% setting_descs.${x} OR x FILTER html %]
+                    </option>
+                [% END %]
+              </select>
+            </td>
+            <td class="center">
+              <input type="checkbox"
+                name="[% checkbox_name FILTER html %]"
+                id="[% checkbox_name FILTER html %]"
+                [% " checked=\"checked\"" IF settings.${name}.is_enabled %]>
+              <br>
+            </td>
+          </tr>
+        [% END %]
+      </table>
+
+    <input type="hidden" name="action" value="update">
+    <input type="hidden" name="token" value="[% token FILTER html %]">
+    <input type="submit" id="update" value="储存设定">
+  </form>
+
+[% PROCESS global/footer.html.tmpl %]

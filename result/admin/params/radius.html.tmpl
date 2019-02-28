@@ -1,0 +1,42 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%
+   title = "RADIUS"
+   desc = "在选择将 RADIUS 做为认证方式前，请先设定"
+%]
+
+[% param_descs = {
+  RADIUS_server => "你的 RADIUS 伺服器名称（以及连接埠）。" _
+                   "（例： <code>radius.company.com</code> 或者 " _
+                   "<code>radius.company.com:portnum</code> ）。<br>" _
+                   "只有在" _
+                   "<a href=\"?section=auth#user_verify_class_desc\"> " _
+                   "<code>user_verify_class</code> 参数</a>包含 " _
+                   "<code>RADIUS</code> 值时才需设定。",
+
+  RADIUS_secret => "你的 RADIUS 伺服器的 secret key 。<br>" _
+                   "只有在" _
+                   "<a href=\"?section=auth#user_verify_class_desc\"> " _
+                   "<code>user_verify_class</code> 参数</a>包含 " _
+                   "<code>RADIUS</code> 值时才需设定。",
+
+  RADIUS_NAS_IP => "当和你的 RAIDUS 伺服器交换资料时所使用的 NAS IP 位址属性。" _
+                   "如果没有指定，将会使用 <code>127.0.0.1</code> 。<br>" _
+                   "只有在" _
+                   "<a href=\"?section=auth#user_verify_class_desc\"> " _
+                   "<code>user_verify_class</code> 参数</a>包含 " _
+                   "<code>RADIUS</code> 值时才需设定。",
+
+  RADIUS_email_suffix => "在 RADIUS 使用者名称后自动加上的字串，以形成电子邮件地址。<br>" _
+                         "只有在" _
+                         "<a href=\"?section=auth#user_verify_class_desc\"> " _
+                         "<code>user_verify_class</code> 参数</a>包含 " _
+                         "<code>RADIUS</code> 值时才需设定。"
+  }
+%]

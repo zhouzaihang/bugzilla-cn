@@ -1,0 +1,80 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE
+  # none
+  #
+  # Param("maintainer") is used to display the maintainer's email.
+  # Param("emailsuffix") is used to pre-fill the email field.
+  #%]
+
+[% title = BLOCK %]
+  
+[% END %]
+
+[% PROCESS global/header.html.tmpl
+           title = "建立一个新的 $terms.Bugzilla 帐号"
+%]
+
+<p>
+  要建立一个[% terms.Bugzilla %]帐号，你只要输入：<br>
+[% IF Param('emailsuffix') == '' %]
+  一个有效的电子邮件地址。
+[% ELSE %]
+  一个帐号名称。此一帐号名称后面加上 [% Param('emailsuffix') %] 时可以对应到你的电子邮件地址。
+[% END %]
+  会寄一封用来建立帐号的认证信到此一电子邮件地址。
+  <br><b>在你收到电子邮件之前，你将无法登入。</b>
+  <br>如果没有在合理的时间范围内收到，你可以用电子邮件连络此一  Bugzilla 的管理者： <a
+  href="mailto:[% Param("maintainer") %]">[% Param("maintainer") %]</a> 。
+</p>
+
+[% IF Param('allowemailchange') %]
+<p>
+  如果你已经有帐号了，并且想要改变你的
+  [% IF Param('emailsuffix') == '' %]
+    电子邮件地址，
+  [% ELSE %]
+    帐号，
+  [% END %]
+  可以在登入后在「偏好设定」页面变更。
+</p>
+[% END %]
+
+<p>
+  当需要回报一个新的 [% terms.bug %] ，或者对现有的 [% terms.bug %] 留下意见时，需要一个帐号。
+  当后续有需要更多资讯时，可以联络上你。
+  这也让其他使用者可以清楚了解是谁对 [%terms.bug %] 做了改变或留下意见。
+  <b>注意：你的电子邮件地址将<em>不会</em>显示给访客。只有注册使用者才能看见它。</b>
+</p>
+
+[% IF Param('createemailregexp') == '.*' && Param('emailsuffix') == '' %]
+<p>
+  <b>隐私权提醒：</b>
+  <br>[% terms.Bugzilla %] 是一个开放的 [% terms.bug %] 追踪系统。
+  <br>在大多数 [% terms.bugs %] 的活动，包括电子邮件地址，都是可被注册使用者浏览的。
+  <br>我们<b>建议</b>使用次要的电子邮件，或者使用免费的网路电子邮件服务（例如 Gmail、Yahoo、Hotmail 等等），以避免你的主要电子邮件收到垃圾邮件。
+</p>
+[% END %]
+
+<form id="account_creation_form" method="get" action="createaccount.cgi">
+  <span class="label">
+    [% IF Param('emailsuffix') %]
+      帐号：
+    [% ELSE %]
+      电子邮件地址：
+    [% END %]
+  </span>
+  <input size="35" id="login" name="login" autofocus
+         [%- ' type="email"' UNLESS Param('emailsuffix') %] required>
+  [% Param('emailsuffix') FILTER html %]
+  <input type="hidden" id="token" name="token" value="[% issue_hash_token(['create_account']) FILTER html %]">
+  <input type="submit" id="send" value="送出">
+</form>
+
+[% PROCESS global/footer.html.tmpl %]

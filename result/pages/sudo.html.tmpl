@@ -1,0 +1,41 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[% INCLUDE global/header.html.tmpl title = "sudo ：扮演其他使用者" %]
+
+<p>
+  Bugzilla 拥有让一个使用者扮演其他使用者的功能，通常称为
+  <i>sudo</i> ，这样在扮演其他使用者时可以拥有适当的权限。
+</p>
+
+<p>
+  当进行 sudo 时， Bugzilla 将会视同被扮演的使用者进行各项动作。这对测试十分有用，此外当被扮演的使用者无法亲自操作时，也可利用此功能进行紧急处理。被扮演的使用者在 sudo 开始时，会收到一封来自 [% terms.Bugzilla %] 的通知信，但不会被告知其他细节。
+</p>
+
+<p>
+  如要使用此功能，你必须是适当群组的成员。所有的管理者都已预设为可使用此功能。其他使用者，以及其他群组的成员，可以在个别的情况下，给予此功能的权限。若要要求此功能的权限，请连络管理者：
+  <a href="mailto:[% Param("maintainer") %]"> [%- Param("maintainer") %]</a> 。
+</p>
+
+<p>
+  如果你不想要被 sudo ，你应该连络管理者，看看有无这个可能。可以使用 sudo 功能的人已被自动保护。
+</p>
+
+<p id="message">
+  [% IF user.in_group('bz_sudoers') %]
+    你是 <b>bz_sudoers</b> 群组的成员之一。你可以使用此功能，对其他使用者进行 sudo 。
+  [% ELSE %]
+    你并非适当群组的成员。你无法使用此功能。
+  [% END %]
+  [% IF user.in_group('bz_sudo_protect') %]
+    <br>
+    你是 <b>bz_sudo_protect</b> 群组的成员之一。其他使用者无法使用此功能对你进行 sudo 。
+  [% END %]
+</p>
+
+[% INCLUDE global/footer.html.tmpl %]

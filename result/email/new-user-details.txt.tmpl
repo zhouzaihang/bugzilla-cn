@@ -1,0 +1,30 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # new_user: The Bugzilla::User object of the user being created
+  #%]
+
+From: [% Param('mailfrom') %]
+To: [% new_user.email %]
+Subject: [% terms.Bugzilla %]: 已建立新帐号
+X-Bugzilla-Type: admin
+
+[此电子邮件已自动产生]
+
+一个新的 [% terms.Bugzilla %] 使用者帐号已于 [% urlbase %] 建立：
+
+帐号： [% new_user.login %]
+[% IF new_user.realname %]
+真实姓名： [% new_user.realname %]
+[% END %]
+
+为了安全性考量，我们没有在这封电子邮件中列出你的密码。
+如果你没有透过其他方式得到你的密码，你可以使用「忘记密码」的连结来重设一组新的密码。
+
+如果你对于你的帐号有任何问题，请联络 [% Param('maintainer') %] 。

@@ -1,0 +1,296 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[% san_message = BLOCK %]
+  [% IF san_tag == "checks_start" %]
+    执行健全度测试中…
+
+  [% ELSIF san_tag == "checks_completed" %]
+    健全度测试已执行完成。
+
+  [% ELSIF san_tag == "attachment_reference_deletion_start" %]
+    正在删除所有连到已删除附件的参照…
+
+  [% ELSIF san_tag == "attachment_reference_deletion_end" %]
+    已删除所有连到已删除附件的参照。
+
+  [% ELSIF san_tag == "bug_check_alert" %]
+    [% errortext FILTER html %]：[% INCLUDE bug_list badbugs = badbugs %]
+
+  [% ELSIF san_tag == "bug_check_repair" %]
+    <a href="sanitycheck.cgi?[% param FILTER uri %]=1&amp;token=
+       [%- issue_hash_token(['sanitycheck']) FILTER uri %]">[% text FILTER html %]</a>。
+
+  [% ELSIF san_tag == "bug_check_creation_date" %]
+    检查没有建立日期的 [% terms.bugs %] 中…（没有建立日期将会使 [% terms.bugs %] 无法检视。）
+
+  [% ELSIF san_tag == "bug_check_creation_date_error_text" %]
+    没有建立日期的 [% terms.Bugs %]
+
+  [% ELSIF san_tag == "bug_check_creation_date_repair_text" %]
+    修复没有建立日期的 [% terms.bugs %] 中…
+
+  [% ELSIF san_tag == "bug_check_bugs_fulltext" %]
+    检查没有全文字搜寻的 [% terms.bugs %] 回报。
+
+  [% ELSIF san_tag == "bug_check_bugs_fulltext_error_text" %]
+    没有全文字搜寻的 [% terms.Bugs %] 回报
+
+  [% ELSIF san_tag == "bug_check_bugs_fulltext_repair_text" %]
+    修复缺少全文字搜寻的这些 [% terms.bugs %] 回报
+
+  [% ELSIF san_tag == "bug_check_res_dupl" %]
+    检查解决方案中标记为重复的 [% terms.bugs %] …
+
+  [% ELSIF san_tag == "bug_check_res_dupl_error_text" %]
+    在标记为重复的 [% terms.Bugs %] 列表中找到并非被标记为重复的 [% terms.bugs %]
+
+  [% ELSIF san_tag == "bug_check_res_dupl_error_text2" %]
+    找到标记为重复的 [% terms.Bugs %] ，但并不在标记为重复的 [% terms.bugs %] 列表中
+
+  [% ELSIF san_tag == "bug_check_status_res" %]
+    检查状态／解决方案中…
+
+  [% ELSIF san_tag == "bug_check_status_res_error_text" %]
+    状态为开启，却有解决方案的 [% terms.Bugs %]
+
+  [% ELSIF san_tag == "bug_check_status_res_error_text2" %]
+    状态为关闭，但没有解决方案的 [% terms.Bugs %]
+
+  [% ELSIF san_tag == "bug_check_status_everconfirmed" %]
+    检查状态／是否确认中…
+
+  [% ELSIF san_tag == "bug_check_status_everconfirmed_error_text" %]
+    状态是未确认 (UNCONFIRMED) 的 [% terms.Bugs %] ，但已设定 everconfirmed 参数
+
+  [% ELSIF san_tag == "bug_check_status_everconfirmed_error_text2" %]
+    状态是已确认的 [% terms.Bugs %] ，但未设定 everconfirmed 参数
+
+  [% ELSIF san_tag == "bug_check_control_values" %]
+    检查 group_control_map 错误的数值中…
+
+  [% ELSIF san_tag == "bug_check_control_values_alert" %]
+    在 group_control_map 中找到 [% entries FILTER html %] 笔损坏的数值
+
+  [% ELSIF san_tag == "bug_check_control_values_violation" %]
+    检查违反产品群组控管的 [% terms.bugs %] 中…
+
+  [% ELSIF san_tag == "bug_check_control_values_error_text" %]
+    找到并未被产品允许的群组
+
+  [% ELSIF san_tag == "bug_check_control_values_repair_text" %]
+    允许受影响的产品使用缺少的群组
+    〔将成员控管设定为 <code>显示 (SHOWN)</code> 〕
+
+  [% ELSIF san_tag == "bug_check_control_values_error_text2" %]
+    对于产品而言，缺少必须的群组
+
+  [% ELSIF san_tag == "bug_creation_date_start" %]
+    修复缺少的 [% terms.bug %] 建立日期中…
+
+  [% ELSIF san_tag == "bug_creation_date_fixed" %]
+    已修复 [% bug_count FILTER html %] 个 [%+ terms.bugs %] 。
+
+  [% ELSIF san_tag == "bugs_fulltext_start" %]
+    现在修复 [% terms.bug %] 回报的全文字输入。
+
+  [% ELSIF san_tag == "bugs_fulltext_fixed" %]
+    已修复 [% bug_count FILTER html %] 个 [%+ terms.bugs %] 。
+
+  [% ELSIF san_tag == "bug_reference_deletion_start" %]
+    删除参照到已删除的 [% terms.bugs %] 的所有参照中…
+
+  [% ELSIF san_tag == "bug_reference_deletion_end" %]
+    已删除参照到已删除的 [% terms.bugs %] 的所有参照。
+
+  [% ELSIF san_tag == "cross_check_to" %]
+    检查参照到 [% table FILTER html %].[% field FILTER html %] 中…
+
+  [% ELSIF san_tag == "cross_check_from" %]
+    … 从 [% table FILTER html %].[% field FILTER html %] 。
+
+  [% ELSIF san_tag == "cross_check_alert" %]
+    在 [%+ table FILTER html %].[% field FILTER html %]
+    [% IF keyname %]
+      [% IF keyname == "bug_id" %]
+        ([% PROCESS bug_link bug_id = key %])
+      [% ELSE %]
+        ([% keyname FILTER html %] == '[% key FILTER html %]')
+      [% END %]
+    [% END %]
+    找到损坏的值 '[% value FILTER html %]' 。
+
+  [% ELSIF san_tag == "cross_check_attachment_has_references" %]
+    <a href="sanitycheck.cgi?remove_invalid_attach_references=1&amp;token=
+       [%- issue_hash_token(['sanitycheck']) FILTER uri %]">
+      删除参照到不存在的附件的参照。</a>
+
+  [% ELSIF san_tag == "cross_check_bug_has_references" %]
+    <a href="sanitycheck.cgi?remove_invalid_bug_references=1&amp;token=
+       [%- issue_hash_token(['sanitycheck']) FILTER uri %]">
+      删除参照到不存在的 [% terms.bugs %] 的参照。</a>
+
+  [% ELSIF san_tag == "double_cross_check_to" %]
+    检查对应到 [% table FILTER html %].[% field1 FILTER html %] /
+    [%+ table FILTER html %].[% field2 FILTER html %] 的参照…
+
+  [% ELSIF san_tag == "double_cross_check_from" %]
+    … 从 [% table FILTER html %].[% field1 FILTER html %] /
+    [%+ table FILTER html %].[% field2 FILTER html %]。
+
+  [% ELSIF san_tag == "double_cross_check_alert" %]
+    在 [% table FILTER html %].[% field1 FILTER html %] /
+    [%+ table FILTER html %].[% field2 FILTER html %]
+    中找到错误的数值 '[% value1 FILTER html %]' 、 '[% value2 FILTER html %]'。
+    [% IF keyname %]
+      [% IF keyname == "bug_id" %]
+        ([% PROCESS bug_link bug_id = key %])
+      [% ELSE %]
+        ([% keyname FILTER html %] == '[% key FILTER html %]')
+      [% END %]
+    [% END %]
+
+  [% ELSIF san_tag == "everconfirmed_start" %]
+    修正 "everconfirmed" 中…
+
+  [% ELSIF san_tag == "everconfirmed_end" %]
+    已修正 "everconfirmed" 。
+
+  [% ELSIF san_tag == "flag_check_start" %]
+    检查产品及子产品中的错误旗标中…
+
+  [% ELSIF san_tag == "flag_deletion_start" %]
+    删除无效的旗标中…
+
+  [% ELSIF san_tag == "flag_deletion_end" %]
+    已删除无效的旗标。
+
+  [% ELSIF san_tag == "flag_alert" %]
+    [%+ PROCESS bug_link bug_id = bug_id %]
+    [% IF attach_id %]附件 [% attach_id FILTER html %][% END %]
+    的旗标[% flag_id FILTER html %]无效。
+
+  [% ELSIF san_tag == "flag_fix" %]
+    <a href="sanitycheck.cgi?remove_invalid_flags=1&amp;token=
+       [%- issue_hash_token(['sanitycheck']) FILTER uri %]">
+      点选此处删除无效的旗标</a>
+
+  [% ELSIF san_tag == "group_control_map_entries_creation" %]
+    现在替已合并但缺少成员群组控管的产品／群组，建立 <code>显示 (SHOWN)</code>
+    的成员群组控管。
+
+  [% ELSIF san_tag == "group_control_map_entries_update" %]
+    将在产品 <em>[% product_name FILTER html %]</em> 中
+    群组 <em>[% group_name FILTER html %]</em>
+    的群组控管由 <code>不适用 (NA) / <em>xxx</em></code>
+    更新为 <code>显示 (SHOWN) / <em>xxx</em></code>。
+
+  [% ELSIF san_tag == "group_control_map_entries_generation" %]
+    在产品 <em>[% product_name FILTER html %]</em> 中
+    对群组 <em>[% group_name FILTER html %]</em>
+    产生群组控管 <code>显示 (SHOWN) / 不适用 (NA)</code>。
+
+  [% ELSIF san_tag == "keyword_check_invalid_id" %]
+    在关键字表格中找到伪造的关键字编号 [% id FILTER html %] 。
+
+  [% ELSIF san_tag == "keyword_check_duplicated_ids" %]
+    在 [% PROCESS bug_link bug_id = id %] 中找到重复的关键字编号。
+
+  [% ELSIF san_tag == "profile_login_start" %]
+    检查帐号中…
+
+  [% ELSIF san_tag == "product_alert" %]
+    产品 <a href="editproducts.cgi?product=[% name FILTER html%]">
+    [%- name FILTER html %]</a> 没有子产品或没有版本。
+
+  [% ELSIF san_tag == "product_check_start" %]
+    检产没有子产品或版本的产品。
+
+  [% ELSIF san_tag == "profile_login_alert" %]
+    帐号的电子邮件地址已损坏， id=[% id FILTER html %] ，
+    &lt;[% email FILTER html %]&gt;。
+
+  [% ELSIF san_tag == "repair_bugs" %]
+    修复这些 [% terms.bugs %] 。
+
+  [% ELSIF san_tag == "send_bugmail_start" %]
+    尝试寄出尚未寄出的信件…
+
+  [% ELSIF san_tag == "send_bugmail_status" %]
+    有 [% bug_count FILTER html %] 个 [%+ terms.bugs %] 存在可能尚未寄出的信件。
+
+  [% ELSIF san_tag == "send_bugmail_end" %]
+    尚未寄出的信件已全数寄出。
+
+  [% ELSIF san_tag == "unsent_bugmail_check" %]
+    检查未寄出的信件…
+
+  [% ELSIF san_tag == "unsent_bugmail_alert" %]
+    已做出变更，但超过半小时没有寄信通知的 [% terms.Bugs %] ：
+    [% INCLUDE bug_list badbugs = badbugs %]
+
+  [% ELSIF san_tag == "unsent_bugmail_fix" %]
+    <a href="sanitycheck.cgi?rescanallBugMail=1&amp;token=
+       [%- issue_hash_token(['sanitycheck']) FILTER uri %]">寄出这些信件</a>。
+
+  [% ELSIF san_tag == "whines_obsolete_target_deletion_start" %]
+    移除订阅中不存在的使用者／群组中。
+
+  [% ELSIF san_tag == "whines_obsolete_target_deletion_end" %]
+    已自订阅中移除不存在的使用者／群组。
+
+  [% ELSIF san_tag == "whines_obsolete_target_start" %]
+    检查订阅中是否有不存在的使用者／群组。
+
+  [% ELSIF san_tag == "whines_obsolete_target_alert" %]
+    [% FOREACH schedule = schedules %]
+      订阅计画 [% schedule.0 FILTER html %] 有不存在的
+      [% (type == constants.MAILTO_USER) ? "使用者" : "群组" FILTER html %]
+      [%+ schedule.1 FILTER html %]<br>
+    [% END %]
+
+  [% ELSIF san_tag == "whines_obsolete_target_fix" %]
+    <a href="sanitycheck.cgi?remove_old_whine_targets=1&amp;token=
+       [%- issue_hash_token(['sanitycheck']) FILTER uri %]">
+      点选此处移除旧的使用者／群组</a>
+
+  [% ELSE %]
+    [% message = Hook.process("statuses") %]
+
+    [% IF message %]
+      [% message FILTER none %]
+    [% ELSE %]
+      找不到对应 <code>[% san_tag FILTER html %]</code> 的讯息字串。请寄电子邮件到
+      [% Prarm("maintainer") %] 说明得到此一讯息的步骤。
+    [% END %]
+  [% END %]
+[% END %]
+
+[% USE Bugzilla %]
+[% IF Bugzilla.usage_mode == constants.USAGE_MODE_CMDLINE %]
+  [% san_message FILTER none %]
+[% ELSE %]
+  [%# Avoid the txt filter in message.txt.tmpl. %]
+  [% san_message FILTER html %]
+[% END %]
+
+[% BLOCK bug_list %]
+  [% FOREACH bug_id = badbugs %]
+    [%# Do not use FILTER bug_link() here, because bug_link() calls get_text()
+      # which itself calls this template again, generating a recursion error.
+      # I doubt having a tooltip with the bug status and summary is so
+      # important here anyway, as you can click the "(as buglist)" link. %]
+    <a href="show_bug.cgi?id=[% bug_id FILTER uri %]">[% bug_id FILTER html %]</a>
+    [% ", " IF !loop.last %]
+  [% END %]
+  （<a href="buglist.cgi?bug_id=[% badbugs.join(",") FILTER uri %]">显示为 [% terms.bug %] 清单</a>）。
+[% END %]
+
+[% BLOCK bug_link %]
+  <a href="show_bug.cgi?id=[% bug_id FILTER uri %]">[% terms.bug %] [%+ bug_id FILTER html %]</a>
+[% END %]

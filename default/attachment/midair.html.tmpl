@@ -1,0 +1,64 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # operations: array; bug activity since the user last displayed the attachment form,
+  #   used by bug/activity/table.html.tmpl to display recent changes that will
+  #   be overwritten if the user submits these changes.  See that template
+  #   for further documentation.
+  # attachment: object; the attachment being changed.
+  #%]
+
+[%# The global Bugzilla->cgi object is used to obtain form variable values. %]
+[% USE Bugzilla %]
+[% cgi = Bugzilla.cgi %]
+
+[% PROCESS global/header.html.tmpl title = "Mid-air collision!" %]
+
+<h1>偵測到發生衝突！</h1>
+
+<p>
+  在你嘗試對
+  [% "$terms.bug $attachment.bug_id" FILTER bug_link(attachment.bug_id) FILTER none %]
+  的<a href="attachment.cgi?id=[% attachment.id %]&amp;action=edit">附件 [% attachment.id %]</a>
+  做變更的同時，有其他人已做出變更。<br>
+  已做出的變更為：
+</p>
+
+<p>
+  [% PROCESS "bug/activity/table.html.tmpl" incomplete_data=0 %]
+</p>
+
+[% IF cgi.param("comment") %]
+<p>
+  你原本的意見是：<br>
+  <blockquote><pre class="bz_comment_text">
+    [% cgi.param("comment") FILTER html %]
+  </pre></blockquote>
+</p>
+[% END %]
+
+<p>
+你有下列選擇可以選：
+</p>
+
+<ul>
+  <li>
+    <form method="post" action="attachment.cgi">
+      [% PROCESS "global/hidden-fields.html.tmpl" exclude="^Bugzilla_(login|password)$" %]
+      <input type="submit" id="process" value="仍舊送出我做的變更">
+        這將會覆寫以上的變更。
+    </form>
+  </li>
+  <li>
+    刪除我做的變更，並<a href="attachment.cgi?id=[% attachment.id %]&amp;action=edit">重新瀏覽附件
+    [% attachment.id %]</a>
+  </li>
+</ul>
+
+[% PROCESS global/footer.html.tmpl %]

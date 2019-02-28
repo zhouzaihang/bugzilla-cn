@@ -1,0 +1,54 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # none
+  #%]
+
+[% javascript = BLOCK %]
+  [% INCLUDE "admin/custom_fields/cf-js.js.tmpl" %]
+[% END %]
+
+[% PROCESS global/header.html.tmpl
+           title = "新增自订栏位"
+           onload = "document.getElementById('new_bugmail').disabled = true;"
+           javascript_urls = [ 'js/util.js' ]
+           doc_section = "administering/custom-fields.html#adding-custom-fields"
+           style_urls = ['skins/standard/admin.css']
+%]
+
+[%# set initial editability of fields such as Reverse Relationship Description %]
+<script type="text/javascript">
+  YAHOO.util.Event.onDOMReady(function() {onChangeType(document.getElementById('type'))});
+</script>
+
+<p>
+  新增自订栏位可能会使得 Bugzilla 变得非常复杂。许多 Bugzilla
+  的新手管理者一开始加入过多自订栏位，然后他们的使用者就开始抱怨使用介面「过于复杂」。<br>
+  请在新增任何自订栏位前先考虑清楚。有可能 Bugzilla
+  本身就有这个功能，只是你没有将该功能启用而已。
+</p>
+
+<ul>
+  <li>自订栏位的名称必须以 "cf_" 做为开头，以和原本的栏位做区隔。如果你忽略在自订栏位名称开头加上 "cf_" 的话，系统将会自动加上。</li>
+  <li>「描述」是一个用来描述栏位，而且非常短的字串。将会在使用者介面使用它来当作这个自订栏位的标籤。</li>
+</ul>
+
+<form id="add_field" action="editfields.cgi" method="GET">
+  [% PROCESS "admin/custom_fields/edit-common.html.tmpl" %]
+
+  <input type="hidden" name="action" value="new">
+  <input type="hidden" name="token" value="[% token FILTER html %]">
+  <input type="submit" id="create" value="新增">
+</form>
+
+<p>
+  <a href="editfields.cgi">回到现有的自订栏位列表</a>
+</p>
+
+[% PROCESS global/footer.html.tmpl %]

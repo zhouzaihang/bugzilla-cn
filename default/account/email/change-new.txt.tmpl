@@ -1,0 +1,25 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+From: [% Param('mailfrom') %]
+To: [% newemailaddress %]
+Subject: [% terms.Bugzilla %] 要求變更電子郵件地址
+X-Bugzilla-Type: admin
+
+[%+ terms.Bugzilla %] 收到將使用 [% user.email %] 註冊的帳號變更為使用此一電子郵件地址註冊的要求。
+
+如要確認變更，請點選以下網址：
+
+[%+ urlbase %]token.cgi?t=[% token FILTER uri %]&a=cfmem
+
+如果你並非提出此項要求的人，或者你想要取消此項要求，請點選以下網址：
+
+[%+ urlbase %]token.cgi?t=[% token FILTER uri %]&a=cxlem
+
+如果你什麼也不做，此項請求將會在 [% constants.MAX_TOKEN_AGE %] 天後
+([% expiration_ts FILTER time("%Y-%m-%d %H:%M %Z") %]) 失效。

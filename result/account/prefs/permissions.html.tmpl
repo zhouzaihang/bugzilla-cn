@@ -1,0 +1,75 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # has_bits: array of hashes. May be empty.
+  #           name => Names of the permissions the user has.
+  #           desc => Descriptions of the permissions the user has.
+  # set_bits: array of hashes. May be empty.
+  #           name => Names of the permissions the user can set for
+  #           other people.
+  #           desc => Descriptions of the permissions the user can set for
+  #           other people.
+  #%]
+
+    <div id="permissions">
+      [% IF has_bits.size %]
+        <p>你的帐号拥有以下的权限：</p>
+
+        <table>
+          [% FOREACH bit_description = has_bits %]
+            <tr>
+              <td>[% bit_description.name FILTER html %]</td>
+              <td>[% bit_description.desc FILTER html_light %]</td>
+            </tr>
+          [% END %]
+        </table>
+
+        [% FOREACH privs = ["editcomponents", "canconfirm", "editbugs"] %]
+          [% SET products = ${"local_$privs"} %]
+          [% IF products && products.size %]
+            <p>
+              你也拥有下列产品的区域 '[% privs FILTER html %]' 权限：
+            </p>
+            <ul>
+              [% FOREACH product = products %]
+                <li>[% product.name FILTER html %]</li>
+              [% END %]
+            </ul>
+          [% END %]
+        [% END %]
+
+      [% ELSE %]
+        <p>你的帐号没有被设定任何权限。</p>
+      [% END %]
+
+      [% IF user.in_group('editusers') %]
+        <p>
+          你拥有 editusers 的权限。你可以开启或关闭所有使用者的所有权限。
+        </p>
+      [% ELSIF set_bits.size %]
+        <p>
+          你可以开启或关闭<a href="editusers.cgi">其他使用者</a>的下列权限：
+        </p>
+        
+        <table>
+          [% FOREACH bit_description = set_bits %]
+            <tr>
+              <td>[% bit_description.name FILTER html %]</td>
+              <td>[% bit_description.desc FILTER html_light %]</td>
+            </tr>
+          [% END %]
+        </table>
+      [% END %]
+
+      [% IF user.in_group('bz_sudoers') %]
+        <p>
+          你是 <b>bz_sudoers</b> 群组的成员，因此你可以<a href="relogin.cgi?action=prepare-sudo">以其他使用者身份进行操作</a>。
+        </p>
+      [% END %]
+    </div>

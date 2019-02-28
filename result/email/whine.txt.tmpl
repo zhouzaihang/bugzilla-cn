@@ -1,0 +1,49 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+From: [% Param("mailfrom") %]
+To: [% email %][% Param("emailsuffix") %]
+Subject: [% terms.Bugzilla %] [% terms.bug %] 清单需要你的注意。
+X-Bugzilla-Type: whine
+
+[此电子邮件为系统自动产生。]
+
+在 [% terms.Bugzilla %] [% terms.bug %] 追踪系统 ([% urlbase %]) 中，
+有一个以上的 [% terms.bugs %] 分配给你，并需要你的注意。
+
+这些 [% terms.bugs %] 都是在 [% display_value("bug_status", "CONFIRMED") %]
+的状态，并且已经超过 [% Param("whinedays") %] 天没有人处理。
+你需要查看它们，并且决定一个初始的动作。
+
+一般而言，这代表以下三种状况其中之一：
+
+(1) 你觉得这个 [% terms.bug %] 可以很快解决（例如说，
+    它是个 [% display_value("resolution", "INVALID") %] [% terms.bug %] ）。
+(2) 你觉得这个 [% terms.bug %] 不是你负责，因此你把它重新分配给别人。
+    （提示：如果你不知道要分配给谁，重新选择适合的子产品栏位，
+    并使用「将负责人重新设定为预设值」选项。
+(3) 你觉得这个 [% terms.bug %] 是你负责的，但是现在还无法解决。
+    那么就将 [% terms.bug %] 的状态设定为 [% get_status("IN_PROCESS") %] 。
+
+若要得到所有状态是 [% display_value("bug_status", "CONFIRMED") %] 的 [%+ terms.bugs %] 清单，
+你可以使用以下网址（你也可以加入书籤）：
+
+ [% urlbase %]buglist.cgi?bug_status=CONFIRMED&assigned_to=[% email %]
+
+你也可以使用一般查询页：
+[%+ urlbase %]query.cgi
+
+以下为超过 [% Param("whinedays") %] 天以上没有处理，状态为 [% display_value("bug_status", "CONFIRMED") %] ，
+并且是属于你负责的每个 [%+ terms.bugs %] 的网址。
+
+在你处理这些 [% terms.bugs %] 之前，你将会每天收到此一讯息！
+
+[% FOREACH bug = bugs %]
+ [%+ bug.summary %]
+    →  [% urlbase %]show_bug.cgi?id=[% bug.id %]
+[% END %]

@@ -1,0 +1,70 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # This template has no interface. It's a list of the available report
+  # types in Bugzilla.
+  #%]
+
+[% PROCESS global/header.html.tmpl
+  title = "报告及图表产生器"
+  doc_section = "using/reports-and-charts.html"
+  style_urls = ['skins/standard/buglist.css']
+%]
+
+<p>
+  Bugzilla 允许你以多种方式浏览及追踪 [% terms.bug %] 资料库的状态。
+</p>
+
+<h2>目前状态</h2>
+
+<ul>
+  <li id="report_search">
+    <strong><a href="query.cgi">搜寻</a></strong> - 列出一组 [% terms.bugs %] 。
+  </li>
+  <li id="report_tabular">
+    <strong>
+      <a href="query.cgi?format=report-table">表格式报告</a>
+    </strong> - 以 HTML 或 CSV 格式，产生一、二或三度空间的 [% terms.bug %] 数目表格。
+  </li>
+  [% IF feature_enabled('graphical_reports') %]
+    <li id="report_graphical">
+      <strong>
+        <a href="query.cgi?format=report-graph">图形式报告</a>
+      </strong> - 折线图、长条图及圆饼图。
+    </li>
+  [% END %]
+  <li id="report_duplicates">
+    <strong><a href="duplicates.cgi">重复报告</a></strong> -
+    列出最常被回报的 [% terms.bugs %] 。
+  </li>
+  [% Hook.process('current_state') %]
+</ul>
+
+[% IF feature_enabled('new_charts') OR feature_enabled('old_charts') %]
+  <h2>过去的变更</h2>
+
+  <ul>
+  [% IF feature_enabled('old_charts') %]
+    <li id="old_charts">
+      <strong><a href="reports.cgi">旧的图表</a></strong> -
+      以资料库中每一个产品为单位，绘出时间、 [% terms.bugs %] 的状态和／或解决方案。
+    </li>
+  [% END %]
+  [% IF feature_enabled('new_charts') AND user.in_group(Param("chartgroup")) %]
+    <li id="new_charts">
+      <strong><a href="chart.cgi">新的图表</a></strong> -
+      以时间为单位，绘出任何搜寻。功能更为强大。
+    </li>
+  [% END %]
+</ul>
+[% END %]
+
+[% Hook.process('end') %]
+
+[% PROCESS global/footer.html.tmpl %]

@@ -1,0 +1,149 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[% PROCESS "global/js-products.html.tmpl" %]
+
+[% PROCESS global/header.html.tmpl
+  title = '管理旗标类型'
+  style_urls = ['skins/standard/admin.css']
+  onload="var f = document.flagtype_form; selectProduct(f.product, f.component, '__全部__');"
+  javascript_urls=["js/productform.js"]
+  doc_section = "administering/flags.html"
+%]
+
+<p>
+  旗标是用来识别 [% terms.bug %] 或附件是否已被同意或被拒绝某些状态的一种标记。在使用者介面中，旗标以名称和状态符号显示：
+  "+" 代表同意， "-" 代表拒绝， "?" 代表使用者已要求设定旗标的状态。
+</p>
+
+<p>
+  例如，你可以定义一种状态叫 "review" ，让使用者可以对浏览附件做出要求。当 patch 写作者要求浏览时，
+  "review?" 字串就会出现在附件上。而当 patch 浏览者浏览该 patch 时，就会依 patch 是否通过浏览的条件，显示为
+  "review+" 或 "review-" 。
+</p>
+
+<p>
+  你可以对特定的产品以及子产品限制旗标类型的清单。如果选择没有子产品的产品，那么将只显示属于产品中至少一项子产品的旗标类型。
+</p>
+
+<form id="flagtype_form" name="flagtype_form" action="editflagtypes.cgi" method="get">
+  <div class="inline">
+    <label for="product">产品：</label>
+    [% INCLUDE "global/product-select.html.tmpl"
+      id       => "product"
+      name     => "product"
+      add      => "___任何__"
+      onchange => "selectProduct(this, this.form.component, '__任何__');"
+      products => products
+    %]
+  </div>
+
+  <div class="inline">
+    <label for="component">子产品：</label>
+    <select name="component">
+      <option value="">__任何__</option>
+      [% FOREACH comp = components %]
+        <option value="[% comp FILTER html %]"
+          [%+ 'selected="selected"' IF selected_component == comp %]>
+          [%- comp FILTER html %]</option>
+      [% END %]
+    </select>
+  </div>
+
+  <div class="inline">
+    <input type="checkbox" id="show_flag_counts" name="show_flag_counts" value="1"
+      [%+ 'checked="checked"' IF show_flag_counts %]>
+    <label for="show_flag_counts">显示旗标数</label>
+  </div>
+
+  <input type="submit" id="submit" value="筛选">
+</form>
+
+<h3>[% terms.Bugs %] 的旗标类型</h3>
+
+[% PROCESS display_flag_types types=bug_types types_id='bugs' %]
+
+<p>
+  <a href="editflagtypes.cgi?action=enter&amp;target_type=bug">新增 [% terms.Bugs %] 的旗标类型</a>
+</p>
+
+<h3>附件的旗标类型</h3>
+
+[% PROCESS display_flag_types types=attachment_types types_id='attachments' %]
+
+<p>
+  <a href="editflagtypes.cgi?action=enter&amp;target_type=attachment">新增附件的旗标类型</a>
+</p>
+
+[% PROCESS global/footer.html.tmpl %]
+
+
+[% BLOCK display_flag_types %]
+  <table id="flag_types_[% types_id FILTER html %]">
+
+    <tr class="column_header">
+      <th>编辑名称…</th>
+      <th>描述</th>
+      <th>排序键</th>
+      <th>性质</th>
+      <th>同意的群组</th>
+      <th>要求的群组</th>
+      [% IF show_flag_counts %]
+        <th>旗标</th>
+        [%# Note to translators: translate the strings in quotes only. %]
+        [% state_desc = {granted = '同意' denied = '拒绝' pending = '未决定'} %]
+      [% END %]
+      <th>动作</th>
+    </tr>
+
+    [% FOREACH type = types %]
+
+      <tr class="[% IF type.is_active %]active[% ELSE %]inactive[% END %]">
+        <td class="nowrap">
+          <a href="editflagtypes.cgi?action=edit&amp;id=[% type.id %]">[% type.name FILTER html %]</a>
+        </td>
+        <td>[% type.description FILTER html %]</td>
+        <td class="right">[% type.sortkey FILTER html %]</td>
+        <td>
+          [% IF type.is_requestable %]
+            <span class="requestable">可以要求</span>
+          [% END %]
+          [% IF type.is_requestable && type.is_requesteeble %]
+            <span class="requesteeble">（特定要求）</span>
+          [% END %]
+          [% IF type.is_multiplicable %]
+            <span class="multiplicable">多重种类</span>
+          [% END %]
+        </td>
+        <td>[% IF type.grant_group %][% type.grant_group.name FILTER html %][% END %]</td>
+        <td>[% IF type.request_group %][% type.request_group.name FILTER html %][% END %]</td>
+        [% IF show_flag_counts %]
+          <td>
+            [% FOREACH state = ['granted', 'pending', 'denied'] %]
+              [% bug_list = bug_lists.${type.id}.$state || [] %]
+              [% IF bug_list.size %]
+                <a href="buglist.cgi?bug_id=[% bug_list.unique.nsort.join(",") FILTER html %]">
+                  [% bug_list.size FILTER html %] 项[% state_desc.$state FILTER html %]
+                </a>
+                <br>
+              [% ELSE %]
+                没有[% state_desc.$state FILTER html %]<br>
+              [% END %]
+            [% END %]
+          </td>
+        [% END %]
+        <td>
+          <a href="editflagtypes.cgi?action=copy&amp;id=[% type.id %]">复制</a>
+          | <a href="editflagtypes.cgi?action=confirmdelete&amp;id=[% type.id %]">删除</a>
+        </td>
+      </tr>
+
+    [% END %]
+
+  </table>
+[% END %]

@@ -1,0 +1,123 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # comp: object; Bugzilla::Component object representing the component the
+  #               user wants to delete.
+  # product: object; Bugzilla::Product object representing the product to
+  #               which the component belongs.
+  #%]
+
+[% title = BLOCK %]自 '[% product.name FILTER html %]' 产品中删除子产品 '[% comp.name FILTER html %]'
+  [% END %]
+
+[% PROCESS global/header.html.tmpl
+  title = title
+  style_urls = ['skins/standard/admin.css']
+%]
+
+<table id="admin_table">
+  <tr class="column_header">
+    <th>栏位</th>
+    <th>值</th>
+  </tr>
+  <tr>
+    <td>子产品</td>
+    <td>[% comp.name FILTER html %]</td>
+  </tr>
+  <tr>
+    <td>子产品描述</td>
+    <td>[% comp.description FILTER html_light %]</td>
+  </tr>
+  <tr>
+    <td>预设的负责人</td>
+    <td>[% comp.default_assignee.login FILTER html %]</td>
+  </tr>
+
+  [% IF Param('useqacontact') %]
+    <tr>
+      <td>预设的 QA 连络人</td>
+      <td>[% comp.default_qa_contact.login FILTER html %]</td>
+    </tr>
+  [% END %]
+
+  <tr>
+    <td>所属产品别</td>
+    <td>[% product.name FILTER html %]</td>
+  </tr>
+
+  [% IF product.description %]
+    <tr>
+      <td>产品描述</td>
+      <td>[% product.description FILTER html_light %]</td>
+    </tr>
+  [% END %]
+
+  [% IF Param('usetargetmilestone') %]
+    <tr>
+      <td>产品里程碑网址</td>
+      <td>
+        <a href="[% product.milestone_url FILTER html %]">
+          [% product.milestone_url FILTER html %]</a>
+      </td>
+    </tr>
+  [% END %]
+
+  <tr>
+    <td>开启回报 [% terms.bugs %] 功能</td>
+    <td>[% IF product.is_active && comp.isactive %]是[% ELSE %]否[% END %]</td>
+  </tr>
+  <tr>
+    <td>[% terms.Bugs %]</td>
+    <td>
+      [% IF comp.bug_count %]
+        <a title="列出子产品 '[% comp.name FILTER html %]' 的 [% terms.bugs %]"
+           href="buglist.cgi?component=[% comp.name FILTER uri %]&amp;product=
+                 [%- product.name FILTER uri %]">[% comp.bug_count %]</a>
+      [% ELSE %]
+        无
+      [% END %]
+    </td>
+  </tr>
+</table>
+
+<h2>确认</h2>
+
+[% IF comp.bug_count %]
+
+  [% IF !Param("allowbugdeletion") %]
+    <p class="confirmation">
+      很抱歉，此子产品中还有 [% comp.bug_count %] 个 [%+ terms.bug %]
+      等待处理。你必须将它[% '们' IF comp.bug_count > 1 %]分配到其他子产品之后，才能删除此子产品。
+    </p>
+  [% ELSE %]
+    <p class="confirmation">
+      此子产品中有 [% comp.bug_count %] 个已输入的 [%+ terms.bug %] ！
+      当你删除此子产品时，<b>所有</b>已储存的 [% terms.bug %] 和它们的历史资讯也都会被删除。
+    </p>
+  [% END %]
+
+[% END %]
+
+[% IF comp.bug_count == 0 || Param('allowbugdeletion') %]
+
+  <p>你确定要删除此一子产品吗？</p>
+
+  <form method="post" action="editcomponents.cgi">
+  <input type="submit" id="delete" value="是的，删除">
+  <input type="hidden" name="action" value="delete">
+  <input type="hidden" name="product" value="[% product.name FILTER html %]">
+  <input type="hidden" name="component" value="[% comp.name FILTER html %]">
+  <input type="hidden" name="token" value="[% token FILTER html %]">
+  </form>
+
+[% END %]
+
+[% PROCESS admin/components/footer.html.tmpl %]
+
+[% PROCESS global/footer.html.tmpl %]

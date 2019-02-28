@@ -1,0 +1,903 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# This is a list of all the possible messages. Please keep them in
+  # alphabetical order by message tag, and leave a blank line between messages.
+  #%]
+
+[% message_tag = message %]
+
+[% message = BLOCK %]
+  [% IF    message_tag == "account_created" %]
+    已成功建立帐号 [% otheruser.login FILTER html %] 。
+    [% IF groups.size %]
+      若要编辑群组设定，使用以下的表单。
+    [% END %]
+
+  [% ELSIF message_tag == "account_creation_canceled" %]
+    [% title = "取消建立帐号" %]
+    已取消建立使用者帐号 [% account FILTER html %] 。
+
+  [% ELSIF message_tag == "account_updated" %]
+    [% IF changes.size %]
+      [% title = "已更新使用者 $loginold" %]
+      已对使用者 [%+ loginold FILTER html %] 做出下列变更：
+      <ul>
+        [% FOREACH field = changes.keys %]
+          <li>
+            [% IF    field == 'login_name' %]
+              帐号已变更为 [% otheruser.login FILTER html %] 。
+            [% ELSIF field == 'realname' %]
+              真实姓名已更新。
+            [% ELSIF field == 'cryptpassword' %]
+              已设定新密码。
+            [% ELSIF field == 'disabledtext' %]
+              已修改「无法使用此帐号登入」文字。
+            [% ELSIF field == 'is_enabled' %]
+              已[% otheruser.is_enabled ? '可' : '无法' %]使用此帐号登入。
+            [% ELSIF field == 'extern_id' %]
+              已修改使用者的外部登入帐号。
+            [% ELSIF field == 'disable_mail' %]
+              [% IF otheruser.email_disabled %]
+                [% terms.Bug %] 通知信已停用。
+              [% ELSE %]
+                [% terms.Bug %] 通知信已启用。
+              [% END %]
+            [% ELSIF field == 'groups' %]
+              [% IF changes.groups.1.size %]
+                已新增该帐号至下列群组：
+                [%+ changes.groups.1.join(', ') FILTER html %]
+              [% END %]
+              [% IF changes.groups.0.size %]
+                已将该帐号自下列群组中删除：
+                [%+ changes.groups.0.join(', ') FILTER html %]
+              [% END %]
+            [% ELSIF field == 'bless_groups' %]
+              [% IF changes.bless_groups.1.size %]
+                该帐号已获得对
+                [%+ changes.bless_groups.1.join(', ') FILTER html %]
+                群组 bless （在群组中新增成员）的权限。
+              [% END %]
+              [% IF changes.bless_groups.0.size %]
+                该帐号对
+                [%+ changes.bless_groups.0.join(', ') FILTER html %]
+                群组 bless （在群组中新增成员）的权限已被拒绝。
+              [% END %]
+            [% END %]
+          </li>
+        [% END %]
+      </ul>
+    [% ELSE %]
+      [% title = "并未对使用者 $otheruser.login 做出变更" %]
+      你并未对使用者 [%+ otheruser.login FILTER html %] 做出任何变更。
+    [% END %]
+
+  [% ELSIF message_tag == "account_deleted" %]
+    [% title = "已删除使用者 $otheruser.login" %]
+    已成功删除使用者 [% otheruser.login FILTER html %] 。
+
+  [% ELSIF message_tag == "account_disabled" %]
+    已无法使用 [% account FILTER html %] 此帐号登入，所以你无法变更他的密码。
+
+  [% ELSIF message_tag == "attachment_creation_failed" %]
+    成功建立 [% terms.bug %] ，但无法建立附件。
+    请以下方的"新增附件"连结再次新增附件。
+
+  [% ELSIF message_tag == "bug_group_description" %]
+    浏览 [% product.name FILTER html %] 产品的 [% terms.bugs %]
+
+  [% ELSIF message_tag == "buglist_adding_field" %]
+    [% title = "新增栏位至搜寻页中…" %]
+    [% link  = "如果此页面并未自动更新，请点选此连结。" %]
+
+  [% ELSIF message_tag == "buglist_new_default_query" %]
+    已新增预设搜寻。你也可以将任何搜寻的结果设为书籤。
+
+  [% ELSIF message_tag == "buglist_new_named_query" %]
+    [% title = "已建立搜寻" %]
+    已将搜寻结果储存为 <code><a
+     href="buglist.cgi?cmdtype=runnamed&amp;namedcmd=[% queryname FILTER uri %]"
+    >[% queryname FILTER html %]</a></code> 。
+
+  [% ELSIF message_tag == "buglist_query_gone" %]
+    [% title = "搜寻结果已删除" %]
+    [% link  = "复原删除" %]
+    名称是 <b>[% namedcmd FILTER html %]</b> 的搜寻结果已删除。
+
+  [% ELSIF message_tag == "buglist_sorted_by_relevance" %]
+    此清单中的[% terms.Bugs %]以关联度排序，关联度最高的在最上面。
+
+  [% ELSIF message_tag == "buglist_updated_named_query" %]
+    [% title = "已更新搜寻" %]
+    已更新你的搜寻「<code><a
+      href="buglist.cgi?cmdtype=runnamed&amp;namedcmd=[% queryname FILTER uri %]"
+      >[% queryname FILTER html %]</a></code>」。
+
+  [% ELSIF message_tag == "change_columns" %]
+    [% title = "变更栏位" %]
+    以新栏位重新显示你的搜寻中...
+    如果页面没有自动更新，请点选<a href="[% redirect_url FILTER html %]">此连结</a>。
+
+  [% ELSIF message_tag == "classification_created" %]
+    [% title = "已新增新的分类" %]
+    已新增分类 <em>[% classification.name FILTER html %]</em> 。
+
+  [% ELSIF message_tag == "classification_deleted" %]
+    [% title = "已删除分类" %]
+    已删除分类 <em>[% classification.name FILTER html %]</em> 。
+
+  [% ELSIF message_tag == "classification_updated" %]
+    [% title = "已更新分类" %]
+    [% IF changes.keys.size %]
+      已储存对分类 <em>[% classification.name FILTER html %]</em> 所做出的变更：
+      <ul>
+        [% IF changes.name.defined %]
+          <li>名称已更新为 '[% classification.name FILTER html %]'</li>
+        [% END %]
+        [% IF changes.description.defined %]
+          [% IF classification.description %]
+            <li>描述已更新为 '[% classification.description FILTER html %]'</li>
+          [% ELSE %]
+            <li>描述已删除</li>
+          [% END %]
+        [% END %]
+        [% IF changes.sortkey.defined %]
+          <li>排序键已更新为 '[% classification.sortkey FILTER html %]'</li>
+        [% END %]
+        [% Hook.process('classification_updated_fields') %]
+      </ul>
+    [% ELSE %]
+      并未对分类 <em>[% classification.name FILTER html %]</em> 做出任何变更。
+    [% END %]
+
+  [% ELSIF message_tag == "component_created" %]
+    [% title = "已建立子产品" %]
+    已建立子产品 <em>[% comp.name FILTER html %]</em> 。
+
+  [% ELSIF message_tag == "component_deleted" %]
+    [% title = "已删除子产品" %]
+    已删除子产品 <em>[% comp.name FILTER html %]</em> 。
+    [% IF comp.bug_count %]
+      在此子产品中的所有 [% terms.bugs %] 和参照到这些 [% terms.bugs %] 的连结都已被删除。
+    [% END %]
+
+  [% ELSIF message_tag == "component_updated" %]
+    [% title = "已更新子产品" %]
+    [% IF changes.keys.size %]
+      已储存对子产品 <em>[% comp.name FILTER html %]</em> 所做的变更：
+      <ul>
+      [% IF changes.name.defined %]
+        <li>名称已更新为 '[% comp.name FILTER html %]'</li>
+      [% END %]
+      [% IF changes.description.defined %]
+        <li>描述已更新为 '[% comp.description FILTER html_light %]'</li>
+      [% END %]
+      [% IF changes.initialowner.defined %]
+        <li>预设负责人已更新为 '[% comp.default_assignee.login FILTER html %]'</li>
+      [% END %]
+      [% IF changes.initialqacontact.defined %]
+        [% IF comp.default_qa_contact %]
+          <li>预设 QA 连络人已更新为 '[% comp.default_qa_contact.login FILTER html %]'</li>
+        [% ELSE %]
+          <li>已删除预设 QA 连络人</li>
+        [% END %]
+      [% END %]
+      [% IF changes.cc_list.defined %]
+        [% IF comp.initial_cc.size %]
+          [% cc_list = [] %]
+          [% FOREACH cc_user = comp.initial_cc %]
+            [% cc_list.push(cc_user.login) %]
+          [% END %]
+          <li>预设寄件副本清单已更新为 [% cc_list.join(", ") FILTER html %]</li>
+        [% ELSE %]
+          <li>已删除预设寄件副本清单</li>
+        [% END %]
+      [% END %]
+      [% IF changes.isactive.defined %]
+        <li>[% comp.is_active ? "启用" : "停用" %] 回报 [% terms.bugs %] 功能</li>
+      [% END %]
+      </ul>
+    [% ELSE %]
+      并未对 <em>[% comp.name FILTER html %]</em> 做出变更。
+    [% END %]
+
+  [% ELSIF message_tag == "custom_field_created" %]
+    [% title = "已新增订栏位" %]
+    已成功新增自订栏位 '[% field.name FILTER html %]' 。
+
+  [% ELSIF message_tag == "custom_field_deleted" %]
+    [% title = "已删除自订栏位" %]
+    已成功删除自订栏位 '[% field.name FILTER html %]' 。
+
+  [% ELSIF message_tag == "custom_field_updated" %]
+    [% title = "已更新自订栏位" %]
+    已成功更新自订栏位 '[% field.name FILTER html %]' 。
+
+  [% ELSIF message_tag == "default_settings_updated" %]
+    [% IF changes_saved %]
+      已储存对预设偏好设定所做的变更。
+    [% ELSE %]
+      并未做出变更。
+    [% END %]
+
+  [% ELSIF message_tag == "emailold_change_canceled" %]
+    [% title = "取消变更电子邮件地址" %]
+    已取消将你的帐号的电子邮件地址变更为 [%+ new_email FILTER html %] 的要求。
+
+  [% ELSIF message_tag == "email_change_canceled" %]
+    [% title = "取消变更电子邮件地址" %]
+    已取消将帐号 [%+ old_email FILTER html %] 的电子邮件地址变更为
+    [%+ new_email FILTER html %] 的要求。
+
+  [% ELSIF message_tag == "email_change_canceled_reinstated" %]
+    [% title = "取消变更电子邮件地址" %]
+    已取消将帐号 [%+ old_email FILTER html %] 的电子邮件地址变更为
+    [%+ new_email FILTER html %] 的要求。<br>
+    已回复原有帐号的设定。
+
+  [% ELSIF message_tag == "extension_created" %]
+    已在 [% path FILTER html %] 新增名为 [% name FILTER html %] 的附加元件。
+
+  [% ELSIF message_tag == "field_value_created" %]
+    [% title = "已建立新的栏位值" %]
+    已将 <em>[% value.name FILTER html %]</em> 新增为栏位
+    <em>[% field.description FILTER html %]</em>
+    (<em>[% field.name FILTER html %]</em>) 的合法选项。
+    [% IF field.name == "bug_status" %]
+      你现在应该浏览<a href="editworkflow.cgi">流程页面</a>来把你新的
+      [% terms.bug %] 状态包括在内。
+    [% END %]
+
+  [% ELSIF message_tag == "field_value_deleted" %]
+    [% title = "已删除栏位值" %]
+    已删除栏位 <em>[% field.description FILTER html %]</em>
+    (<em>[% field.name FILTER html %]</em>) 的值
+    <em>[% value.name FILTER html %]</em> 。
+
+  [% ELSIF message_tag == "field_value_updated" %]
+    [% title = "已更新栏位值" %]
+    [% IF changes.keys.size %]
+      已储存对栏位 <em>[% field.description FILTER html %]</em>
+      (<em>[% field.name FILTER html %]</em>)
+      的值 <em>[% value_old FILTER html %]</em> 所做的变更：
+      <ul>
+        [% IF changes.value %]
+          <li>已更新栏位值为
+            <em>[% changes.value.1 FILTER html %]</em> 。
+            [% IF value.is_default %]
+              （注意：此为此栏位的预设值。所有指向预设值的参照将会指向此新数值。）
+            [% END %]
+          </li>
+        [% END %]
+        [% IF changes.sortkey %]
+          <li>排序键更新为
+            <em>[% changes.sortkey.1 FILTER html %]</em> 。
+          </li>
+        [% END %]
+        [% IF changes.visibility_value_id %]
+          [% IF value.visibility_value.defined %]
+            <li>只在
+              [%+ value.field.value_field.description FILTER html %]
+              设定为
+              '[%+ value.visibility_value.name FILTER html %]'
+              时出现。
+            </li>
+          [% ELSE %]
+            <li>无论
+              [%+ value.field.value_field.description FILTER html %]
+              设定为何，此栏位将永远显示。
+            </li>
+          [% END %]
+        [% END %]
+      </ul>
+    [% ELSE %]
+      并未对栏位值 <em>[% value_old FILTER html %]</em> 做出变更。
+    [% END %]
+
+  [% ELSIF message_tag == "flag_cleared" %]
+    部份旗标在新的产品／子产品中不适用，因此已被清除。
+
+  [% ELSIF message_tag == "flag_creation_failed" %]
+    [% title = "新增旗标失败" %]
+    在认证旗标时发生错误：
+    [%+ flag_creation_error FILTER none %]
+
+  [% ELSIF message_tag == "get_field_desc" %]
+    [% field_descs.$field_name FILTER html %]
+
+  [% ELSIF message_tag == "get_resolution" %]
+    [% display_value("resolution", resolution) FILTER html %]
+
+  [% ELSIF message_tag == "get_status" %]
+    [% display_value("bug_status", status) FILTER html %]
+
+  [% ELSIF message_tag == "group_created" %]
+    [% title = "已建立新群组" %]
+    已建立群组 <em>[% group.name FILTER html %]</em> 。
+
+  [% ELSIF message_tag == "group_deleted" %]
+    [% title = "已删除群组" %]
+    已删除群组 <em>[% name FILTER html %]</em> 。
+
+  [% ELSIF message_tag == "group_membership_removed" %]
+    [% title = "已删除群组成员权限" %]
+    [% IF users.size %]
+      已[% IF regexp %]对符合正规表达式
+        '[% regexp FILTER html %]' 的使用者[% END %]删除群组
+        <em>[% group FILTER html %]</em> 的成员权限：
+      [% FOREACH user = users %]
+        [%+ user.login FILTER html %]
+      [% END %]
+    [% ELSE %]
+      没有使用者受到影响。
+    [% END %]
+
+  [% ELSIF message_tag == "group_updated" %]
+    [% IF changes.keys.size %]
+      已对群组 '[% group.name FILTER html %]' 做出下列变更：
+      <ul>
+      [% FOREACH field = changes.keys.sort %]
+        [% SWITCH field %]
+          [% CASE 'name' %]
+            <li>名称已更新为 '[% changes.name.1 FILTER html %]' 。</li>
+          [% CASE 'description' %]
+            <li>描述已更新。</li>
+          [% CASE 'userregexp' %]
+            <li>正规表达式已更新。</li>
+          [% CASE 'isactive' %]
+            [% IF changes.isactive.1 %]
+              <li>此群组将会被用于 [% terms.bugs %] 。</li>
+            [% ELSE %]
+              <li>此群组将不再被用于 [% terms.bugs %] 。</li>
+            [% END %]
+          [% CASE 'icon_url' %]
+            <li>已更新群组图示网址。</li>
+          [% CASE 'members_add' %]
+            <li>已新增下列成员至此群组：
+              [%+ changes.members_add.join(', ') FILTER html %]</li>
+          [% CASE 'members_remove' %]
+            <li>已自此群组中删除下列成员：
+              [%+ changes.members_remove.join(', ') FILTER html %]</li>
+          [% CASE 'member_of_add' %]
+            <li>此群组现在是下列群组的成员：
+              [%+ changes.member_of_add.join(', ') FILTER html %]</li>
+          [% CASE 'member_of_remove' %]
+            <li>此群组已不是下列群组的成员：
+              [%+ changes.member_of_remove.join(', ') FILTER html %]</li>
+          [% CASE 'bless_from_add' %]
+            <li>下列群组现在可以新增使用者至此群组：
+              [%+ changes.bless_from_add.join(', ') FILTER html %]</li>
+          [% CASE 'bless_from_remove' %]
+            <li>下列群组已无法新增使用者至此群组：
+              [%+ changes.bless_from_remove.join(', ') FILTER html %]</li>
+          [% CASE 'bless_to_add' %]
+            <li>此群组现在可以新增使用者至下列群组：
+              [%+ changes.bless_to_add.join(', ') FILTER html %]</li>
+          [% CASE 'bless_to_remove' %]
+            <li>此群组已无法新增使用者至下列群组：
+              [%+ changes.bless_to_remove.join(', ') FILTER html %]</li>
+          [% CASE 'visible_from_add' %]
+            <li>下列群组现在可以看见此群组的使用者：
+              [%+ changes.visible_from_add.join(', ') FILTER html %]</li>
+          [% CASE 'visible_from_remove' %]
+            <li>下列群组已无法看见此群组的使用者：
+              [%+ changes.visible_from_remove.join(', ') FILTER html %]</li>
+          [% CASE 'visible_to_me_add' %]
+            <li>此群组现在可以看见下列群组的使用者：
+              [%+ changes.visible_to_me_add.join(', ') FILTER html %]</li>
+          [% CASE 'visible_to_me_remove' %]
+            <li>此群组已无法看见下列群组的使用者：
+              [%+ changes.visible_to_me_remove.join(', ') FILTER html %]</li>
+          [% CASE %]
+            [% Hook.process('group_updated_fields') %]
+        [% END %]
+      [% END %]
+      </ul>
+    [% ELSE %]
+      并未对群组 '[% group.name FILTER html %]' 做任何变更。
+    [% END %]
+
+  [% ELSIF message_tag == "install_workflow_init" %]
+    设定预设的工作流程中...
+
+  [% ELSIF message_tag == "invalid_column_name" %]
+    所指定的自订排序包含无效的栏位名称：
+    <em>[% invalid_fragments.join(', ') FILTER html %]</em> 。
+    已从排序列表中移除这些无效的栏位名称。
+
+  [% ELSIF message_tag == "job_queue_depth" %]
+    排程中有 [% count FILTER html %] 个 job 。
+
+  [% ELSIF message_tag == "keyword_created" %]
+    [% title = "已建立新的关键字" %]
+    已建立关键字 <em>[% name FILTER html %]</em> 。
+
+  [% ELSIF message_tag == "keyword_deleted" %]
+    [% title = "已删除关键字" %]
+    已删除关键字 <em>[% keyword.name FILTER html %]</em> 。
+
+  [% ELSIF message_tag == "keyword_updated" %]
+    [% title = "已更新关键字" %]
+    [% IF changes.keys.size %]
+      已储存对关键字 <em>[% keyword.name FILTER html %]</em> 所做的变更：
+      <ul>
+        [% IF changes.name.defined %]
+          <li>已将关键字更名为 <em>[% keyword.name FILTER html %]</em> 。</li>
+        [% END %]
+        [% IF changes.description.defined %]
+          <li>已更新描述为 <em>[% keyword.description FILTER html %]</em></li>
+        [% END %]
+      </ul>
+    [% ELSE %]
+      并未做出任何变更。
+    [% END %]
+
+  [% ELSIF message_tag == "logged_out" %]
+    [% title = "已登出" %]
+    [% url = "index.cgi?GoAheadAndLogIn=1" %]
+    [% link = "再次登入。" %]
+    <b>你已经成功登出</b>。记录你登入的 cookie 已删除。将会在需要帐号密码时再次要求登入。
+
+  [% ELSIF message_tag == "login_changed" %]
+    [% title = "$terms.Bugzilla 帐号已变更" %]
+    你的 [% terms.Bugzilla %] 帐号已变更。
+
+  [% ELSIF message_tag == "migrate_component_created" %]
+    已建立子产品： [% comp.name FILTER html %]
+    (产品是 [% product.name FILTER html %])
+
+  [% ELSIF message_tag == "migrate_creating_bugs" %]
+    新增 [% terms.bugs %] 中…
+
+  [% ELSIF message_tag == "migrate_field_created" %]
+    新的自订栏位： [% field.description FILTER html %]
+    ([% field.name FILTER html %])
+
+  [% ELSIF message_tag == "migrate_product_created" %]
+    已建立产品： [% created.name FILTER html %]
+
+  [% ELSIF message_tag == "migrate_reading_bugs" %]
+    读取 [% terms.bugs %] 中…
+
+  [% ELSIF message_tag == "migrate_reading_products" %]
+    读取产品中…
+
+  [% ELSIF message_tag == "migrate_reading_users" %]
+    读取使用者中…
+
+  [% ELSIF message_tag == "migrate_translating_bugs" %]
+    将 [% terms.bug %] 的数值转换为适合
+    [%+ terms.Bugzilla %] 中…
+
+  [% ELSIF message_tag == "migrate_user_created" %]
+    已建立使用者： [% created.email FILTER html %]
+    [% IF password %] 密码： [% password FILTER html %][% END %]
+
+  [% ELSIF message_tag == "migrate_value_created" %]
+    [% IF product.defined %]
+      [% product.name FILTER html %]
+    [% END %]
+    已建立 [%+ field_descs.${field.name} FILTER html %] 的数值：
+    [% value FILTER html %]
+
+  [% ELSIF message_tag == "milestone_created" %]
+    [% title = "已建立里程碑" %]
+    已建立里程碑 <em>[% milestone.name FILTER html %]</em> 。
+
+  [% ELSIF message_tag == "milestone_deleted" %]
+    [% title = "已删除里程碑" %]
+    已删除里程碑 <em>[% milestone.name FILTER html %]</em> 。
+    [% IF milestone.bug_count %]
+      指向此里程碑的 [%+ terms.Bugs %] 已改为指向预设的里程碑
+      <em>[% product.default_milestone FILTER html %]</em> 。
+    [% END %]
+
+  [% ELSIF message_tag == "milestone_updated" %]
+    [% title = "已更新里程碑" %]
+    [% IF changes.size %]
+      已储存对里程碑 <em>[% milestone.name FILTER html %]</em> 所做的变更：
+      <ul>
+        [% IF changes.value.defined %]
+          <li>已更新里程碑为 <em>[% milestone.name FILTER html %]</em></li>
+        [% END %]
+        [% IF changes.sortkey.defined %]
+          <li>已更新排序键为 <em>[% milestone.sortkey FILTER html %]</em>
+        [% END %]
+      </ul>
+    [% ELSE %]
+      并未对里程碑 <em>[% milestone.name FILTER html %]</em> 做出变更。
+    [% END %]
+
+  [% ELSIF message_tag == "parameters_updated" %]
+    [% title = "参数已更新" %]
+    [% IF param_changed.size > 0 %]
+      [% FOREACH param = param_changed %]
+        已更新 <em>[% param FILTER html %]</em> 。<br>
+        [% IF param == 'utf8' && Param('utf8') %]
+          <strong>你必须重新执行 <kbd>checksetup.pl</kbd> 。</strong><br>
+        [% END %]
+      [% END %]
+    [% ELSE %]
+      并未做出任何变更。
+    [% END %]
+
+    [% IF shutdown_is_active == 1 %]
+      <hr>
+      [% terms.Bugzilla %] 已关闭。要重新开启系统，请清除
+      <em>shutdownhtml</em> 栏位。
+    [% END%]
+
+  [% ELSIF message_tag == "password_change_canceled" %]
+    [% title = "取消变更密码的要求" %]
+    已取消你的要求。
+
+  [% ELSIF message_tag == "password_change_request" %]
+    [% title = "要求变更密码" %]
+    已将内含有认证码的变更密码用信件寄到 [% login_name FILTER html %] 。
+    依照信件内的指示来变更密码。
+
+  [% ELSIF message_tag == "password_changed" %]
+    [% title = "密码已更新" %]
+    已更新你的密码。
+
+  [% ELSIF message_tag == "flag_type_created" %]
+    [% title = BLOCK %]已新增旗标类型 '[% name FILTER html %]'[% END %]
+    已新增旗标类型 <em>[% name FILTER html %]</em> 。
+
+  [% ELSIF message_tag == "flag_type_deactivated" %]
+    [% title = BLOCK %]已停用旗标类型 '[% flag_type.name FILTER html %]'[% END %]
+    已停用 (deactivate) 旗标类型 <em>[% flag_type.name FILTER html %]</em> 。
+
+  [% ELSIF message_tag == "flag_type_deleted" %]
+    [% title = BLOCK %]已删除旗标类型 '[% name FILTER html %]'[% END %]
+    已删除旗标类型 <em>[% name FILTER html %]</em> 。
+
+  [% ELSIF message_tag == "flag_type_updated" %]
+    [%# 注：参考 admin/flag-type #%]
+    [% title = BLOCK %]已更新旗标类型 '[% flagtype.name FILTER html %]'[% END %]
+    [% IF changes.size %]
+      对旗标类型 <em>[% flagtype.name FILTER html %]</em>
+      所做的变更已储存：
+      <ul>
+        [% IF changes.is_active.defined %]
+          [%# 注：active/inactive, 见 flag_type_deactivated #%]
+          <li>旗标类型已设定为[% flagtype.is_active ? "启用" : "停用 (inactive)" %]</li>
+        [% END %]
+        [% IF changes.name.defined %]
+          <li>旗标类型已更名为 <em>[% flagtype.name FILTER html %]</em></li>
+        [% END %]
+        [% IF changes.description.defined %]
+          <li>描述已更新为 <em>[% flagtype.description FILTER html %]</em></li>
+        [% END %]
+        [% IF changes.cc_list.defined %]
+          [% IF flagtype.cc_list %]
+            <li>寄件副本清单已更新为 <em>[% flagtype.cc_list FILTER html %]</em></li>
+          [% ELSE %]
+            <li>已清空寄件副本清单</li>
+          [% END %]
+        [% END %]
+        [% IF changes.sortkey.defined %]
+          <li>排序键已更新为 <em>[% flagtype.sortkey FILTER html %]</em></li>
+        [% END %]
+        [% IF changes.is_requestable.defined %]
+          <li>旗标类型[% "不再" UNLESS flagtype.is_requestable %]可要求</li>
+        [% END %]
+        [% IF changes.is_requesteeble.defined AND flagtype.is_requestable %]
+          <li>旗标类型[% "不再" UNLESS flagtype.is_requesteeble %]可特定要求</li>
+        [% END %]
+        [% IF changes.is_multiplicable.defined %]
+          <li>旗标类型[% "不再" UNLESS flagtype.is_multiplicable %]可设为多重种类</li>
+        [% END %]
+        [% IF changes.grant_group_id.defined %]
+          [% IF flagtype.grant_group_id %]
+            <li>「同意的群组」已更新为 <em>[% flagtype.grant_group.name FILTER html %]</em></li>
+          [% ELSE %]
+            <li>已删除「同意的群组」</li>
+          [% END %]
+        [% END %]
+        [% IF changes.request_group_id.defined %]
+          [% IF flagtype.request_group_id %]
+            <li>「要求的群组」已更新为 <em>[% flagtype.request_group.name FILTER html %]</em></li>
+          [% ELSE %]
+            <li>已删除「要求的群组」</li>
+          [% END %]
+        [% END %]
+        [% IF changes.inclusions.defined || changes.exclusions.defined %]
+          <li>「包括」和「不包括」的清单已更新</li>
+        [% END %]
+     </ul>
+    [% ELSE %]
+      并未变更旗标类型 <em>[% flagtype.name FILTER html %]</em> 。
+    [% END %]
+
+  [% ELSIF message_tag == "install_admin_get_email" %]
+    输入管理者的电子邮件地址：
+
+  [% ELSIF message_tag == "install_admin_get_name" %]
+    输入管理者的真实姓名：
+
+  [% ELSIF message_tag == "install_admin_get_password" %]
+    输入管理者帐号的密码：
+
+  [% ELSIF message_tag == "install_admin_created" %]
+    [% user.login FILTER html %] 已设定为管理者。
+
+  [% ELSIF message_tag == "install_admin_setup" %]
+    目前尚未设定管理者。<br>
+    这可能是你第一次使用 [% terms.Bugzilla %] ，或者你的管理者权限被意外删除了。
+
+  [% ELSIF message_tag == "install_column_add" %]
+    在表格 '[% table FILTER html %]' 中新增 '[% column FILTER html %]'栏位...
+
+  [% ELSIF message_tag == "install_column_drop" %]
+    自表格 '[% table FILTER html %]' 中删除 '[% column FILTER html %]'栏位...
+
+  [% ELSIF message_tag == "install_column_rename" %]
+    将栏位 '[% old FILTER html %]' 更名为 '[% new FILTER html %]'...
+
+  [% ELSIF message_tag == "install_confirm_password" %]
+    再输入一次密码以验证：
+
+  [% ELSIF message_tag == "install_default_classification" %]
+    建立预设分类 '[% name FILTER html %]'...
+
+  [% ELSIF message_tag == "install_default_product" %]
+    建立预设产品 '[% name FILTER html %]'...
+
+  [% ELSIF message_tag == "install_file_perms_fix" %]
+    修复档案权限中...
+
+  [% ELSIF message_tag == "install_fk_add" %]
+    新增 foreign key ： [% table FILTER html %].[% column FILTER html %] -&gt; [% fk.TABLE FILTER html %].[% fk.COLUMN FILTER html %]...
+
+  [% ELSIF message_tag == "install_fk_drop" %]
+    移除 foreign key ： [% table FILTER html %].[% column FILTER html %] -&gt; [% fk.TABLE FILTER html %].[% fk.COLUMN FILTER html %]...
+
+  [% ELSIF message_tag == "install_fk_invalid" %]
+    <u>错误：</u>在 table '[% table FILTER html %]' 中的 '[% column FILTER html %]'
+    栏位含有无效的数值。（这些数值并不存在于
+    table '[% foreign_table FILTER html %]' 的 '[% foreign_column FILTER html %]'
+    栏位中。）
+
+    在继续执行 checksetup 之前，你必须要修正这些数值。修正的方法包括将他们自资料库中删除，或者是把
+    table '[% table FILTER html %]' 的 '[% column FILTER html %]' 栏位的数值指向
+    '[% foreign_table FILTER html %].[% foreign_column FILTER html %]' 的有效数值。
+
+    来自栏位 '[% table FILTER html %].[% column FILTER html %]' 中，有问题的数值如下：
+    [%+ values.join(', ') FILTER html %]
+
+  [% ELSIF message_tag == "install_fk_invalid_fixed" %]
+    <b><u>警告：</u></b>在 [% table FILTER html %].[% column FILTER html %]
+    里已经有无效的数值被[% IF action == 'delete' %]删除[% ELSE %]设定为
+    NULL [% END %]：
+    [%+ values.join(', ') FILTER html %]
+
+  [% ELSIF message_tag == "install_fk_setup" %]
+    设定 foreign key 中...
+
+  [% ELSIF message_tag == "install_group_create" %]
+    新增 [% name FILTER html %] 群组...
+
+  [% ELSIF message_tag == "install_groups_setup" %]
+    新增预设群组中...
+
+  [% ELSIF message_tag == "install_setting_new" %]
+    新增使用者设定： '[% name FILTER html %]'
+
+  [% ELSIF message_tag == "install_setting_setup" %]
+    设定使用者偏好设定中...
+
+  [% ELSIF message_tag == "install_success" %]
+    checksetup.pl 已完成。
+
+  [% ELSIF message_tag == "install_table_drop" %]
+    删除 table '[% name FILTER html %]' 中...
+
+  [% ELSIF message_tag == "install_table_rename" %]
+    将 table '[% old FILTER html %]' 更名为 '[% new FILTER html %]' 中...
+
+  [% ELSIF message_tag == "install_urlbase_default" %]
+    你现在已安装 Bugzilla
+    。请浏览「参数设定」页面（在管理者帐号的页尾有连结），以确保所有设定都正确，包括将
+    'urlbase' 选项设定为正确的网址。
+
+  [% ELSIF message_tag == "install_reset_password" %]
+    输入 [% user.login FILTER html %] 的新密码：
+
+  [% ELSIF message_tag == "install_reset_password_done" %]
+    新密码已设定。
+
+  [% ELSIF message_tag == "install_webservergroup_empty" %]
+    ****************************************************************************
+    <b><u>警告！</u></b>你没有在 localconfig 输入 "webservergroup" 参数。
+    <br>这代表着某些需要以你和网页伺服器编辑的档案和目录，变成所有人都可以写入，
+    <br>此外，其他档案（包括储存你的资料库密码的 localconfig 档案），变成所有人都可以读取。
+    <br>这代表着拥有浏览这台机器的<u>任何人</u>可以对你安装的 Bugzilla
+    做任何事情，甚至也可以执行任何 Perl 程式。
+
+    你真的，真的，真的需要变更此项设定。
+    ****************************************************************************
+
+  [% ELSIF message_tag == "install_webservergroup_not_in" %]
+    <b><u>警告：</u></b>你在 localconfig 中输入了 "webservergroup" 参数的值，但是你
+    <br>a) 并没有将这个 script 以 [% constants.ROOT_USER FILTER html %] 执行；或者你
+    <br>b) 并不是该群组的成员。
+    <br>这将造成权限问题，并降低安全性。
+    <br>如果你在执行 Bugzilla scripts 时发生任何问题，以
+    [% constants.ROOT_USER FILTER html %] 登入，并重新执行这个 script ，成为该群组的成员，
+    或是删除 "webservergroup" 参数的值。
+
+  [% ELSIF message_tag == "install_webservergroup_windows" %]
+    <b><u>警告：</u></b>你将 webservergroup 设定在 [% constants.bz_locations.localconfig FILTER html %] 中。
+    <br>若在 Windows 下执行，这样设定并不会有任何安全性。
+    <br>请确认在你的 Bugzilla 目录的档案权限是否适合你的系统，并避免不必要的写入权限。
+
+  [% ELSIF message_tag == "product_created" %]
+    [% title = "已建立产品" %]
+    已建立产品 <em>[% product.name FILTER html %]</em> 。
+
+  [% ELSIF message_tag == "product_deleted" %]
+    [% title = "已删除产品" %]
+    产品 <em>[% product.name FILTER html %]</em> 及其子产品、版本、里程碑、群组均已被删除。
+    [% IF product.bug_count %]
+      此产品的所有 [% terms.bugs %] 以及所有参照到这些 [% terms.bugs %] 的连结均已被删除。
+    [% END %]
+
+  [% ELSIF message_tag == "product_invalid" %]
+    [% title = "$terms.Bugzilla 子产品描述" %]
+    产品 <em>[% product FILTER html %]</em> 不存在，或是你没有权限浏览。下列清单是你可以选择的产品。
+
+  [% ELSIF message_tag == "quips_added" %]
+    已新增你所输入的智语「<em>[% added_quip FILTER html %]</em>」。
+    [% IF Param("quip_list_entry_control") == "moderated" AND
+          !user.in_group('bz_quip_moderators') %]
+      在审核之后就会尽快采用。
+    [% END %]
+
+  [% ELSIF message_tag == "quips_deleted" %]
+    已删除智语「<em>[% deleted_quip FILTER html %]</em>」。
+
+  [% ELSIF message_tag == "quips_approved_unapproved" %]
+    有 [% approved.size %] 则智语已审核， [% unapproved.size %] 则智语未审核。
+
+  [% ELSIF message_tag == "remaining_time_zeroed" %]
+    由于已将此 [% terms.bug %] 关闭，或只是将它从其中一种关闭的状态变更为另一种，因此
+    [% field_descs.remaining_time FILTER html %] 栏位已自动设为 0 。
+
+  [% ELSIF message_tag == "report_created" %]
+    已建立名称为 <em>[% reportname FILTER html %]</em> 的新报告。
+
+  [% ELSIF message_tag == "report_deleted" %]
+    已删除名称为 <em>[% reportname FILTER html %]</em> 的报告。
+
+  [% ELSIF message_tag == "report_updated" %]
+    已更新名称为 <em>[% reportname FILTER html %]</em> 的报告。
+
+  [% ELSIF message_tag == "sanitycheck" %]
+    [%# We use this way to call sanitycheck-specific messages so that
+      # we can still use get_text(). %]
+    [% PROCESS "admin/sanitycheck/messages.html.tmpl" %]
+
+  [% ELSIF message_tag == "series_all_open" %]
+    全部开启
+
+  [% ELSIF message_tag == "series_all_closed" %]
+    全部关闭
+
+  [% ELSIF message_tag == "series_subcategory" %]
+    -全部-
+
+  [% ELSIF message_tag == "series_updated" %]
+    [% title = "系列已更新" %]
+    系列 <em>[% default.category FILTER html %] /
+    [%+ default.subcategory FILTER html %] /
+    [%+ default.name FILTER html %]</em> 已更新。
+
+  [% ELSIF message_tag == "sudo_started" %]
+    [% title = "已开始 sudo" %]
+      已开始 sudo 。除非你主动登出，否则接下来的 6 个小时，所有的动作都是以 sudo 的权限进行。
+      被 sudo 的使用者： [% target FILTER html %] 。
+
+  [% ELSIF message_tag == "sudo_ended" %]
+    [% title = "已结束 sudo" %]
+      已结束 sudo 。接下来所做的动作将影响自己的帐号。
+
+  [% ELSIF message_tag == "series_created" %]
+    [% title = "系列已新增" %]
+      已新增 <em>[% series.category FILTER html %] /
+      [%+ series.subcategory FILTER html %] /
+      [%+ series.name FILTER html %]</em> 。
+      注意：在此一系列有足够的资料可以产生图表之前，你需要等
+      [%+ series.frequency * 2 %] 天左右。
+
+  [% ELSIF message_tag == "series_deleted" %]
+    [% title = "系列已删除" %]
+    已删除 <em>[% series.category FILTER html %] /
+      [%+ series.subcategory FILTER html %] /
+      [%+ series.name FILTER html %]</em> 。
+
+  [% ELSIF message_tag == "shutdown" %]
+    [% title = "$terms.Bugzilla 已关闭" %]
+    [% Param("shutdownhtml") %]
+    [% IF userid %]
+      <p>
+        为了安全起见，你已被自动登出。记录你登入的 cookie 已删除。
+      </p>
+    [% END %]
+    <p>
+      如果你是管理者，你可以透过清除
+      <kbd>shutdownhtml</kbd>
+      参数来
+      <a href="editparams.cgi?section=general">重新启用 [% terms.Bugzilla %]</a> 。
+    </p>
+
+  [% ELSIF message_tag == "term" %]
+    [% terms.$term FILTER html %]
+
+  [% ELSIF message_tag == "unexpected_flag_types" %]
+    无法设定部份旗标。请检查你的设定。
+
+  [% ELSIF message_tag == "user_match_failed" %]
+    你输入的使用者名称并不符合任何已知的 [% terms.Bugzilla %] 使用者，因此栏位
+    [% match_field FILTER html %] 留白。
+
+  [% ELSIF message_tag == "user_match_multiple" %]
+    你输入的使用者名称符合多位使用者，因此栏位
+    [% match_field FILTER html %] 留白。
+
+  [% ELSIF message_tag == "version_created" %]
+    [% title = "已建立版本" %]
+    已建立产品 <em>[% product.name FILTER html %]</em> 的版本
+    <em>[% version.name FILTER html %]</em> 。
+
+  [% ELSIF message_tag == "version_deleted" %]
+    [% title = "已删除版本" %]
+    已删除产品 <em>[% product.name FILTER html %]</em> 的版本
+    <em>[% version.name FILTER html %]</em> 。
+
+  [% ELSIF message_tag == "version_updated" %]
+    [% title = "已更新版本" %]
+    [% IF changes.size %]
+      对版本 <em>[% version.name FILTER html %]</em>
+      所做的变更已储存：
+      <ul>
+        [% IF changes.value.defined %]
+          <li>已将版本更名为 <em>[% version.name FILTER html %]</em></li>
+        [% END %]
+        [% IF changes.isactive.defined %]
+          <li>[% version.is_active ? "启用" : "停用" %] 回报 [% terms.bugs %] 功能</li>
+        [% END %]
+      </ul>
+    [% ELSE %]
+      并未对版本 <em>[% version.name FILTER html %]</em> 做出变更。
+    [% END %]
+
+  [% ELSIF message_tag == "whine_query_failed" %]
+    来自 [% author.login FILTER html %] 的订阅排程查询
+    '[% query_name FILTER html %]' 失败了，原因是：
+    [%+ reason FILTER html %]
+
+  [% ELSIF message_tag == "workflow_updated" %]
+    工作流程已更新。
+  [% END %]
+[% END %]
+
+[% IF !message %]
+  [% message = Hook.process('messages') %]
+[% END %]
+
+[%# Give sensible error if the message function is used incorrectly. #%]
+[% IF !message %]
+  [% message = BLOCK %]
+    你不正确的使用 [% terms.Bugzilla %] 的讯息功能。
+    你输入了字串 '[% message_tag FILTER html %]' 。
+    正确的用法是输入一个标籤，并且在 <kbd>messages.html.tmpl</kbd> 档案中定义该标籤。<br>
+    <br>
+    如果你是一个 [% terms.Bugzilla %] 的使用者，但却看到此一讯息时，请将这页储存下来并寄给 [% Param('maintainer') %] 。
+  [% END %]
+[% END %]

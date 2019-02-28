@@ -1,0 +1,131 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[% INCLUDE global/header.html.tmpl title = "$terms.Bug 回报写作技巧" %]
+
+  <p>有效率的 [% terms.bug %] 回报可以让 [% terms.bug %] 较容易被修复。以下解释如何写出此类回报。
+
+<h3>原则</h3>
+
+  <ul>
+    <li>正确</li>
+    <li>清晰－－适当解释，让他人可以重制该 [% terms.bug %]</li>
+    <li>每份报告只回报一个 [% terms.bug %]</li>
+    <li>即使是微小的 [% terms.bug %] 也应该回报－－小的 [% terms.bugs %] 背后可能隐藏着大的 [% terms.bugs %]</li>
+    <li>陈述事实而不猜测</li>
+  </ul>
+
+<h3>事前准备</h3>
+
+<ol>
+  <li>以最新 build 的软体试着重制你遇到的 [% terms.bug %] ，看此问题是否已修正。</li>
+
+  <li><a href="query.cgi?format=specific">搜寻</a> [% terms.Bugzilla %]
+  看看你遇到的 [% terms.bug %] 是否已有人回报。
+  </li>
+</ol>
+
+<h3>回报一个新的 [% terms.Bug %]</h3>
+
+<p>如果你已在最新的 build 重制出这个 [% terms.bug %] 而且还没有人回报，那么：</p>
+
+<ol>
+ <li>点选「<a href="enter_bug.cgi">输入新的 [% terms.bug %]</a> 」</li>
+ <li>选择在哪个产品遇到这个 [% terms.bug %]</li>
+ <li>填表。以下是一些有助了解表格内容的说明：</li>
+</ol>
+
+  <blockquote>
+    <p><b>子产品：</b>这个 [% terms.bug %] 属于软体的哪个部份？<br>
+    此栏位为必填。点选「子产品」可以看见每项子产品的描述。如果没有适当的子产品，试着寻找「一般」子产品。
+    </p>
+
+    <p><b>[% field_descs.op_sys FILTER html %]：</b>在哪个作业系统发现的？（例如 Linux 、 Windows XP 、 Mac OS X 。）<br>
+    如果你知道这个 [% terms.bug %] 会发生在多种作业系统，选择<em>[% display_value("op_sys", "全部 (All)") FILTER html %]</em> 。
+    如果你的[% field_descs.op_sys FILTER html %]不在清单上，选择<em>[% display_value("op_sys", "其他 (Other)") FILTER html %]</em> 。</p>
+
+    <p><b>摘要：</b>你如何以少于 60 个字元的长度，来描述这个 [% terms.bug %] ？<br>
+    一个好的摘要应该能够<b>快速并独一无二地识别 [% terms.bug %] 的回报。</b>
+    它应该要解释问题所在点，而非提供解决方法。<br>
+    <ul>
+     <li>好的例子：「<kbd>取消复制档案的对话框时，档案总管当掉</kbd>」</li>
+     <li>不好的例子：「<kbd>软体当掉</kbd>」</li>
+     <li>不好的例子：「<kbd>浏览器应该要可以浏览我的网页</kbd>」</li>
+    </ul>
+
+    <b>描述：</b>
+    问题回报的细节，包括：</p>
+
+    <blockquote>
+      <p><b>概观：</b>对于摘要做更详细的描述。
+      </p>
+
+      <blockquote>
+<pre>
+在 NSGetFactory 功能下拖拉任何页面，会使 Mac build 当掉。
+</pre>
+      </blockquote>
+
+      <p><b>重制步骤：</b> 可以简单重制 [% terms.bug %] 的步骤。包括任何特别的设定步骤。</p>
+
+      <blockquote>
+<pre>
+1) 浏览任何网页。（我用了预设的范本页面， resource:/res/samples/test0.html ）
+
+2) 拖拉该页。（特别是当按住滑鼠按键时，将滑鼠游标从浏览器内容区的任一点拖至浏览器内容区的底部。）
+</pre>
+      </blockquote>
+
+      <p><b>实际结果：</b>在上述步骤后，程式的实际结果。</p>
+
+      <blockquote>
+<pre>
+应用程式当了。
+</pre>
+      </blockquote>
+
+      <p><b>预期结果：</b>如果没有 [% terms.bug %] 的话，程式预期的结果。</p>
+
+      <blockquote>
+<pre>
+视窗应该往下拉。下拉的内容应该被选取。（至少应用程式不应该当掉。）
+</pre>
+      </blockquote>
+
+      <p><b>build 日期以及[% field_descs.rep_platform FILTER html %]：</b>第一次遇到这个 [% terms.bug %] 时，[% field_descs.rep_platform FILTER html %]的 build 以及日期。</p>
+
+      <blockquote>
+<pre>
+Build 2006-08-10 的 Mac OS 10.4.3
+</pre>
+      </blockquote>
+
+      <p><b>额外的 build 以及硬体平台：</b>在其他的硬体平台（或浏览器）是否会发生这个 [% terms.bug %] 。</p>
+
+      <blockquote>
+<pre>
+不会在 build 2006-08-10 的 Windows XP Home (Service Pack 2) 上发生
+</pre>
+      </blockquote>
+
+      <p><b>附加资讯：</b>其他有用的资讯。
+      <br><br>对于会造成当掉的 [% terms.bugs %] ：</p>
+
+      <ul>
+        <li><b>Windows ：</b>注明当掉的种类，以及应用程式在哪种模组下当掉换（例如：在 apprunner.exe 中拒绝存取。）</li>
+
+        <li><b>Mac OS X ：</b>附上 "Crash Reporter" 的记录档。只要附上 "Thread 0 Crashed"
+        的段落即可。请勿贴上整份记录档！</li>
+      </ul>
+    </blockquote>
+
+  <p>检查报告内容是否正确，然后点选「送出」，就可以将你回报的 [% terms.bug %] 放进 [% terms.Bugzilla %] 资料库里了。<br>
+  </p>
+</blockquote>
+
+[% INCLUDE global/footer.html.tmpl %]

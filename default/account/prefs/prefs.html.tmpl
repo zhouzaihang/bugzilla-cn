@@ -1,0 +1,106 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # tabs: List of hashes. May not be empty. Each hash has three members:
+  #   name: string. Name of the tab (used internally.)
+  #   description: string. Description of the tab (used in tab title).
+  #   saveable: boolean. True if tab has a form which can be submitted.
+  #               True if user is not receiving self-generated mail.
+  # Note: For each tab name, a template "prefs/${tab.name}.tmpl" must exist,
+  # and its interface must be fulfilled.
+  # current_tab: A direct reference to one of the hashes in the tabs list.
+  #              This tab will be displayed.
+  # changes_saved: boolean/string. True if the CGI processed form data before
+  #                displaying anything, and can contain an optional custom
+  #                message if required (which Perl still evaluates as True).
+  # dont_show_button: boolean. Prevent the display of the "Submit Changes" button.
+  #%]
+
+[% filtered_login = user.login FILTER html %]
+
+[% tabs = [{ name => "settings", label => "一般設定",
+              link => "userprefs.cgi?tab=settings", saveable => "1",
+              doc_section => "using/preferences.html#general-preferences" },
+            { name => "email", label => "電子郵件設定",
+              link => "userprefs.cgi?tab=email", saveable => "1",
+              doc_section => "using/preferences.html#email-preferences" },
+            { name => "saved-searches", label => "已儲存的搜尋",
+              link => "userprefs.cgi?tab=saved-searches", saveable => "1",
+              doc_section => "using/preferences.html#saved-searches" },
+            { name => "account", label => "帳號資訊",
+              link => "userprefs.cgi?tab=account", saveable => "1",
+              doc_section => "using/preferences.html#account-information" },
+            { name => "apikey", label => "API key",
+              link => "userprefs.cgi?tab=apikey", saveable => "1",
+              doc_section => "using/preferences.html#api-keys" },
+            { name => "permissions", label => "權限",
+              link => "userprefs.cgi?tab=permissions", saveable => "0",
+              doc_section => "using/preferences.html#permissions" } ] %]
+
+[% Hook.process('tabs') %]
+
+[% FOREACH tab IN tabs %]
+  [% IF tab.name == current_tab_name %]
+    [% current_tab = tab %]
+    [% LAST %]
+  [% END %]
+[% END %]
+
+[% PROCESS global/header.html.tmpl
+   title = current_tab.label
+   subheader = filtered_login
+   generate_api_token = 1
+   style_urls = ['skins/standard/admin.css']
+   javascript_urls = ['js/util.js', 'js/field.js', 'js/TUI.js']
+   doc_section = current_tab.doc_section
+   yui = ['autocomplete']
+ %]
+
+[% WRAPPER global/tabs.html.tmpl
+   tabs        = tabs
+   current_tab = current_tab
+%]
+
+[% IF changes_saved %]
+  <div id="message">
+    對[% current_tab.label FILTER lower %]所做的變更已經儲存。
+
+    [% IF email_changes_saved %]
+      <p>
+        為了確認你的請求，我們已寄發一封電子郵件至你新的電子郵件地址。做為預防措施，我們也寄發了一封電子郵件至你原本的電子郵件地址，讓你有需要時可以取消這個請求。
+        如果你並未收到此封電子郵件，你也可以在此處決定是否要<a href="token.cgi?t=[% email_token FILTER uri %]&amp;a=cxlem">取消電子郵件的變更</a>（尤其是當你把新的電子郵件地址拼錯的時候）。
+      </p>
+    [% END %]
+  </div>
+[% END %]
+
+<h3>[% current_tab.label %]</h3>
+
+[% IF current_tab.saveable %]
+  <form name="userprefsform" method="post" action="userprefs.cgi">
+    <input type="hidden" name="tab" value="[% current_tab.name %]">
+    <input type="hidden" name="token" value="[% token FILTER html %]">
+[% END %]
+
+[% PROCESS "account/prefs/${current_tab.name}.html.tmpl"
+                                     IF current_tab.name.defined %]
+
+[% IF current_tab.saveable %]
+    <input type="hidden" name="dosave" value="1">
+    [% UNLESS dont_show_button %]
+      <p>
+        <input type="submit" id="update" value="儲存設定">
+      </p>
+    [% END %]
+  </form>
+[% END %]
+
+[% END %]
+
+[% PROCESS global/footer.html.tmpl %]

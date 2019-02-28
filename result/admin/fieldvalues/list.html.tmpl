@@ -1,0 +1,91 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # values: array of hashes having the following properties:
+  #   - name: string; The value.
+  #   - sortkey: number; The sortkey used to order the value when
+  #              displayed to the user in a list.
+  #
+  # field: object; the field we are editing values for.
+  # static: array; list of values which cannot be renamed nor deleted.
+  #%]
+
+[% USE Bugzilla %]
+[% cgi = Bugzilla.cgi %]
+
+[% title = BLOCK %]选择 '[% field.description FILTER html %]' ([% field.name FILTER html %])
+                   栏位的数值[% END %]
+[% PROCESS global/header.html.tmpl
+  title = title
+  style_urls = ['skins/standard/admin.css']
+%]
+
+[% edit_contentlink = BLOCK %]editvalues.cgi?action=edit&amp;field=
+  [%- field.name FILTER uri %]&amp;value=%%name%%[% END %]
+[% delete_contentlink = BLOCK %]editvalues.cgi?action=del&amp;field=
+  [%- field.name FILTER uri %]&amp;value=%%name%%[% END %]
+
+
+[% columns = [
+     {
+       name => "name"
+       heading => "编辑栏位数值…"
+       contentlink => edit_contentlink
+     },
+     {
+       name => "sortkey"
+       heading => "排序键"
+     },
+     {
+       name => "isactive"
+       heading => "开启回报 $terms.bugs 功能"
+       yesno_field => 1
+     },
+     {
+       name => "action"
+       heading => "动作"
+       content => "删除"
+       contentlink => delete_contentlink
+     } ]
+%]
+
+
+[% SET overrides.action = {} %]
+[% FOREACH check_value = values %]
+  [% IF check_value.is_static %]
+    [% overrides.action.name.${check_value.name} = {
+         override_content => 1
+         content => "（不可删除的数值）"
+         override_contentlink => 1
+         contentlink => undef
+       }
+    %]
+  [% ELSIF check_value.is_default %]
+    [% overrides.action.name.${check_value.name} = {
+         override_content => 1
+         content => "（预设值）"
+         override_contentlink => 1
+         contentlink => undef
+       }
+    %]
+  [% END %]
+
+[% END %]
+
+[% PROCESS admin/table.html.tmpl
+     columns = columns
+     data = values
+     overrides = overrides
+%]
+
+[% PROCESS admin/fieldvalues/footer.html.tmpl
+  no_edit_other_link = 1
+ %]
+
+[% PROCESS global/footer.html.tmpl %]

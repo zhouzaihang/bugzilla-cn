@@ -1,0 +1,41 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[% INCLUDE global/header.html.tmpl title = "已連結化的文字" %]
+[% USE Bugzilla %]
+[% cgi = Bugzilla.cgi %]
+
+<p>
+  複製並貼上下方的文字：
+</p>
+
+<hr>
+
+<p>
+<pre class="bz_comment_text">
+[%- cgi.param("text") FILTER quoteUrls FILTER html -%]
+</pre>
+</p>
+
+<hr>
+
+<p>
+  如果你把它放在 <code>&lt;pre&gt;</code> 標籤中，則會呈現如下的效果：
+</p>
+
+<hr>
+
+<p>
+<pre class="bz_comment_text">
+[%- cgi.param("text") FILTER quoteUrls -%]
+</pre>
+</p>
+
+<hr>
+
+[% INCLUDE global/footer.html.tmpl %]

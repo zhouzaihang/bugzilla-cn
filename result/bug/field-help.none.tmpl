@@ -1,0 +1,223 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# This file describes both bug fields and search fields.
+  # As calling this template once per label is very expensive,
+  # it is called only by Template.pm. %]
+
+[% RETURN UNLESS in_template_var %]
+
+[% vars.help_html = {
+
+# Note that all these keys here are in alphabetical order, though
+# search-specific fields are at the bottom.
+
+##############
+# Bug Fields #
+##############
+
+alias =>
+  "在 Bugzilla 中其他地方可以协助找到并指向特定 $terms.bug 的"
+  _ "简短、独一无二的名字。",
+
+assigned_to =>
+  "负责解 $terms.bug 的人。",
+
+blocked =>
+  "在解决此栏位列出的 $terms.bugs 解决之前，必须要解决这个 $terms.bug 。",
+
+bug_file_loc =>
+  "$terms.Bugs 可以和网址产生关连。例如说，连上一个网站就会看到这个问题。",
+
+bug_id =>
+  "$terms.Bug 的编号，在此 Bugzilla 中是独一无二的。",
+
+bug_severity =>
+  "$terms.bug 的严重等级如何，或者它其实只是功能建议。",
+
+bug_status =>
+  "一个 $terms.bug 可能处于其中一种或多种状态。",
+
+cc =>
+  "也许和 $terms.bug 并无直接关系，只是对过程有兴趣的使用者。",
+
+classification =>
+  "$terms.Bugs 以类别、产品和子产品做分类。类别是最上层的分类。",
+
+component =>
+  "子产品是次分类，每一个子产品都归属于一个特定的产品。"
+  _ "选择一个产品来减少这个列表。",
+
+creation_ts =>
+  "$terms.Bug 建立的时间。",
+
+deadline =>
+  "这个 $terms.bug 必须解决的日期，以 YYYY-MM-DD 格式输入。",
+
+delta_ts =>
+  "这个 $terms.bug 最近更新的时间。",
+
+dependson =>
+  "在此栏位列出的 $terms.bugs 必须先解决，才能解决这个 $terms.bug 。",
+
+estimated_time =>
+  "估计解决这个 $terms.bug 会需要的时间。",
+
+importance =>
+  "一个 $terms.bug 的重要性是由它的 $vars.field_descs.priority 和 ${vars.field_descs.bug_severity}
+   组合而成的。",
+
+keywords =>
+  "为了让 $terms.bugs 容易辨识及分类，你可以在已定义的列表中对 $terms.bugs 加入关键字。",
+
+longdesc =>
+  "Bugzilla 使用者可以在 $terms.Bugs 加入描述或意见。"
+  _ "你可以在这些意见里搜寻。",
+
+op_sys =>
+  "在哪一种作业系统上会发生这个 $terms.bug 。",
+
+percentage_complete =>
+  "比较这个 $terms.bug 的 $vars.field_descs.work_time 和
+   $vars.field_descs.estimated_time 栏位，来判断它离 100% 有多远。",
+
+priority =>
+  "工程师将 $terms.bugs 做优先程度的分类。",
+
+# Note that this has extra text added below if useclassification is on.
+product =>
+  "$terms.Bugs 以产品和子产品做分类。",
+
+qa_contact =>
+  "当这个 $terms.bug 尚未确认时，负责确认的人；"
+  _ "以及当 $terms.bug 解决时，负责验证的人。",
+
+remaining_time =>
+  "这个 $terms.bug 剩下的工作时数。算法是 $vars.field_descs.work_time
+   减掉 $vars.field_descs.estimated_time 。",
+
+rep_platform =>
+  "在哪一种硬体平台上会发生这个 $terms.bug 。",
+
+reporter =>
+  "回报这个 $terms.bug 的人。",
+
+resolution =>
+  "如果一个 $terms.bug 处于已解决的状态，"
+  _ "那么将会列出其中一个原因当做解决方案。",
+
+see_also =>
+  "此栏位允许你列出其他 $terms.Bugzilla 上的 $terms.bug 。
+   你可以在「新增 $terms.Bug 回报资讯的网址」栏位中输入网址，
+   来表示该 $terms.bug 和此 $terms.bug 有关。
+   你可以用空白分隔多笔网址。
+
+   <p>你应该将此栏位正常地用于列出<em>其他</em>
+     $terms.Bugzilla 上的 $terms.bugs 。如要列出安装在同一机器上的
+     $terms.bug ，最好使用 $vars.field_descs.dependson 和
+     $vars.field_descs.blocked 栏位。</p>",
+
+short_desc =>
+  "$terms.bug 摘要是一个简洁地描述这个 $terms.bug 的短句子。",
+
+status_whiteboard =>
+  "每个 $terms.bug 都有一块状态白板，可以加入标籤以及状态资讯。",
+
+tag =>
+  "不像${vars.field_descs.keywords}是公开且所有使用者可见那样，
+   ${vars.field_descs.tag}是只有自己可见，也只能由拥有者编辑。
+   编辑${vars.field_descs.tag}不会通知其他使用者。用它们来对
+   ${terms.bugs}下标籤及追踪吧。",
+
+target_milestone =>
+  "$vars.field_descs.target_milestone 栏位是用来定义工程师将
+   $terms.bug 排程，并预计修复的日期。",
+
+version =>
+  "版本栏位是用来定义 $terms.bug 在软体的哪个版本发生。",
+
+votes =>
+  "有些 $terms.bugs 可以投票，因此你可以将你的搜寻"
+  _ "限制在至少要有一定票数的 $terms.bugs 里。",
+
+work_time =>
+  "已花在这个 $terms.bug 上的时间。",
+
+##########################
+# Search-specific fields #
+##########################
+
+chfield =>
+  "你可以搜寻特定种类的变更，这个栏位就是给你选择用的。",
+
+# Duplicated to chfieldto below, also.
+chfieldfrom =>
+  "以 YYYY-MM-DD (例如 2007-12-31) 的格式指定开始及结束的时间。
+   也可以在后头加上 HH:mm ，例如 2007-12-31 23:59 。
+   也可以用 1h、2d、3w、4m 或是 5y，
+   来表示 1 小时前、 2 天前、 3 星期前、 4 个月前，或是 5 年前。
+   用 0d 表示今天凌晨 00:00 ，另外也可以用 0h、0w、0m、0y
+   分别代表这个小时、这星期、这个月，或是这一年的开始。",
+
+chfieldvalue =>
+  "上栏所定义的数值是在该段时间做出变更的。",
+
+content =>
+  "此栏位为搜寻用。将会对 $vars.field_descs.short_desc 和
+   $vars.field_descs.longdesc 栏位做类似 Google 的「全文搜寻」。",
+
+# Duplicated to email2 below, also.
+email1 =>
+  "每个人在每个 $terms.bug 扮演的角色不尽相同。"
+  _ "你可以以特定角色搜寻特定人员。",
+
+} %]
+
+[% vars.help_html.email2 = vars.help_html.email1 %]
+[% vars.help_html.chfieldto = vars.help_html.chfieldfrom %]
+[% vars.help_html.deadlinefrom = vars.help_html.deadline %]
+[% vars.help_html.deadlineto = vars.help_html.deadline %]
+
+[% help_all_note = BLOCK %]
+  <strong>注意：</strong>搜寻时，若选择 "All" 选项，
+  只会找该栏位值为 "All" 的 [% terms.bugs %] 。
+[% END %]
+[% FOREACH all_field = ['op_sys', 'rep_platform'] %]
+  [% vars.help_html.$all_field = vars.help_html.$all_field _ ' ' _ help_all_note %]
+[% END %]
+
+[% IF Param('useclassification') %]
+  [% vars.help_html.product = vars.help_html.product
+      _ " 选择一个类别来减少这个列表。" %]
+[% END %]
+
+[% FOREACH help_field = bug_fields.keys %]
+
+  [%# Add help for custom fields. %]
+  [% IF !vars.help_html.${help_field}.defined %]
+    [% IF bug_fields.${help_field}.long_desc %]
+      [% vars.help_html.${help_field} = bug_fields.${help_field}.long_desc %]
+    [% ELSE %]
+      [% SET field_type = bug_fields.${help_field}.type %]
+      [% field_type_desc = BLOCK -%]
+        [% field_types.$field_type FILTER html %]
+      [%- END %]
+      [% vars.help_html.${help_field} =
+      "在此 Bugzilla 中的自订栏位 $field_type_desc 。" %]
+    [% END %]
+  [% END %]
+
+  [%# Add help for the search types, for query.cgi. %]
+  [% type_desc = BLOCK %]
+    你想要搜寻的 [% vars.field_descs.${help_field} FILTER html %] 种类。
+  [% END %]
+  [% SET type_name = help_field _ '_type' %]
+  [% vars.help_html.$type_name = type_desc %]
+[% END %]
+
+[% Hook.process("end") %]

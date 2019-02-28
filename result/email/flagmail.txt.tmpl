@@ -1,0 +1,80 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[% bugidsummary = bug.bug_id _ '：'_ bug.short_desc %]
+[% attidsummary = attachment.id _ '：' _ attachment.description %]
+[% flagtype_name = flag ? flag.type.name : old_flag.type.name %]
+[% statuses = { '+' => "同意" , '-' => "拒绝" , 'X' => "取消" ,
+                '?' => "要求" } %]
+
+[% to_identity = "" %]
+[% on_behalf_of = 0 %]
+[% action = flag.status || 'X' %]
+
+[% IF flag && flag.status == '?' %]
+  [% subject_status = "已要求" %]
+  [% IF flag.setter_id == user.id %]
+    [% to_identity = flag.requestee.identity _ "所要求的" %]
+  [% ELSE %]
+    [% on_behalf_of = 1 %]
+    [% IF flag.requestee %][% to_identity = "给" _ flag.requestee.identity %][% END %]
+  [% END %]
+[% ELSE %]
+  [% IF old_flag && old_flag.status == '?' %]
+    [% to_identity = old_flag.setter.identity _ "所要求的" %]
+    [% IF old_flag.requestee.defined %]
+        [% requestee_identity = old_flag.requestee.identity _ "的" %]
+    [% END %]
+  [% END %]
+  [% subject_status = statuses.$action %]
+[% END %]
+From: [% Param('mailfrom') %]
+To: [% to %]
+Subject: [% flagtype_name %] [%+ subject_status %] ： [[% terms.Bug %] [%+ bug.bug_id %]] [% bug.short_desc %]
+[%- IF attachment %]：[附件 [% attachment.id %]] [% attachment.description FILTER clean_text %][% END %]
+Date: [% date %]
+X-Bugzilla-Type: request
+[%+ INCLUDE "email/header-common.txt.tmpl" %]
+[%+ threadingmarker %]
+
+[%+ USE wrap -%]
+[%- FILTER bullet = wrap(80) -%]
+
+[% IF on_behalf_of %]
+[% user.identity %] 已重新分配 [% flag.setter.identity %] 对 [% IF requestee_identity %] [%+ requestee_identity %] [% END %] [% flagtype_name %] 的要求
+[% to_identity %]：
+[% ELSE %]
+[% user.identity %] 已[% statuses.$action %] [%+ to_identity %] [% IF requestee_identity %] [%+ requestee_identity %] [% END %] [%+ flagtype_name %]：
+[% END %]
+
+[% terms.Bug %] [%+ bugidsummary %]
+[% END %]
+[%+ urlbase %]show_bug.cgi?id=[% bug.bug_id %]
+[% IF attachment %]
+
+[% FILTER bullet = wrap(80) %]
+附件 [% attidsummary %]
+[%- END %]
+[%+ urlbase %]attachment.cgi?id=[% attachment.id %]&action=edit
+[%- END %]
+
+[%- Hook.process('after_summary') -%]
+
+[%- FILTER bullet = wrap(80) %]
+
+[% FOREACH comment = new_comments %]
+
+[%- IF comment.count %]
+--- 意见 #[% comment.count %] ，来自 [% comment.author.identity %] ---
+[% ELSE %]
+--- 描述 ---
+[% END %]
+[%+ comment.body_full({ is_bugmail => 1, wrap => 1 }) FILTER strip_control_chars %]
+[% END %]
+
+[%- END %]

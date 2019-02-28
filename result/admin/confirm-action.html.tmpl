@@ -1,0 +1,78 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # abuser: identity of the user who created the (invalid?) token.
+  # token_action: the action the token was supposed to serve.
+  # expected_action: the action the user was going to do.
+  # script_name: the script generating this warning.
+  # alternate_script: the suggested script to redirect the user to
+  #                   if they decline submission.
+  #%]
+
+[% PROCESS global/header.html.tmpl
+  title = "可疑的动作"
+%]
+
+[% IF abuser %]
+  <div class="throw_error">
+    <p>当你浏览 Bugzilla 的管理表格时，将会随机产生 token
+    ，并储存在资料库以及浏览器载入的表格中，以确保所做出的变更要求是由
+    Bugzilla 的表格送出。很遗憾的是，目前使用的 token
+    并不正确，代表你可能并非来自正确的页面。
+    <br>以下的 token 已被使用：</p>
+
+    [% IF token_action != expected_action %]
+      <p>
+        <span class="label">储存的动作：</span>
+        [%+ token_action FILTER html %]
+        <br>
+        此动作并不符合预料的动作 ([% expected_action FILTER html %]) 。
+      </p>
+    [% END %]
+
+    [% IF abuser != user.identity %]
+      <p>
+        <span class="label">由谁产生：</span>
+        [%+ abuser FILTER html %]
+        <br>
+        这个 token 并非由你产生。可能是有人尝试作弄你！
+      </p>
+    [% END %]
+    </div>
+
+  <p>请向 [% Param("maintainer") FILTER html %] 回报此问题。</p>
+[% ELSE %]
+  <div class="throw_error">
+    看起来你并非从正确的页面过来（你在执行 '[% script_name FILTER html%]'
+    的时候，并没有 <em>[% expected_action FILTER html %]</em> 此项动作有效的
+    token ）。原因可能是下列其中之一：<br>
+    <ul>
+      <li>
+        你在成功送出变更后点选了浏览器的「上一页」按钮。这并不是个好方式（不过没有损害）。
+      </li>
+      <li>
+        你直接在浏览器的网址列输入网址。这应该是安全的。
+      </li>
+      <li>
+        你点选了一个自动转址的网址，<b>但未经过你的同意</b>，因此这个动作较为严重。
+      </li>
+    </ul>
+    你确定你仍要做出这些变更吗？这可能导致非预料中或非期望的结果。
+  </div>
+
+  <form name="check" id="check" method="post" action="[% script_name FILTER html %]">
+    [% PROCESS "global/hidden-fields.html.tmpl"
+               exclude="^(Bugzilla_login|Bugzilla_password)$" %]
+    <input type="submit" id="confirm" value="确认变更">
+  </form>
+  <p>或是放弃这些变更，并回到 <a href="[% alternate_script FILTER html %]">
+    [%- alternate_script FILTER html %]</a> 。</p>
+[% END %]
+
+[% PROCESS global/footer.html.tmpl %]

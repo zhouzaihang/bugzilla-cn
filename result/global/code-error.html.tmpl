@@ -1,0 +1,425 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # header_done: boolean. True if the header has already been printed.
+  # error: string. The tag of the error.
+  # variables: hash. Useful data about the problem. The keys are the variable
+  #  names, and the values the variable values.
+  #%]
+
+[%# This is a list of all the possible code errors. Please keep them in
+  # alphabetical order by error tag, and leave a blank line between errors.
+  #
+  # Note that you must explicitly filter every single template variable
+  # in this file; if you do not wish to change it, use the "none" filter.
+  #%]
+
+[% DEFAULT title = "内部发生错误" %]
+
+[% error_message = BLOCK %]
+  [% IF error == "auth_invalid_email" %]
+    [% title = "无效的电子邮件地址" %]
+    在试图建立或更新你的帐号的时候，我们收到了一个无法通过电子邮件语法检查的地址
+    (<b>[% addr FILTER html %]</b>)。
+    [% IF default %]
+      一个有效的电子邮件地址必须要有一个 @ 符号，以及在 @ 符号之后至少有一个 . 符号。
+    [% ELSE %]
+      [%+ Param('emailregexpdesc') FILTER html_light %]
+    [% END %]
+    另外，不可以含有任何不合法的字元。
+
+  [% ELSIF error == "authres_unhandled" %]
+    [% value FILTER html %] 结果值并非由登入码处理。
+
+  [% ELSIF error == "bad_arg" %]
+    送到 <code>[% function FILTER html %]</code> 函数的是不正确的参数 <code>[% argument FILTER html %]</code> 。
+
+  [% ELSIF error == "bug_error" %]
+    在试图传回 [% terms.bug %] [%+ bug.bug_id FILTER html %] 时，传回错误 [% bug.error FILTER html %] 。
+
+  [% ELSIF error == "cancel_token_does_not_exist" %]
+    要取消的 token 不存在。
+
+  [% ELSIF error == "chart_data_not_generated" %]
+    [% docslinks = {'using/reports-and-charts.html' => '设定图表'} %]
+    [% IF product.id %]
+      因为自建立产品以来尚未收集产生图表用的资料，所以目前尚未有产品 <em>[% product.name FILTER html %]</em> 的图表。
+    [% ELSE %]
+      尚未收集图表用的资料。
+    [% END %]
+    请隔一天后再试。如果你一天后仍然看到此一讯息，请将此错误回报给
+    <a href="mailto:[% Param('maintainer') %]">[% Param('maintainer') %]</a> 。
+
+  [% ELSIF error == "chart_datafile_corrupt" %]
+    图表档案 [% file FILTER html %] 已损毁。
+
+  [% ELSIF error == "chart_dir_nonexistent" %]
+    不存在目录 <kbd>[% dir FILTER html %]</kbd> 以及 <kbd>[% graph_dir FILTER html %]</kbd> 。
+
+  [% ELSIF error == "chart_file_open_fail" %]
+    无法开启图表档案 <kbd>[% filename FILTER html %]</kbd> 。
+
+  [% ELSIF error == "column_alter_nonexistent_fk" %]
+    你尝试修改
+    [%+ table FILTER html %].[% column FILTER html %]
+    的 foreign key ，但是该栏位并没有 foreign key 。
+
+  [% ELSIF error == "column_not_null_without_default" %]
+    新增栏位 [% name FILTER html %] 失败：
+    <br>除非你在参数 <code>$init_value</code> 中做设定，否则你不能在现有的表格中加入没有预设值的 NOT NULL 栏位。
+
+  [% ELSIF error == "column_not_null_no_default_alter" %]
+    由于 [% name FILTER html %] 栏位内含有 NULL 值，因此你不能在不指定预设值或指定一个值给
+    $set_nulls_to 的前提下，将 [% name FILTER html %] 栏位设为 NOT NULL 值。
+
+  [% ELSIF error == "comment_extra_data_not_allowed" %]
+    你尝试将 <code>extra_data</code> 栏位设定为
+    '[% extra_data FILTER html %]' ，但是类别 [% type FILTER html %]
+    的意见不允许 <code>extra_data</code> 此参数。
+
+  [% ELSIF error == "comment_extra_data_required" %]
+    类别 [% type FILTER html %] 的意见需要设定
+    <code>extra_data</code> 此参数。
+
+  [% ELSIF error == "comment_extra_data_not_numeric" %]
+    你尝试将 <code>extra_data</code> 栏位设定为
+    '[% extra_data FILTER html %]' ，但是类别 [% type FILTER html %]
+    的意见需要设定数字的 <code>extra_data</code> 参数。
+
+  [% ELSIF error == "comment_type_invalid" %]
+    '[% type FILTER html %]' is not a valid comment type.
+
+  [% ELSIF error == "cookies_need_value" %]
+    每个 cookie 都必须要有一个数值。
+
+  [% ELSIF error == "db_rename_conflict" %]
+    名称冲突：无法将 [% old FILTER html %] 更名为 [% new FILTER html %] ，因为 [% new FILTER html %] 已存在。
+
+  [% ELSIF error == "env_no_email" %]
+    Bugzilla 并未从该环境中收到电子邮件地址。
+    [% IF Param("auth_env_email") %]
+      这代表 '[% Param("auth_env_email") FILTER html %]' 环境变数是空白或不存在。
+    [% ELSE %]
+      你必须设定 "auth_env_email" 参数到包含使用者的电子邮件地址的该环境变数名称中。
+    [% END %]
+
+  [% ELSIF error == "extension_must_be_subclass" %]
+    来自 <code>[% filename FILTER html %]</code> 的 <code>[% package FILTER html %]</code>
+    并不是 <code>[% class FILTER html %]</code> 的 subclass 。
+
+  [% ELSIF error == "extension_must_return_name" %]
+    <code>[% extension FILTER html %]</code> 回传了
+    <code>[% returned FILTER html %]</code> ，但这不是个有效的附加元件名称。
+    附加元件必须要回传它们的名称，而不是 <code>1</code> 或数字。
+    详情请参阅
+    <a href="[% docs_urlbase FILTER html %]api/Bugzilla/Extension.html">Bugzilla::Extension</a> 。
+
+  [% ELSIF error == "extension_no_name" %]
+    并未在（自 <code>[% filename FILTER html %]</code> 载入的）
+    <code>[% package FILTER html %]</code> 中找到
+    <code>NAME</code> method 。
+    这代表附加元件至少有以下其中一项问题：
+
+    <ul>
+      <li><code>[% filename FILTER html %]</code> 并未定义
+        <code>[% package FILTER html %]</code> package 。</li>
+      <li><code>[% package FILTER html %]</code> 并未定义
+        <code>NAME</code> method （或是 <code>NAME</code> method
+        回传的是空字串）。</li>
+    </ul>
+
+  [% ELSIF error == "extern_id_conflict" %]
+    在资料库中， '[% username FILTER html %]' 对应到外部编号
+    '[% extern_id FILTER html %]' ，但是你的帐号来源说 '[% extern_user FILTER html %]' 拥有该外部编号。
+
+  [% ELSIF error == "field_choice_must_use_type" %]
+    当你在 <code>Bugzilla::Field::Choice</code> 呼叫一个 class method
+    时，你必须呼叫 <code>Bugzilla::Field::Choice-&gt;type('some_field')</code>
+    来产生正确的 class ，而无法直接透过 <code>Bugzilla::Field::Choice</code>
+    呼叫 class method 。
+
+  [% ELSIF error == "field_not_custom" %]
+    '[% field.description FILTER html %]' ([% field.name FILTER html %])
+    并非自订栏位。
+
+  [% ELSIF error == "field_type_not_specified" %]
+    [% title = "未指定栏位种类" %]
+    在新增自订栏位时，你必须指定栏位的种类。
+
+  [% ELSIF error == "flag_type_inactive" %]
+    [% title = "无效的旗标类型" %]
+    旗标类型 [% type FILTER html %] 无效，也不能用于建立新旗标。
+
+  [% ELSIF error == "flag_type_target_type_invalid" %]
+    目标种类既非 <em>[% terms.bug %]</em> ，也不是<em>附件</em>，而是 <em>[% target_type FILTER html %]</em> 。
+
+  [% ELSIF error == "flag_unexpected_object" %]
+    [% title = "无法被辨认的物件" %]
+    无法对种类是 [% caller FILTER html %] 的物件设定旗标。
+    旗标仅能设定于 [% terms.bugs %] 和附件上。
+
+  [% ELSIF error == "illegal_field" %]
+    并未设定有效的 [% field FILTER html %] 。
+
+  [% ELSIF error == "invalid_customfield_type" %]
+    [% title = "无效的栏位种类" %]
+    <em>[% type FILTER html %]</em> 并非有效的栏位种类。
+
+  [% ELSIF error == "invalid_feature" %]
+    [% title = "无效的功能名称" %]
+    [% feature FILTER html %] 并非有效的功能名称。请参考
+    <code>Bugzilla::Install::Requirements</code> 的
+    <code>OPTIONAL_MODULES</code> 来寻找有效的名称。
+
+  [% ELSIF error == "invalid_flag_association" %]
+    [% title = "无效的旗标关连" %]
+    某些旗标并不属于
+    [% IF attach_id %]
+      附件 [% attach_id FILTER html %] 。
+    [% ELSE %]
+      [%+ terms.bug %] [%+ bug_id FILTER html %] 。
+    [% END %]
+
+  [% ELSIF error == "invalid_post_bug_submit_action" %]
+    无效的 post_bug_submit_action 设定。
+
+  [% ELSIF error == "invalid_series_id" %]
+    [% title = "无效的系列" %]
+    系列编号 [% series_id FILTER html %] 无效。可能是该系列已删除。
+
+  [% ELSIF error == "invalid_timestamp" %]
+    所输入的 timestamp <code>[% timestamp FILTER html %]</code>
+    无法被转换为有效的日期和时间。
+
+  [% ELSIF error == "invalid_webservergroup" %]
+    没有此群组： [% group FILTER html %] 。<br>
+    请检查你在 [% constants.bz_locations.localconfig FILTER html %]
+    的 $webservergroup 设定。
+
+  [% ELSIF error == "invalid_field_name" %]
+    [% title = "无效的栏位名称" %]
+    不能把 "[% field.truncate(30, "...") FILTER html %]" 做为栏位名称。
+
+  [% ELSIF error == "jobqueue_insert_failed" %]
+   [% title = "Job 排程失败" %]
+    在 job 排程中插入 <code>[% job FILTER html %]</code> 时，出现下列错误讯息：
+    [% errmsg FILTER html %]
+
+  [% ELSIF error == "jobqueue_no_job_mapping" %]
+    <code>Bugzilla::JobQueue</code> 并未被指派来处理
+    "[% job FILTER html %]" 。你必须在
+    <code>Bugzilla::JobQueue</code> 里把此种 job 类别加入 <code>JOB_MAP</code> 此常数中，
+    也许会需要用到 'job_map' 这个 hook 。
+
+  [% ELSIF error == "ldap_bind_failed" %]
+    Bind LDAP 伺服器失败。错误讯息为：
+    <code>[% errstr FILTER html %]</code>
+
+  [% ELSIF error == "ldap_cannot_retreive_attr" %]
+    指定的 LDAP 属性 [% attr FILTER html %] 不存在。
+
+  [% ELSIF error == "ldap_connect_failed" %]
+    无法连线到 LDAP 伺服器 <code>[% server FILTER html %]</code>。
+
+  [% ELSIF error == "ldap_start_tls_failed" %]
+    无法以 TLS 连线至 LDAP 伺服器：<code>[% error FILTER html %]</code>。
+
+  [% ELSIF error == "ldap_search_error" %]
+    在 LDAP 尝试搜寻 &quot;[% username FILTER html %]&quot; 时，出现错误：
+    [% IF errstr %]
+      <code>[% errstr FILTER html %]</code>
+    [% ELSE %]
+      在 LDAP 中找不到使用者
+    [% END %]
+
+  [% ELSIF error == "ldap_server_not_defined" %]
+    LDAP 伺服器的认证未被定义。
+
+  [% ELSIF error == "mail_send_error" %]
+    从 '[% mail.header('From') FILTER html %]' 寄信到 '[% mail.header('To') FILTER html %]' 时，出现错误：
+    [%+ msg FILTER html %]
+
+  [% ELSIF error == "missing_series_id" %]
+    已将一系列插入至资料库，但是并未传回 series_id 的值。系列为：
+    [% series.category FILTER html %] /
+    [%+ series.subcategory FILTER html %] /
+    [%+ series.name FILTER html %]。
+
+  [% ELSIF error == "must_be_patch" %]
+    [% title = "附件必须是 patch" %]
+    附件 #[% attach_id FILTER html %] 必须是一个 patch 。
+
+  [% ELSIF error == "not_in_transaction" %]
+    未开始变更就尝试结束。
+
+  [% ELSIF error == "object_dep_sort_loop" %]
+    '[% field FILTER html %] 栏位在 VALIDATOR_DEPENDENCIES
+    发生回圈。以下是我们考虑的栏位：
+    [%+ considered.join(', ') FILTER html %] 。
+
+  [% ELSIF error == "param_integer_required" %]
+    功能 <code>[% function FILTER html %]</code>
+    的参数 <code>[% param FILTER html %]</code>
+    必须是整数。
+
+  [% ELSIF error == "param_invalid" %]
+    [% title = "无效的参数。" %]
+    对 [% function FILTER html %] 而言，
+    <code>[% param FILTER html %]</code> 是无效的参数。
+
+  [% ELSIF error == "param_must_be_numeric" %]
+    [% title = "无效的参数。" %]
+    对 <code>[% function FILTER html %]</code> 设定了无效的参数
+    <code>[% param FILTER html %]</code> ：必须是数字。
+
+  [% ELSIF error == "param_required" %]
+    [% title = "未输入参数" %]
+    功能 <code>[% function FILTER html %]</code> 需要参数
+    <code>[% param FILTER html %]</code> ，但并未设定该参数。
+
+  [% ELSIF error == "param_scalar_array_required" %]
+    参数 <code>[% param FILTER html %]</code>
+    必须是一个纯量阵列 (an array of scalars) （整数及／或字串）。
+
+  [% ELSIF error == "params_required" %]
+    [% title = "未输入参数" %]
+    功能 <code>[% function FILTER html %]</code> 需要你设定
+    以下的参数之一：
+    <code>[% params.join(', ') FILTER html %]</code>
+
+  [% ELSIF error == "product_empty_group_controls" %]
+    [% title = "缺少群组控管" %]
+    必须对 [% group.name FILTER html %] 群组设定新的群组控管权限。
+
+  [% ELSIF error == "product_illegal_group_control" %]
+    [% title = "不合法的群组控管" %]
+    '[% value FILTER html %]' 并不是
+    '[% field FILTER html %]' 栏位的有效数值。
+
+  [% ELSIF error == "protection_violation" %]
+    功能 <code>[% function FILTER html %]</code> 是由外部
+    [% IF caller %] (<code>[%+ caller FILTER html %]</code>) [% END %]
+    [% IF argument %]以参数 <code>[% argument FILTER html %]</code>[% END %]
+    呼叫的。此功能只能从 <code>[% superclass FILTER html %]</code> 的子类中呼叫。
+
+  [% ELSIF error == "radius_preparation_error" %]
+    在准备 RADIUS 认证要求时发生错误：
+    <code>[% errstr FILTER html %]</code>。
+
+  [% ELSIF error == "search_cp_without_op" %]
+    搜寻参数 f[% id FILTER html %] 是 "CP" ，但在它之前没有符合的
+    "OP" 。
+
+  [% ELSIF error == "search_field_operator_unsupported" %]
+    [% title = "无效的搜寻种类" %]
+    Bugzilla 不支援搜寻参数
+    "[% operator.truncate(30, "...") FILTER html %]" 。
+
+  [% ELSIF error == "search_invalid_joiner" %]
+    '[% joiner FILTER html %]' 对搜寻而言不是有效的 joiner 。
+
+  [% ELSIF error == "setting_info_invalid" %]
+    要新增设定，你必须输入设定名称、合适的数值／排序键，以及预设值。
+
+  [% ELSIF error == "setting_name_invalid" %]
+    设定名称 <em>[% name FILTER html %]</em> 并非有效的选项。
+    设定名称必须以字母开头，且仅包含字母、数字，或者是符号 '_' 、 '-' 、 '.' 和 ':' 。
+
+  [% ELSIF error == "setting_subclass_invalid" %]
+    没有 <code>[% subclass FILTER html %]</code> 此设定子类。
+
+  [% ELSIF error == "setting_value_invalid" %]
+    所设定的数值 "<code>[% value FILTER html %]</code>" 并不在设定 <em>[% name FILTER html %]</em> 的有效数值清单中。
+
+  [% ELSIF error == "token_generation_error" %]
+    Token 产生系统发生严重错误。
+
+  [% ELSIF error == "template_error" %]
+    [% template_error_msg FILTER html %]
+
+  [% ELSIF error == "template_invalid" %]
+    在模版中呼叫了无效的档案名称： [% name FILTER html %] 。
+
+  [% ELSIF error == "unable_to_retrieve_password" %]
+    无法自资料库中取得旧密码。
+
+  [% ELSIF error == "undefined_field" %]
+    表单栏位 [% field FILTER html %] 并未定义。
+
+  [% ELSIF error == "unknown_method" %]
+    找不到指定的 method '[% method FILTER html %]' 。
+
+  [% ELSIF error == "usage_mode_invalid" %]
+    '[% invalid_usage_mode FILTER html %]' 并非有效的使用模式。
+
+  [% ELSE %]
+    [%# Try to find hooked error messages %]
+    [% error_message = Hook.process("errors") %]
+    [% IF NOT error_message %]
+      [% title = "内部发生错误" %]
+      内部发生错误，但是 Bugzilla 并不知道
+      <code>[% error FILTER html %]</code> 所代表的意义。<br>
+      <br>
+      如果你是一个 [% terms.Bugzilla %] 的使用者，但却看到此一讯息时，请将它转寄给 [% Param('maintainer') %] 。
+    [% ELSE %]
+      [% error_message FILTER none %]
+    [% END %]
+  [% END %]
+[% END %]
+
+[%# We only want HTML error messages for ERROR_MODE_WEBPAGE %]
+[% USE Bugzilla %]
+[% IF Bugzilla.error_mode != constants.ERROR_MODE_WEBPAGE %]
+  [% IF Bugzilla.usage_mode == constants.USAGE_MODE_BROWSER %]
+    [% error_message FILTER none %]
+  [% ELSE %]
+    [% error_message FILTER txt %]
+  [% END %]
+  [% RETURN %]
+[% END %]
+
+[% UNLESS header_done %]
+  [% PROCESS global/header.html.tmpl %]
+[% END %]
+
+[% PROCESS global/docslinks.html.tmpl
+   docslinks      = docslinks
+   admindocslinks = admindocslinks
+%]
+
+<p>
+  发生了未预期的错误。这可能是暂时性的问题，也有可能有程式不正确地运作。
+  如果问题持续的话，请将此页面，以及出现此讯息前你所做过的动作一并寄到
+  <a href="mailto:[% Param("maintainer") %]">[% Param("maintainer") %]</a> 。
+</p>
+
+<p>
+  <samp>网址： [% Bugzilla.cgi.self_url FILTER html %]</samp>
+</p>
+
+<div id="error_msg" class="throw_error">
+  [% error_message FILTER none %]
+</div>
+
+<p id="post_err_msg">
+  Traceback:
+</p>
+
+<pre>[% traceback FILTER html %]</pre>
+
+[% IF variables %]
+  <pre>
+变数：
+  [% FOREACH key = variables.keys %]
+    [%+ key FILTER html %] ： [%+ variables.$key FILTER html %]
+  [% END %]
+  </pre>
+[% END %]
+
+[% PROCESS global/footer.html.tmpl %]

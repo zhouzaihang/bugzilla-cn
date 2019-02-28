@@ -1,0 +1,26 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+Content-Type: text/plain
+From: [% Param('mailfrom') %]
+To: [% user.email %]
+Subject: [[% terms.Bugzilla %]] 管理者使用了你的帳號 [% user.login -%]
+X-Bugzilla-Type: admin
+
+[%+ sudoer.identity %] 執行了 'sudo' 功能，進入了你的 [%+ terms.Bugzilla %] 帳號。
+
+[% IF reason %]
+[%+ sudoer.identity %] 這麼做的理由如下：
+
+[% reason FILTER wrap_comment %]
+[% ELSE %]
+[%+ sudoer.identity %] 並未說明為何這樣做。
+[% END %]
+
+如果你覺得有什麼不對，請洽 [%+ Param("maintainer") %] 。
+關於此一功能的更多資訊，請參考 <[% urlbase %]page.cgi?id=sudo.html> 。

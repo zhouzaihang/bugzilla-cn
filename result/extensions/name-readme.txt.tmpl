@@ -1,0 +1,22 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+一般的模版放在这个目录下。
+你可以用类似以下的方式载入它们：
+
+use Bugzilla::Error;
+my $template = Bugzilla->template;
+$template->process('[% name FILTER lower %]/some-template.html.tmpl')
+  or ThrowTemplateError($template->error());
+
+这样就可以载入此目录中的 <kbd>some-template.html.tmpl</kbd> 档案。
+
+注意：你的模版完整路径不可以和已存在的 Bugzilla 模版
+或其他附加元件冲突，否则你的模版有可能会把其他模版覆盖掉。
+因此我们建立了 '[% name FILTER lower %]' 这个目录，这样你就可以
+把你的模版放在这里，以避免冲突。

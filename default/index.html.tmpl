@@ -1,0 +1,156 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # release: a hash containing data about new releases, if any.
+  #%]
+
+[% PROCESS global/header.html.tmpl
+   title = "$terms.Bugzilla 首頁"
+   header = "首頁"
+   header_addl_info = "版本 $constants.BUGZILLA_VERSION"
+%]
+
+[% IF release %]
+  <div id="new_release">
+    [% IF release.data %]
+      [% IF release.deprecated %]
+        <p>已不再支援 Bugzilla [%+ release.deprecated FILTER html %] 。
+        建議你升級，以確保系統安全。</p>
+      [% END %]
+
+      <p>新的 Bugzilla (版本 [% release.data.latest_ver FILTER html %]) 可在
+      <a href="[% release.data.url FILTER html %]">[% release.data.url FILTER html %]</a> 下載。<br>
+      新版本釋出日期： [% release.data.date FILTER html %] 。</p>
+
+      <p class="notice">此一訊息僅對有管理權限的使用者顯示。
+      你可以在<a href="editparams.cgi?section=general#upgrade_notification_desc">參數設定</a>頁設定此通知。</p>
+    [% ELSIF release.error == "cannot_download" %]
+      <p>無法下載遠端檔案 <a href="[% constants.REMOTE_FILE FILTER html %]">
+      [%~ constants.REMOTE_FILE FILTER html %]</a> （原因：
+      [% release.reason FILTER html %] ）。<br>
+      可能是遠端伺服器暫時無法使用，或是你的網站伺服器無法瀏覽網際網路。如果你在使用代理伺服器，請正確設定
+      <a href="editparams.cgi?section=advanced#proxy_url">proxy_url</a> 參數。</p>
+
+    [% ELSIF release.error == "no_write" %]
+      <p>無法建立本地 XML 檔案 '[% constants.LOCAL_FILE FILTER html %]' （原因：
+      [% release.reason FILTER html %] ）。<br>
+      請確認網站伺服器可在此目錄下寫入此檔案。
+    [% ELSIF release.error == "no_update" %]
+      <p>無法更新本地 XML 檔案 '[% constants.LOCAL_FILE FILTER html %]' 。請確認網站伺服器可以編輯此檔案。</p>
+    [% ELSIF release.error == "no_access" %]
+      <p>無法讀取本地 XML 檔案 '[% constants.LOCAL_FILE FILTER html %]' 。請確認此檔案已設定正確的讀寫權限。</p>
+    [% ELSIF release.error == "corrupted" %]
+      <p>本地 XML 檔案 '[% constants.LOCAL_FILE FILTER html %]' 並非有效的 XML 格式。請將它刪除，並嘗試重新瀏覽此頁面。</p>
+    [% ELSIF release.error == "unknown_parameter" %]
+      <p>'[% Param("upgrade_notification") FILTER html %]' 並非有效的通知參數。請點選<a
+      href="editparams.cgi?section=general#upgrade_notification_desc">參數設定</a>頁面，檢查此參數的設定。</p>
+    [% END %]
+  </div>
+[% END %]
+
+<div id="page-index">
+  <h1 id="welcome">歡迎來到 [% terms.Bugzilla %]</h1>
+  <div class="intro">[% Hook.process('intro') %]</div>
+
+  <div class="bz_common_actions">
+    <ul>
+      <li>
+        <a id="enter_bug" href="enter_bug.cgi"><span>回報 [% terms.Bug %]</span></a>
+      </li>
+      <li>
+        <a id="query" href="query.cgi"><span>搜尋</span></a>
+      </li>
+      <li>
+        <a id="account"
+          [% IF user.id %]
+            href="userprefs.cgi"><span>使用者偏好設定</span></a>
+          [% ELSIF Param('createemailregexp') && user.authorizer.user_can_create_account %]
+            href="createaccount.cgi"><span>建立新帳號</span></a>
+          [% ELSE %]
+            href="?GoAheadAndLogIn=1"><span>登入</span></a>
+          [% END %]
+      </li>
+      <li>
+        <a id="help" href="[% docs_urlbase FILTER html %]using/index.html"><span>說明文件</span></a>
+      </li>
+    </ul>
+  </div>
+
+  <div>
+    <form id="quicksearchForm" name="quicksearchForm" action="buglist.cgi">
+      <input id="quicksearch_main" name="quicksearch" title="快速搜尋"
+             placeholder="輸入 [% terms.bug %] 的編號或字串進行搜尋"
+             autofocus required>
+      <input id="find" type="submit" value="快速搜尋">
+      <a href="page.cgi?id=quicksearch.html" title="快速搜尋說明">[?]</a>
+    </form>
+
+    <ul class="additional_links">
+      [% Hook.process('additional_links') %]
+    </ul>
+  </div>
+
+  <div id="common_queries">
+    <h4>常用的查詢：</h4>
+    <ul>
+      [% IF user.id %]
+        <li>
+          [% title = BLOCK %]Open [% terms.bugs %] assigned to me[% END %]
+          <a href="buglist.cgi?f1=assigned_to&amp;o1=equals&amp;v1=%25user%25&amp;resolution=---">
+            [% title FILTER html %]</a> ([% assignee_count FILTER html %])
+          <a href="buglist.cgi?f1=assigned_to&amp;o1=equals&amp;v1=%25user%25&amp;resolution=---&amp;ctype=atom&amp;title=[% title FILTER uri %]"
+             class="rss">&nbsp;</a>
+        </li>
+        <li>
+          [% title = BLOCK %]Open [% terms.bugs %] reported by me[% END %]
+          <a href="buglist.cgi?f1=reporter&amp;o1=equals&amp;v1=%25user%25&amp;resolution=---">
+            [% title FILTER html %]</a> ([% reporter_count FILTER html %])
+          <a href="buglist.cgi?f1=reporter&amp;o1=equals&amp;v1=%25user%25&amp;resolution=---&amp;ctype=atom&amp;title=[% title FILTER uri %]"
+             class="rss">&nbsp;</a>
+        </li>
+        [% IF Bugzilla.has_flags %]
+          <li>
+            [% title = BLOCK %]Requests addressed to me[% END %]
+            <a href="request.cgi?action=queue&amp;requestee=[% user.login FILTER uri %]&amp;group=type&amp;do_union=0">
+              [% title FILTER html %]</a> ([% requestee_count FILTER html %])
+            <a href="buglist.cgi?f1=requestees.login_name&amp;o1=equals&amp;v1=%25user%25&amp;ctype=atom&amp;title=[% title FILTER uri %]"
+               class="rss">&nbsp;</a>
+          </li>
+        [% END %]
+      [% END %]
+
+      <li>
+        <a href="buglist.cgi?chfield=%5BBug%20creation%5D&amp;chfieldfrom=24h">最近 24 小時</a>
+        [% title = BLOCK %]最近 24 小時回報的 [% terms.bugs %][% END %]
+        <a href="buglist.cgi?chfield=%5BBug%20creation%5D&amp;chfieldfrom=24h&amp;ctype=atom&amp;title=[% title FILTER uri %]"
+           class="rss">&nbsp;</a>
+        | <a href="buglist.cgi?chfield=%5BBug%20creation%5D&amp;chfieldfrom=7d">最近 7 天</a>
+        [% title = BLOCK %]最近 7 天回報的 [% terms.bugs %][% END %]
+        <a href="buglist.cgi?chfield=%5BBug%20creation%5D&amp;chfieldfrom=7d&amp;ctype=atom&amp;title=[% title FILTER uri %]"
+           class="rss">&nbsp;</a>
+        回報的 [% terms.bugs %]
+      </li>
+      <li>
+        <a href="buglist.cgi?chfieldfrom=24h">最近 24 小時</a>
+        [% title = BLOCK %]最近 24 小時變更過的 [% terms.bugs %][% END %]
+        <a href="buglist.cgi?chfieldfrom=24h&amp;ctype=atom&amp;title=[% title FILTER uri %]"
+           class="rss">&nbsp;</a>
+        | <a href="buglist.cgi?chfieldfrom=7d">最近 7 天</a>
+        [% title = BLOCK %]最近 7 天變更過的 [% terms.bugs %][% END %]
+        <a href="buglist.cgi?chfieldfrom=7d&amp;ctype=atom&amp;title=[% title FILTER uri %]"
+           class="rss">&nbsp;</a>
+        變更過的 [% terms.bugs %]
+      </li>
+    </ul>
+  </div>
+
+  <div class="outro">[% Hook.process('outro') %]</div>
+</div>
+
+[% PROCESS global/footer.html.tmpl %]

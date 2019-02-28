@@ -1,0 +1,40 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%
+   title = "$terms.Bug 栏位"
+   desc = "选择你想要显示的栏位"
+%]
+
+[% param_descs = {
+  useclassification => "若设为「开」， Bugzilla 将把每项产品归到一个分类中。" _
+                       "但是你必须将 editclassification 参数设为「开」，才能够编辑分类。",
+
+  usetargetmilestone => "你是否希望使用目标里程碑栏位？",
+
+  useqacontact => "你是否希望使用 QA 连络人栏位？",
+
+  usestatuswhiteboard => "你是否希望使用状态白板栏位？",
+
+  use_see_also => "你是否希望使用「也请参考」栏位？" _
+    "它可以让你参照到其他 Bugzilla 上的 $terms.bugs 。" _
+    "即使你停用此栏位， 在 $terms.bug 中已设定为有关连的其他 $terms.bugs 的网址仍会出现，亦可被删除。",
+
+  defaultpriority => "这是新输入的 $terms.bugs 的预设优先程度。",
+
+  defaultseverity => "这是新输入的 $terms.bugs 的预设严重等级。",
+
+  defaultplatform => "这是在输入 $terms.bug 时，预先选择的硬体平台。<br>" _
+                     "若留白，则 Bugzilla 会使用浏览器回报的值做为平台预先选择的值。",
+
+  defaultopsys => "这是在输入 $terms.bug 时，预先选择的作业系统。<br>" _
+                  "若留白，则 Bugzilla 会使用浏览器回报的值做为作业系统预先选择的值。",
+  collapsed_comment_tags => "以半形逗号 (,) 分隔的标籤清单。" _
+                            "此清单将套用于意见栏位中，当意见内容符合标籤时，该意见会预设为折叠",
+}
+%]

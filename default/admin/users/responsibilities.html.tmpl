@@ -1,0 +1,55 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[% hidden_products = 0 %]
+<table id="user_responsibilities">
+  [% FOREACH item = otheruser.product_responsibilities %]
+    [% IF !user.can_see_product(item.product.name) %]
+      [% hidden_products = 1 %]
+      [% NEXT %]
+    [% END %]
+    <tbody>
+    <tr>
+      <th colspan="4" class="product">產品： [% item.product.name FILTER html %]</th>
+    </tr>
+    <tr>
+      <th>子產品</th>
+      <th>預設負責人</th>
+      <th>預設 QA 連絡人</th>
+      <th>預設寄件副本清單</th>
+    </tr>
+    [% FOREACH comp = item.components %]
+      <tr>
+        <td>
+          [% IF user.in_group("editcomponents", comp.product_id) %]
+            <a href="editcomponents.cgi?action=edit&amp;product=
+                     [% item.product.name FILTER uri %]&amp;component=
+                     [% comp.name FILTER uri %]">
+          [% END %]
+          [% comp.name FILTER html %]
+          [% IF user.in_group("editcomponents", comp.product_id) %]
+            </a>
+          [% END %]
+        </td>
+        [% FOREACH responsibility = ['default_assignee', 'default_qa_contact'] %]
+          <td class="center">
+            [% comp.$responsibility.id == otheruser.id ? "X" : "&nbsp;" %]
+          </td>
+        [% END %]
+        <td class="center">
+          [% comp.initial_cc.contains(otheruser) ? "X" : "&nbsp;" %]
+        </td>
+      </tr>
+    [% END %]
+    </tbody>
+  [% END %]
+</table>
+
+[% IF hidden_products %]
+  <p class="criticalmessages">此使用者和至少一種你無法瀏覽的產品有關連，因此該產品並未列出。你必須要求有足夠權限的管理者對此使用者進行編輯。</p>
+[% END %]

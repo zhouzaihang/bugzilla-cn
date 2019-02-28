@@ -1,0 +1,120 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%
+   title = "使用者认证"
+   desc = "设定使用者认证政策"
+%]
+
+[% param_descs = {
+  auth_env_id => "外部认证系统所使用的环境变数，对每个使用者储存一个独一无二的认证码。" _
+                 "如果不使用此方法，或没有此变数，请留白。",
+
+  auth_env_email => "外部认证系统所使用的环境变数，用来储存每位使用者的电子邮件地址。" _
+                    "这对环境认证来说是必须的栏位。若你不打算使用此功能，请留白。",
+
+  auth_env_realname => "外部认证系统所使用的环境变数，用来储存每位使用者的真实姓名。" _
+                       "如果不是用此方法，或没有此变数，请留白。",
+
+  user_info_class => "用来蒐集使用者登入资讯的机制。可复选。如果第一个无效，将会试第二个，类推。<br>
+                      类型有：
+                      <dl>
+                        <dt>CGI</dt>
+                        <dd>
+                          使用 CGI 介面询问使用者名称及密码。
+                        </dd>
+                        <dt>Env</dt>
+                        <dd>
+                          预先认证的使用者的资讯传送至系统环境变数中。
+                        </dd>
+                      </dl>",
+
+  user_verify_class => "以 user_info_class 蒐集到的认证资讯来验证的机制。可复选。如果第一个无效，将会试第二个，类推。<br>
+                        类型有：
+                        <dl>
+                          <dt>DB</dt>
+                          <dd>
+                            Bugzilla 内建的认证。这是最常选的选项。
+                          </dd>
+                          <dt>RADIUS</dt>
+                          <dd>
+                            使用 RADIUS 伺服器进行 RADIUS 认证。请参考
+                            Bugzilla 说明以了解更多资讯。使用此方法必须先设定<a
+                            href=\"?section=radius\">额外的参数</a>。
+                          </dd>
+                          <dt>LDAP</dt>
+                          <dd>
+                            使用 LDAP 伺服器进行 LDAP 认证。请参考
+                            Bugzilla 说明以了解更多资讯。使用此方法必须先设定<a
+                            href=\"?section=ldap\">额外的参数</a>。
+                          </dd>
+                        </dl>",
+
+  rememberlogin => "对 cookie 的管理
+                    <ul>
+                      <li>
+                        开 (on) - cookie 将永远不会过期 (使用者只需在浏览器登入一次)。
+                      </li>
+                      <li>
+                        关 (off) - cookie 只到使用者结束使用时有效 (使用者必须在每个新的浏览器视窗登入)。
+                      </li>
+                      <li>
+                        预设开 (defaulton)／预设关 (defaultoff) -
+                        选定如上所述的预设值，但使用者可自行选择是否让
+                        Bugzilla 记住登入资讯。
+                      </li>
+                    </ul>",
+
+  requirelogin => "若设定此选项，则所有浏览系统任何页面均需要登入。不允许匿名使用者使用。",
+
+  webservice_email_filter =>
+    "根据使用者是否登入，决定是否需要过滤 WebService API 传回的电子邮件地址。" _
+    "此参数的运作方法和网页 UI 目前过滤电子邮件地址的方法相同。" _
+    "如果 <var>requirelogin</var> 选项启用，此参数将无任何效果，使用者必须登入才能使用 Bugzilla 。",
+
+  emailregexp =>
+    "定义有效的电子邮件地址的正规表达式。" _
+    "预设值为包括所有有效的电子邮件地址。" _
+    "使用 <kbd>.*</kbd> 的话，将会接受所有遵守 " _
+    "<a href=\"http://tools.ietf.org/html/rfc2822#section-3.4.1\">RFC 2822</a> " _
+    "规范的电子邮件地址。" _
+    "另一个常用的值是 <kbd>^[^@]+$</kbd> ，代表" _
+    "「本地的使用者名称，不允许 @ 字元。」",
+
+  emailregexpdesc => "此描述解释 <var>emailregexp</var> 参数所允许的电子邮件地址。",
+
+  emailsuffix => "这是用来加在使用者帐号后面，形成电子邮件地址的字串。" _
+                 "如果你将 <var>emailregexp</var> 参数设定为仅允许本地的使用者名称，" _
+                 "但希望将邮件寄送到 username@my.local.hostname 时，这参数将十分有用。",
+
+  createemailregexp => "此处定义使用者自行使用「新增帐号」功能所允许的电子邮件地址" _
+                       "（不分大小写）的正规表达式。" _
+                       "预设值 (.*) 允许建立任何符何 emailregexp 参数的帐号。" _
+                       "如果设为空白，将不允许使用者自行建立新帐号；所有的帐号都必须透过管理者设定。",
+
+  password_complexity =>
+    "设定密码所要求的复杂程度。不管复杂程度为何，密码都必须至少" _
+    " ${constants.USER_PASSWORD_MIN_LENGTH} 字元。" _
+    "<ul>" _
+      "<li>no_constraints - " _
+        "不要求复杂程度。</li>" _
+      "<li>mixed_letters - " _
+        "密码必须包含至少一个大写和一个小写英文字母。</li>" _
+      "<li>letters_numbers - " _
+        "密码必须包含至少一个大写、一个小写英文字母，和一个数字。</li>" _
+      "<li>letters_numbers_specialchars - " _
+        "密码必须包含至少一个英文字母、一个数字，和一个特殊符号。</li>" _
+    "</ul>",
+
+  password_check_on_login =>
+    "若设定此选项， $terms.Bugzilla 将会在使用者登入 $terms.Bugzilla " _
+    "网页介面时，检查使用者的密码是否符合目前所要求的密码复杂程度。" _
+    "如果使用者的密码不符合所要求的密码复杂程度时，使用者将无法登入，" _
+    "并且会收到必须重新设定密码的讯息。"
+  }
+%]

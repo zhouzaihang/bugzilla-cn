@@ -1,0 +1,15 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+可透過網路存取的檔案，像是 JavaScript 、 CSS 以及圖形都放在此目錄中。
+你可以在 HTML 裡直接指向這些檔案。例如，如果你有個檔案叫
+"style.css" ，而你的擴充元件叫 "Foo" ，你就可以把它放在
+"extensions/Foo/web/style.css"
+並在 HTML 中以下列語法連結：
+
+<link href="extensions/Foo/web/style.css" rel="stylesheet" type="text/css">

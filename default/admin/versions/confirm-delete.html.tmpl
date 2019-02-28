@@ -1,0 +1,77 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # product: object; Bugzilla::Product object representing the product to
+  #               which the version belongs.
+  # version: object; Bugzilla::Version object representing the
+  #                    version the user wants to delete.
+  #%]
+
+[% title = BLOCK %]刪除產品 '[% product.name FILTER html %]' 的版本
+  [% END %]
+
+[% PROCESS global/header.html.tmpl
+  title = title
+  style_urls = ['skins/standard/admin.css']
+%]
+
+<table id="admin_table">
+  <tr class="column_header">
+    <th>欄位</th>
+    <th>值</th>
+  </tr>
+  <tr>
+    <td>版本</td>
+    <td>[% version.name FILTER html %]</td>
+  </tr>
+  <tr>
+    <td>產品的版本</td>
+    <td>[% product.name FILTER html %]</td>
+  </tr>
+  <tr>
+    <td>[% terms.Bugs %]</td>
+    <td>
+      [% IF version.bug_count %]
+        <a title="列出指向版本 '
+                  [%- version.name FILTER html %]'
+                  的 [% terms.bugs %]"
+           href="buglist.cgi?version=[% version.name FILTER uri %]&amp;product=
+                 [%- product.name FILTER uri %]">
+                 [%- version.bug_count FILTER none %]</a>
+      [% ELSE %]
+        無
+      [% END %]
+    </td>
+  </tr>
+</table>
+
+<h2>確認</h2>
+
+[% IF version.bug_count %]
+  <p class="confirmation">
+  很抱歉，在此版本中還有 [% version.bug_count FILTER none %] 個未解決的 [%+ terms.bugs %] 。<br>
+  在刪除這個版本之前，你必須將它[% '們' IF version.bug_count > 1 %]移動至另一個版本。
+  </p>
+[% ELSE %]
+
+  <p>你確定要刪除此一版本嗎？</p>
+
+  <form method="post" action="editversions.cgi">
+    <input type="submit" id="delete" value="是的，刪除">
+    <input type="hidden" name="action" value="delete">
+    <input type="hidden" name="product" value="[% product.name FILTER html %]">
+    <input type="hidden" name="version" value="[% version.name FILTER html %]">
+    <input type="hidden" name="token" value="[% token FILTER html %]">
+  </form>
+
+[% END %]
+
+[% PROCESS admin/versions/footer.html.tmpl %]
+
+[% PROCESS global/footer.html.tmpl %]

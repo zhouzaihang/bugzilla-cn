@@ -1,0 +1,171 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # fields: hash/record; the fields being matched, each of which has:
+  #     type: single|multi: whether or not the user can select multiple matches
+  #     flag_type: for flag requestee fields, the type of flag being requested
+  # matches: hash; Hierarchical.  The levels go like this:
+  #     field_name {
+  #         pattern_text {
+  #             'users'  = @user_list           (user objects)
+  #             'status' = success|fail|trunc   (result of search.
+  #                             'trunc' (truncated) means max was reached)
+  #         }
+  #     }
+  # script: string; The name of the calling script, used to create a
+  #     self-referential URL
+  #%]
+
+[%# This lists fields which use the user auto-completion feature and which
+  # are not listed in field_descs. %]
+[% field_labels = { # Used by editcomponents.cgi
+                    "initialcc"               => "预设寄件副本清单",
+                    "initialowner"            => "预设负责人",
+                    "initialqacontact"        => "预设 QA 连络人",
+                    # Used by process_bug.cgi
+                    "masscc"                  => "寄件副本清单",
+                    # Used by request.cgi
+                    "requester"               => "要求者",
+                    "requestee"               => "被要求者",
+                    # Used by userprefs.cgi
+                    "new_watchedusers"        => "监控清单",
+
+   }
+%]
+[% IF matchsuccess == 1 %]
+  [% PROCESS global/header.html.tmpl title="确认符合" %]
+
+  [% USE Bugzilla %]
+
+  <form method="post"
+  [% IF script -%]
+    action="[% script %]"
+  [%- END -%]
+  [% IF Bugzilla.cgi.param("data") %]
+    enctype="multipart/form-data"
+  [% END %]
+  >
+
+  <p>
+    [% IF matchmultiple %]
+      你在前一页所输入的名称或电子邮件地址，在 Bugzilla 中符合多笔资料。
+      <br>请检视下列可能符合的清单，并选择你想要的使用者，
+    [% ELSE %]
+      [% terms.Bugzilla %] 设定为无论在什么时候你输入了名称或是一部份的电子邮件，都必须要确认。
+      <br>以下是你所输入的名称／电子邮件，以及符合的帐号。
+      请确认他们是否正确，
+    [% END %]
+    或回到前一页重新输入。
+  </p>
+[% ELSE %]
+  [% PROCESS global/header.html.tmpl title="找不到符合的资料" %]
+  <p>
+    你在前一页所输入的名称或电子邮件地址，在 Bugzilla 中找不到符合的资料。
+    [% IF !user.id %]
+      <b>注意：你现在是登出状态。只会显示完全符合的电子邮件地址。</b>
+    [% END %]
+  </p>
+  <p>请回到前一页，并试试其他的名称或电子邮件地址。</p>
+[% END %]
+
+<table id="user_match_table">
+  [% FOREACH field = matches %]
+    <tr>
+      <td>
+        [% PROCESS field_names field_name=field.key %]:
+      </td>
+      <td>
+          [% FOREACH query = field.value %]
+            <div class="user_match">
+              <b>[% query.key FILTER html %]</b>
+            [% IF query.value.users.size %]
+                [% IF query.value.users.size > 1 %]
+                  [% IF query.value.status == 'fail' %]
+                    <span class="warning">
+                      符合多名使用者。
+                    </span>
+                    请按上一页，并以更明确的名称或地址再次尝试。
+                  [% ELSE %]
+                    [% IF query.value.status == 'trunc' %]
+                      符合多于查询上限数量 ([% query.value.users.size %]) 的使用者：<br>
+                    [% ELSE %]
+                      符合：<br>
+                    [% END %]
+                    <select name="[% field.key FILTER html %]"
+                     id="[% field.key FILTER html %]"
+                      [% IF fields.${field.key}.type == 'multi' %]
+                        multiple="multiple"
+                        [% IF query.value.users.size > 5 %]
+                         size="5"
+                        [% ELSE %]
+                         size="[% query.value.users.size %]"
+                        [% END %]
+                      [% END %]
+                    >
+                      [% FOREACH match = query.value.users %]
+                        <option value="[% match.login FILTER html %]">
+                         [%- match.identity FILTER html -%]
+                        </option>
+                      [% END %]
+                    </select>
+                  [% END %]
+                [% ELSE %]
+                  符合
+                  <b>[% query.value.users.0.identity FILTER html %]</b>
+                [% END %]
+            [% ELSE %]
+              <span class="warning">
+                [% IF query.key.length < 3 %]
+                  要搜寻的子字串太短
+                  (至少 3 个字元)
+                [% ELSE %]
+                  找不到符合的资料
+                [% END %]
+              </span>
+            [% END %]
+            </div>
+        [% END %]
+      </td>
+    </tr>
+  [% END %]
+</table>
+
+[% IF matchsuccess == 1 %]
+
+  [% SET exclude_these = ['Bugzilla_login', 'Bugzilla_password'] %]
+  [% FOREACH key IN matches.keys %]
+    [% exclude_these.push(key) IF Bugzilla.cgi.param(key) == '' %]
+  [% END %]
+  [% SET exclude = '^' _ exclude_these.join('|') _ '$' %]
+  [% PROCESS "global/hidden-fields.html.tmpl" exclude = exclude %]
+
+  <p>
+    <input type="submit" id="continue" value="继续">
+  </p>
+
+  </form>
+
+[% END %]
+
+[% PROCESS global/footer.html.tmpl %]
+
+
+[% BLOCK field_names %]
+
+  [% IF field_descs.$field_name %]
+    [% field_descs.$field_name FILTER html %]
+  [% ELSIF field_labels.$field_name %]
+    [% field_labels.$field_name FILTER html %]
+  [% ELSIF field_name.match("^requestee") %]
+    [% fields.${field_name}.flag_type.name FILTER html %] 位被要求者
+  [% ELSE %]
+    [% field_name FILTER html %]
+  [% END %]
+
+[% END %]

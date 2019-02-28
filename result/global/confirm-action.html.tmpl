@@ -1,0 +1,50 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # script_name: the script generating this warning.
+  # token: a valid token for the current action.
+  # reason: reason of the failure.
+  #%]
+
+[% PROCESS global/header.html.tmpl title = "可疑的动作"
+                                   style_urls = ['skins/standard/global.css'] %]
+
+<div class="throw_error">
+<!--reason=[%reason FILTER html %]-->
+  [% IF reason == "expired_token" %]
+    你所做的变更已被拒绝，原因是在送出你对 [% script_name FILTER html %]
+    所做的变更的时限（
+    [% constants.MAX_TOKEN_AGE FILTER html %]
+    天）已经超过了。可能是页面显示过久，或是意外送出已送出的旧有变更。
+
+  [% ELSIF reason == "missing_token" %]
+    看起来你并非从正确的页面过来。
+    其中一个原因是你直接在浏览器的网址列输入网址。这应该是安全的。
+    你点选了一个自动转址的网址，<b>但未经过你的同意</b>。
+
+  [% ELSIF reason == "invalid_token" %]
+    你对 [% script_name FILTER html %] 做出的变更中含有不正确的
+    token ，可能是有人想要盗用你的帐号，例如让你点选了一个自动转址的网址跳转到这里，<b>但未经过你的同意</b>。
+  [% END %]
+  <p>
+    你确定你仍要做出这些变更吗？
+  </p>
+</div>
+
+<form name="check" id="check" method="post" action="[% script_name FILTER html %]">
+  [% PROCESS "global/hidden-fields.html.tmpl"
+             exclude="^(Bugzilla_login|Bugzilla_password|token)$" %]
+  <input type="hidden" name="token" value="[% token FILTER html %]">
+  <input type="submit" id="confirm" value="确认所做的变更">
+</form>
+
+<p><a href="index.cgi">放弃所做的变更</a>（你会被重导到此 [% terms.Bugzilla %] 的首页）。
+</p>
+
+[% PROCESS global/footer.html.tmpl %]

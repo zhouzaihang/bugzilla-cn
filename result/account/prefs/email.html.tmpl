@@ -1,0 +1,287 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # watchedusers: string.
+  #               Comma-separated list of email addresses this user watches.
+  # watchers:     array.
+  #               Array of users watching this user's account.
+  # excludeself:  boolean.
+  #               True if user is not receiving self-generated mail.
+  # <rolename>:   Multiple hashes, one for each rolename (e.g. assignee; see
+  #               below), keyed by reasonname (e.g. comments; again, see
+  #               below). The value is a boolean - true if the user is
+  #               receiving mail for that reason when in that role.
+  #%]
+
+[%# If the user's bugmail has been disabled by admins, show a warning. %]
+[% IF user.email_disabled %]
+  <div class="warningmessages">
+    你的 [% terms.bug %] 变更状态通知信已被管理员停用。请联络
+    [% Param('maintainer') %] 以启用 [% terms.bug %] 变更状态通知信。
+  </div>
+[% END %]
+
+<p>
+如果你不想要收到 [% terms.bug %] 变更状态的通知信，你可以用以下设定来过滤部份或全部的通知信。
+</p>
+
+[% IF user.authorizer.can_change_email && Param('allowemailchange') %]
+  <p>
+    如果想要变更 [% terms.Bugzilla %] 发送通知信的电子邮件 <b>[% user.email FILTER html %]</b> ，点击上方的「帐号资讯」页籤。
+  </p>
+[% END %]
+
+<script type="text/javascript">
+<!--
+function SetCheckboxes(setting) {
+  for (var count = 0; count < document.userprefsform.elements.length; count++) {
+    var theinput = document.userprefsform.elements[count];
+    if (theinput.type == "checkbox"
+        && !theinput.disabled
+        && !theinput.name.match("remove_ignored_bug"))
+    {
+      if (theinput.name.match("neg")) {
+        theinput.checked = !setting;
+      }
+      else {
+        theinput.checked = setting;
+      }
+    }
+  }
+}
+
+// -->
+</script>
+
+<input type="button" value="全选" onclick="SetCheckboxes(true); return false;">
+<input type="button" value="全不选" onclick="SetCheckboxes(false); return false;">
+
+<hr>
+
+<h3>整体设定选项</h3>
+
+[% prefname = "email-$constants.REL_ANY-$constants.EVT_FLAG_REQUESTED" %]
+<input type="checkbox" name="[% prefname %]" id="[% prefname %]" value="1"
+       [%+ 'checked="checked"' IF user.mail_settings.${constants.REL_ANY}.${constants.EVT_FLAG_REQUESTED} %]>
+<label for="[% prefname %]">当有人要求我设定一项旗标时，寄发电子邮件给我</label>
+<br>
+[% prefname = "email-$constants.REL_ANY-$constants.EVT_REQUESTED_FLAG" %]
+<input type="checkbox" name="[% prefname %]" id="[% prefname %]" value="1"
+       [%+ 'checked="checked"' IF user.mail_settings.${constants.REL_ANY}.${constants.EVT_REQUESTED_FLAG} %]>
+<label for="[% prefname %]">当有人应允我的要求，设定一项旗标时，寄发电子邮件给我</label>
+
+[% IF user.is_global_watcher %]
+  <p>
+    你在监控所有的 [% terms.bugs %] 。若要删除此一设定，请洽
+    <a href="mailto:[% Param("maintainer") %]">[% Param("maintainer") %]</a> 。
+  </p>
+[% END %]
+
+<hr>
+<h3>栏位及收信人个别设定选项：</h3>
+
+[% events = [
+    { id = constants.EVT_ADDED_REMOVED,
+      description = "被加入某个 $terms.bug ，或自某个 $terms.bug 中删除" },
+    { id = constants.EVT_BUG_CREATED,
+      description = "建立了一个新的 $terms.bug " },
+    { id = constants.EVT_OPENED_CLOSED,
+      description = " $terms.bug 已解决或再开启 (REOPENED)" },
+    { id = constants.EVT_COMPONENT,
+      description = "产品或子产品变更" },
+    { id = constants.EVT_PROJ_MANAGEMENT,
+      description = "优先程度、状态、等级，或是里程碑变更" },
+    { id = constants.EVT_COMMENT,
+      description = "新增意见" },
+    { id = constants.EVT_ATTACHMENT,
+      description = "新增附件" },
+    { id = constants.EVT_ATTACHMENT_DATA,
+      description = "附件细节变更" },
+    { id = constants.EVT_KEYWORD,
+      description = "关键字栏位变更" },
+    { id = constants.EVT_CC,
+      description = "寄件副本栏位变更" },
+    { id = constants.EVT_DEPEND_BLOCK,
+      description = "依赖关系变更" },
+    { id = constants.EVT_OTHER,
+      description = "其他变更" },
+] %]
+
+[% neg_events = [
+    { id = constants.EVT_UNCONFIRMED,
+      description = " $terms.bug 仍然处于未确认 (UNCONFIRMED)状态" },
+    { id = constants.EVT_CHANGED_BY_ME,
+      description = "我做的变更" },
+] %]
+
+[% relationships = [
+    { id = constants.REL_ASSIGNEE,
+      description = "负责人" },
+    { id = constants.REL_REPORTER,
+      description = "回报者" },
+    { id = constants.REL_CC,
+      description = "被加入寄件副本的人" },
+] %]
+
+[% IF Param('useqacontact') %]
+  [% relationships.push({ id = constants.REL_QA,
+                          description = "QA 连络人" }) %]
+[% END %]
+
+
+[%# This is up here so that the "relationships" hook can modify it. %]
+[% no_added_removed = [constants.REL_REPORTER] %]
+
+[% Hook.process('relationships') %]
+
+[% num_columns = relationships.size %]
+
+<table id="email_prefs">
+  <tr class="column_header">
+    <th colspan="[% num_columns FILTER html %]">
+      当我和这个 [% terms.bug %] 的关系是：
+    </th>
+    <th>当…的时候，我想要收到信：</th>
+  </tr>
+
+  <tr>
+    [% FOREACH relationship = relationships %]
+      <th class="role_header">[% relationship.description FILTER html %]</th>
+    [% END %]
+  </tr>
+
+  [% FOREACH event = events %]
+    [% count = loop.count() %]
+    <tr class="bz_row_[% count % 2 == 1 ? "odd" : "even" %]">
+      [% FOREACH relationship = relationships %]
+        <td class="center">
+          <input type="checkbox" value="1"
+                 name="email-[% relationship.id %]-[% event.id %]"
+                 [%# The combinations don't always make sense; disable a couple %]
+                 [% IF event.id == constants.EVT_ADDED_REMOVED
+                       AND no_added_removed.contains(relationship.id) %]
+                   disabled="disabled"
+                 [% ELSIF user.mail_settings.${relationship.id}.${event.id} %]
+                   checked="checked"
+                 [% END %]>
+        </td>
+      [% END %]
+      <td>
+        [% event.description FILTER html %]
+      </td>
+    </tr>
+  [% END %]
+
+  <tr class="column_header">
+    <th colspan="[% num_columns FILTER html %]">&nbsp;</th>
+    <th>但当…的时候，我不想要收到信（复写以上设定值）：</th>
+  </tr>
+
+  [% FOREACH event = neg_events %]
+    [% count = loop.count() %]
+    <tr class="bz_row_[% count % 2 == 1 ? "odd" : "even" %]">
+      [% FOREACH relationship = relationships %]
+        <td class="center">
+          <input type="checkbox" value="1"
+                 name="neg-email-[% relationship.id %]-[% event.id %]"
+                 [%+ 'checked="checked"' IF NOT user.mail_settings.${relationship.id}.${event.id} %]>
+        </td>
+      [% END %]
+      <td>[% event.description FILTER html %]</td>
+    </tr>
+  [% END %]
+
+</table>
+
+<hr>
+
+<h3>监控使用者</h3>
+
+<p>
+如果你监控一位使用者，那么就会根据<em>你的</em>偏好设定以及<em>他和 [% terms.bug %] </em>的关系（例如：负责人）来决定是否收到电子邮件。
+</p>
+
+
+[% IF watchedusers.size %]
+  <p>你正在监控以下使用者：</p>
+  <p>
+    <select id="watched_by_you" name="watched_by_you" multiple="multiple" size="5">
+        [% FOREACH w = watchedusers %]
+           <option value="[% w FILTER html %]">[% w FILTER html %]</option>
+        [% END %]
+    </select>
+    <br>
+    <input type="checkbox" id="remove_watched_users" name="remove_watched_users">
+    <label for="remove_watched_users">将选择的使用者自监控清单中删除</label>
+  </p>
+[% ELSE %]
+  <p>你现在并未监控任何使用者。</p>
+[% END %]
+
+
+<p id="new_watched_by_you">将使用者加入监控清单〔以半形逗号 (,) 分隔多个使用者〕：
+  [% INCLUDE global/userselect.html.tmpl
+     id => "new_watchedusers"
+     name => "new_watchedusers"
+     value => ""
+     size => 60
+     multiple => 5
+  %]
+</p>
+
+<p id="watching_you">正在监控你的使用者：<br>
+  [% IF watchers.size %]
+    [% FOREACH watcher = watchers %]
+      [% watcher FILTER html %] <br>
+    [% END %]
+  [% ELSE %]
+    <i>无</i>
+  [% END %]
+</p>
+
+<hr>
+
+<h3>忽略 [% terms.Bugs %]</h3>
+
+<p>
+  你可以指定忽略的 [% terms.bug %] 清单。在这个清单中的 [% terms.bug %] 不会以任何电子邮件通知你。
+  指定清单的方式为输入一个以逗号 (,) 分隔的 [% terms.bug %] 编号。
+  移除的方式是在目前的忽略清单中选择它。移除之后就会重新启用通知。
+</p>
+[% IF user.bugs_ignored.size %]
+  <p>
+    你现在忽略的有：
+    <table>
+    [% FOREACH bug = user.bugs_ignored %]
+      <tr>
+        <td>
+          <input type="checkbox" name="remove_ignored_bug_[% bug.id FILTER html %]" value="1">
+        </td>
+        <td><a href="[% urlbase FILTER html %]show_bug.cgi?id=[% bug.id FILTER uri %]">
+          [% bug.id FILTER html %]</a>
+        </td>
+        <td>[% bug.status FILTER html %]</td>
+        <td>
+          [% IF user.can_see_bug(bug.id) %]
+            - [% bug.summary FILTER html %]
+          [% ELSE %]
+            （不公开）
+          [% END %]
+        </td>
+      </tr>
+    [% END %]
+    </table>
+  </p>
+[% END %]
+
+<p>
+  新增 [% terms.bug %] ：<br>
+  <input type="text" id="add_ignored_bugs"
+         name="add_ignored_bugs" size="60">
+</p>

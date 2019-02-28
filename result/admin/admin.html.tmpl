@@ -1,0 +1,115 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[% title = BLOCK %]
+  管理已安装的 Bugzilla
+  [%+ constants.BUGZILLA_VERSION FILTER html %]
+[% END %]
+
+[% PROCESS global/header.html.tmpl title = title
+                                   style_urls = ['skins/standard/admin.css']
+                                   doc_section = "administering/index.html"
+%]
+
+<div>
+  本页面仅供有足够权限的使用者浏览。根据权限设定，你可以从这里进入管理页面，并且调整相关设定。
+  <br>注意：对你而言可能会有无法进入的页面，此部份会以较浅的颜色表示。
+</div>
+
+<table>
+  <tr>
+    <td class="admin_links">
+      <dl>
+        [% class = user.in_group('tweakparams') ? "" : "forbidden" %]
+        <dt id="parameters" class="[% class %]"><a href="editparams.cgi">参数设定</a></dt>
+        <dd class="[% class %]">设定核心参数。
+        <br>可在该页面设定进入安装 [% terms.Bugzilla %]
+        机器的网址、使用者如何认证、显示哪些 [% terms.bug %]
+        栏位、寄送电子邮件的方式、选择哪些群组的使用者可以使用图表功能，等等。</dd>
+
+        <dt id="preferences" class="[% class %]"><a href="editsettings.cgi">预设偏好设定</a></dt>
+        <dd class="[% class %]">设定「偏好设定」的预设值。
+        <br>这将会适用于所有使用者的预设值。使用者可以透过<a
+        href="userprefs.cgi?tab=settings">偏好设定</a>页，自行变更偏好设定。</dd>
+
+        [% class = (user.in_group('editcomponents')
+                   || user.get_products_by_permission('editcomponents').size) ? "" : "forbidden" %]
+        <dt id="sanitycheck" class="[% class %]"><a href="sanitycheck.cgi">健全度测试</a></dt>
+        <dd class="[% class %]">执行健全度测试，检测资料库是否有问题。
+        <br>这可能花上数十分钟甚至数小时，视资料库大小而定。你也可以透过设定
+        cron job 的方式执行 <kbd>sanitycheck.pl</kbd>
+        来定期检测。如侦测到发生任何错误，将会以电子邮件通知使用者。</dd>
+
+        [% class = (user.in_group('editusers') || user.can_bless) ? "" : "forbidden" %]
+        <dt id="users" class="[% class %]"><a href="editusers.cgi">使用者</a></dt>
+        <dd class="[% class %]">新增或编辑使用者。
+        <br>你也可以从群组中新增或移除使用者。（又称「使用者权限设定」）</dd>
+
+        [% class = (Param('useclassification') && user.in_group('editclassifications')) ? "" : "forbidden" %]
+        <dt id="classifications" class="[% class %]"><a href="editclassifications.cgi">分类</a></dt>
+        <dd class="[% class %]">如果你需要一次管理多种产品，建议你将产品分为数个分类。
+        <br>这样对使用者搜寻或回报新的 [% terms.bugs %] 时，也较为容易。</dd>
+
+        [% class = (user.in_group('editcomponents')
+                    || user.get_products_by_permission("editcomponents").size) ? "" : "forbidden" %]
+        <dt id="products" class="[% class %]"><a href="editproducts.cgi">产品</a></dt>
+        <dd class="[% class %]">编辑所有和产品的相关设定，包括限制哪些群组的使用者可以在哪项产品中浏览
+        [% terms.bugs %] 。
+        <br>你也可以直接编辑产品的特定属性，包括<a href="editcomponents.cgi">子产品</a>、<a
+        href="editversions.cgi">版本</a>以及<a href="editmilestones.cgi">里程碑</a>。</dd>
+
+        [% class = user.in_group('editcomponents') ? "" : "forbidden" %]
+        <dt id="flags" class="[% class %]"><a href="editflagtypes.cgi">旗标</a></dt>
+        <dd class="[% class %]">旗标是对 [% terms.bugs %] 和／或附件所做出的四种自订状态：同意、否定、要求和未定义。
+        <br>你可以对每个 [% terms.bug %] 设定多种旗标，并定义哪些使用者可以编辑旗标。</dd>
+
+	[% Hook.process('end_links_left') %]
+      </dl>
+    </td>
+
+    <td class="admin_links">
+      <dl>
+        [% class = user.in_group('admin') ? "" : "forbidden" %]
+        <dt id="custom_fields" class="[% class %]"><a href="editfields.cgi">自订栏位</a></dt>
+        <dd class="[% class %]">Bugzilla 允许你根据你的需要，自行设定系统中并未预设建立的自订栏位。这些自订栏位可以和一般栏位一并运作，包括在搜寻时使用。
+        <br>在新增自订栏位时，请记得过多的栏位会使使用者介面变得过于复杂，因而难以使用。请先确定没有其他方式可以满足你的需求，才新增自订栏位。</dd>
+
+        <dt id="field_values" class="[% class %]"><a href="editvalues.cgi">栏位值</a></dt>
+        <dd class="[% class %]">定义栏位的有效数值。
+        <br>这也是定义自订栏位的有效数值的地方。</dd>
+
+        <dt id="status_workflow" class="[% class %]"><a href="editworkflow.cgi">[% terms.Bug %] 状态确认流程</a></dt>
+        <dd class="[% class %]">自订你的确认流程，选择在新增 [% terms.bug %]
+        时 [% terms.bug %] 的预设状态，以及在编辑现有的 [% terms.bugs %] 时是否允许变更状态。</dd>
+
+        [% class = user.in_group('creategroups') ? "" : "forbidden" %]
+        <dt id="groups" class="[% class %]"><a href="editgroups.cgi">群组</a></dt>
+        <dd class="[% class %]">定义会在这套 [% terms.Bugzilla %] 中使用的群组。
+        <br>也可以用来定义新使用者的权限，以限制浏览某些 [% terms.bugs %] 。</dd>
+
+        [% class = user.in_group('editkeywords') ? "" : "forbidden" %]
+        <dt id="keywords" class="[% class %]"><a href="editkeywords.cgi">关键字</a></dt>
+        <dd class="[% class %]">设定使用在 [% terms.bugs %] 的关键字。
+        <br>关键字是一种「替 [% terms.bugs %] 贴标籤」的简单方法，能让你之后更容易找到它们。</dd>
+
+        [% class = user.in_group('bz_canusewhines') ? "" : "forbidden" %]
+        <dt id="whining" class="[% class %]"><a href="editwhines.cgi">订阅</a></dt>
+        <dd class="[% class %]">设定在特定日期及时间执行的查询，并将结果以电子邮件寄发。
+        <br>这是种建立提醒，以及追踪活动的好方式。</dd>
+
+        <dt id="release_notes">
+          <a href="page.cgi?id=release-notes.html">版本资讯</a></dt>
+        <dd>关于此版本 Bugzilla 的更多详细资讯。（英文）</dd>
+
+        [% Hook.process('end_links_right') %]
+      </dl>
+    </td>
+  </tr>
+</table>
+
+[% PROCESS global/footer.html.tmpl %]

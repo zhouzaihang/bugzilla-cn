@@ -1,0 +1,59 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # field: object; the field object that you are trying to delete.
+  # token: string; the delete_field token required to complete deletion.
+  #%]
+
+[% PROCESS "global/field-descs.none.tmpl" %]
+
+[% title = BLOCK %]
+  刪除自訂欄位 '[% field.name FILTER html %]' ([% field.description FILTER html %])
+[% END %]
+
+[% PROCESS global/header.html.tmpl
+           title = title
+           style_urls = ['skins/standard/admin.css']
+           doc_section = "administering/custom-fields.html#deleting-custom-fields"
+%]
+
+<table id="admin_table">
+  <tr class="column_header">
+    <th>欄位</th>
+    <th>值</th>
+  </tr>
+  <tr>
+    <td>自訂欄位</td>
+    <td>[% field.name FILTER html %]</td>
+  </tr>
+  <tr>
+    <td>描述</td>
+    <td>[% field.description FILTER html %]</td>
+  </tr>
+  <tr>
+    <td>種類</td>
+    <td>[% field_types.${field.type} FILTER html %]</td>
+  </tr>
+</table>
+
+<h2>確認</h2>
+
+<p class="confirmation">
+  你確定要從資料庫中刪除此自訂欄位嗎？<br>
+  <em>此動作僅在該欄位已廢棄，且從未於任何 [% terms.bug FILTER html %] 中使用過，才會成功。</em>
+</p>
+
+<a href="editfields.cgi?action=delete&amp;name=[% field.name FILTER html %]&amp;token=[% token FILTER html %]">
+  刪除欄位 '[% field.description FILTER html %]'</a>
+
+<p>
+  <a href="editfields.cgi">回到現有的自訂欄位列表</a>
+</p>
+
+[% PROCESS global/footer.html.tmpl %]

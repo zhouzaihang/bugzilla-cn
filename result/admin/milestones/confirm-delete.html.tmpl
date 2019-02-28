@@ -1,0 +1,77 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # product: object; Bugzilla::Product object representing the product to
+  #               which the milestone belongs.
+  # milestone: object; Bugzilla::Milestone object representing the
+  #                    milestone the user wants to delete.
+  #%]
+
+[% title = BLOCK %]删除产品 '[% product.name FILTER html %]' 的里程碑
+  [% END %]
+
+[% PROCESS global/header.html.tmpl
+  title = title
+  style_urls = ['skins/standard/admin.css']
+%]
+
+<table id="admin_table">
+  <tr class="column_header">
+    <th>栏位</th>
+    <th>值</th>
+  </tr>
+  <tr>
+    <td>里程碑</td>
+    <td>[% milestone.name FILTER html %]</td>
+  </tr>
+  <tr>
+    <td>里程碑所属的产品</td>
+    <td>[% product.name FILTER html %]</td>
+  </tr>
+  <tr>
+    <td>[% terms.Bugs %]</td>
+    <td>
+      [% IF milestone.bug_count %]
+        <a title="列出里程碑在 '
+                 [%- milestone.name FILTER html %]'
+                 的 [% terms.bugs %] 清单"
+           href="buglist.cgi?target_milestone=[% milestone.name FILTER uri %]&amp;product=
+                [%- product.name FILTER uri %]">
+           [% milestone.bug_count FILTER none %]</a>
+      [% ELSE %]
+        无
+      [% END %]
+    </td>
+  </tr>
+</table>
+
+<h2>确认</h2>
+
+[% IF milestone.bug_count %]
+
+  <p class="confirmation">
+    在此里程碑中还有 [% milestone.bug_count FILTER none %] 个 [%+ terms.bugs %] ！
+    <br>当你删除此里程碑时，<b>所有</b> [% terms.bugs %] 的里程碑将会被指到
+    '[% product.name FILTER html %]' 产品的预设里程碑 [% product.default_milestone FILTER html %] 。
+  </p>
+[% END %]
+
+<p>你确定要删除此里程碑吗？</p>
+
+<form method="post" action="editmilestones.cgi">
+  <input type="submit" id="delete" value="是的，删除">
+  <input type="hidden" name="action" value="delete">
+  <input type="hidden" name="product" value="[% product.name FILTER html %]">
+  <input type="hidden" name="milestone" value="[% milestone.name FILTER html %]">
+  <input type="hidden" name="token" value="[% token FILTER html %]">
+</form>
+
+[% PROCESS admin/milestones/footer.html.tmpl %]
+
+[% PROCESS global/footer.html.tmpl %]

@@ -1,0 +1,43 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # token: random string used to authenticate the transaction.
+  # expiration_ts: expiration date of the token.
+  # email: email address of the new account.
+  #%]
+
+From: [% Param('mailfrom') %]
+To: [% email %]
+Subject: [% terms.Bugzilla %]：确认建立新帐号
+X-Bugzilla-Type: admin
+
+[%+ terms.Bugzilla %] 收到以你的电子邮件 ([% email %]) 建立一个新的使用者帐号的要求。
+
+如要继续以此一电子邮件建立帐号，请于 [% expiration_ts FILTER time("%Y-%m-%d %H:%M %Z") %] 前点选以下连结：
+
+[%+ urlbase %]token.cgi?t=[% token FILTER uri %]&a=request_new_account
+
+如果你并没有在 [% expiration_ts FILTER time("%Y-%m-%d %H:%M %Z") %] 之前收到此封电子邮件，
+或是你想要以其他的电子邮件建立新帐号，你可以点选以下连结重新开始：
+
+[%+ urlbase %]createaccount.cgi
+
+[% IF Param('createemailregexp') == '.*' && Param('emailsuffix') == '' %]
+隐私权提醒：
+[% terms.Bugzilla %] 是一个开放的 [% terms.bug %] 追踪系统。
+在大多数 [% terms.bugs %] 的活动，包括电子邮件地址，都是公众可浏览的。
+我们建议使用次要的电子邮件，或者使用免费的网路电子邮件服务（例如 Gmail、Yahoo、Hotmail 等等），
+以避免你的主要电子邮件收到垃圾邮件。
+[% END %]
+
+如果你不想要建立帐号，或者此一要求是错误的，你可以什么也不做，或是点选以下连结：
+
+[%+ urlbase %]token.cgi?t=[% token FILTER uri %]&a=cancel_new_account
+
+如果以上的连结失效，或者你有其他关于你的帐号的问题，请洽管理者[% Param('maintainer') %]。

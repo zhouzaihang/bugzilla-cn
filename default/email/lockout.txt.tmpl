@@ -1,0 +1,26 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+From: [% Param('mailfrom') %]
+To: [% Param('maintainer') %]
+Subject: [[% terms.Bugzilla %]] 鎖帳號通知： [% locked_user.login %] ([% address %])
+X-Bugzilla-Type: admin
+
+此位址 [% address %] 在登入
+[% locked_user.login %] 此帳號時失敗次數過多
+（ [% constants.MAX_LOGIN_ATTEMPTS %] 次）。
+
+以下是嘗試登入的時間點：
+
+[% FOREACH login = attempts %]
+  [%+ login.login_time FILTER time %]
+[% END %]
+
+此 IP 將在
+[%+ unlock_at FILTER time %]
+後，才能以此帳號登入。

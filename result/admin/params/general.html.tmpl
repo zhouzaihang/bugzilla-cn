@@ -1,0 +1,51 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%
+   title = "一般"
+   desc = "非必要的一般杂项设定。"
+%]
+
+[% param_descs = {
+  maintainer => "安装 Bugzilla 机器的维护者的电子邮件地址。",
+
+  utf8 =>
+    "在 $terms.Bugzilla 里所有的文字均使用 UTF-8 (Unicode) 编码。"
+    _ "新安装的 $terms.Bugzilla 应该设为「开」，以避免字元编码问题。<br>"
+    _ "<strong>已存在的资料库只有在资料从现有编码执行 "
+    _ "<kbd>contrib/recode.pl</kbd> 转换为 UTF-8 之后，"
+    _ "才可以设为「开」。</strong>"
+    _ "<p>注意：若你将此参数从「关」设为「开」，则设定完后必须立刻执行 <kbd>checksetup.pl</kbd> 。</p>",
+
+  shutdownhtml =>
+    "如果此栏位并非空白，那么将会完全停用 Bugzilla ，"
+    _ "并在每一个 $terms.Bugzilla 页面显示以下的讯息。",
+
+  announcehtml =>
+    "如果此栏位并非空白，那么 Bugzilla 将在每个 HTML"
+    _ " 页面上方显示此栏位内容。在此栏位中的 HTML 将不会自动断行，"
+    _ "因此如需断行，可以将需断行的文字放在 <code>&lt;div&gt;</code> 中。"
+    _ "使用 <em>id=message</em> 可以得到红框包围的绿色文字，"
+    _ "而 <em>class=bz_private</em> 则是红色背景的暗红色字。"
+    _ "所有在 <code>skins/standard/global.css</code> 或"
+    _ " <code>skins/custom/global.css</code> 中定义的样式将会生效。"
+    _ "若要将文字置中，请使用 <em>class=\"center\"</em> 。",
+
+  upgrade_notification =>
+    "<p>Bugzilla 可以通知你是否有新释出的版本可用。"
+    _ "此通知将会显示于 $terms.Bugzilla 的首页，仅供管理者参考。</p>"
+    _ "<ul><li>development_snapshot ：在 trunk 有最新释出时通知，也就是"
+    _ " development snapshot 。</li>"
+    _ "<li>latest_stable_release ：在最新的稳定 branch 版本上有最新释出可用。"
+    _ "这个 branch 的版本可能和你安装的版本不同。</li>"
+    _ "<li>stable_branch_release ：根据你目前安装的 branch 版本通知相关更新。"
+    _ "如果你安装的是 release candidate (RC) 版本，在有新的 RC 时也会通知你。</li>"
+    _ "<li>停用 (disabled) ：不会通知有新版本，也不会连线到远端伺服器。</li></ul>"
+    _ "<p>注意：如果你的 Bugzilla 伺服器需要代理伺服器才能连线至网路，"
+    _ "你也需要在「进阶」选项里设定 <var>proxy_url</var> 此参数。</p>",
+} %]

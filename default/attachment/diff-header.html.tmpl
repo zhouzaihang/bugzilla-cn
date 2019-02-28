@@ -1,0 +1,120 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# Define strings that will serve as the title and header of this page %]
+
+[% title = BLOCK %]
+  [% IF attachid %]
+[% terms.bug %] #[% bugid %] 的附件 #[% attachid %]
+  [% ELSE %]
+[% terms.bug %] #[% bugid %] 在 patch #[% oldid %] 和 #[% newid %] 間的差異
+  [% END %]
+[% END %]
+
+[% onload = 'restore_all(); document.checkboxform.restore_indicator.checked = true' %]
+
+[% BLOCK viewurl %]attachment.cgi?id=[% id %][% END %]
+[% BLOCK editurl %][% PROCESS viewurl %]&amp;action=edit[% END %]
+[% BLOCK diffurl %][% PROCESS viewurl %]&amp;action=diff[% END %]
+
+[% IF headers %]
+  [% header = BLOCK %]
+    <a href="show_bug.cgi?id=[% bugid %]">[% terms.bug %] #[% bugid %] </a>
+    [% IF attachid %]
+      的附件 #[% attachid %] ：[% description FILTER html %]
+    [% ELSE %]
+      在 #[% oldid %] <a
+      href="[% PROCESS diffurl id=oldid %]">[% old_desc FILTER html %]</a> 和 #[% newid %] <a
+      href="[% PROCESS diffurl id=newid %]">[% new_desc FILTER html %]</a> 之間的差異
+    [% END %]
+  [% END %]
+  [% subheader = BLOCK %]
+    [% bugsummary FILTER html %]
+  [% END %]
+  [% PROCESS global/header.html.tmpl javascript_urls = [ "js/attachment.js" ]
+                                     style_urls = ['skins/standard/bug.css'] %]
+[% ELSE %]
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <link href="[% 'skins/standard/global.css' FILTER mtime %]"
+            rel="stylesheet" type="text/css">
+      <link href="[% 'skins/standard/bug.css' FILTER mtime %]"
+            rel="stylesheet" type="text/css">
+      <script src="[% 'js/attachment.js' FILTER mtime %]"
+              type="text/javascript"></script>
+    </head>
+    <body onload="[% onload FILTER html %]">
+  <head>
+[% END %]
+
+[%# If we have attachid, we are in diff, otherwise we're in interdiff %]
+[% IF attachid %]
+  [%# HEADER %]
+  [% IF headers %]
+    <a href="[% PROCESS viewurl id=attachid %]">瀏覽</a>
+    | <a href="[% PROCESS editurl id=attachid %]">詳細資料</a>
+    | <a href="[% PROCESS diffurl id=attachid %]&amp;collapsed=[% collapsed FILTER uri %]&amp;headers=[%
+               headers FILTER uri %]&amp;format=raw">原始檔案</a>
+    | 回到 [% "$terms.bug $bugid" FILTER bug_link(bugid) FILTER none %]
+  [% END %]
+  [% IF other_patches.size > 0 %]
+    [% IF headers %] |[%END%]
+    在
+    <form class="inline" action="attachment.cgi">
+      <select name="oldid">
+      [% FOREACH patch = other_patches %]
+        <option value="[% patch.id %]"
+        [% IF patch.selected %] selected[% END %]
+        >[% patch.desc FILTER html %]</option>
+      [% END %]
+      </select>
+      和這個 patch 的差異
+      <input type="submit" id="diff" value="比較">
+      <input type="hidden" name="action" value="interdiff">
+      <input type="hidden" name="newid" value="[% attachid %]">
+      <input type="hidden" name="headers" value="[% headers FILTER html %]">
+    </form>
+  [% END %]
+  <br>
+[% ELSE %]
+  [% IF headers %]
+    <a href="attachment.cgi?oldid=[% oldid %]&amp;newid=[% newid %]&amp;action=interdiff&amp;format=raw">原始檔案</a>
+    | 回到 [% "$terms.bug $bugid" FILTER bug_link(bugid) FILTER none %]
+    |
+  [% END %]
+[% END %]
+
+[%# Collapse / Expand %]
+<a href="#"
+   onmouseover="lastStatus = window.status; window.status='展開全部'; return true"
+   onmouseout="window.status = lastStatus; return true"
+   onclick="return collapse_all()">展開全部</a> |
+<a href="#"
+   onmouseover="lastStatus = window.status; window.status='折疊全部'; return true"
+   onmouseout="window.status = lastStatus; return true"
+   onclick="return expand_all()">折疊全部</a>
+
+[% IF warning %]
+<h2 class="warning">
+  警告：
+  [% IF warning == "interdiff1" %]
+    在比較不同的檔案的時候，兩個 patch 之間的差異可能會因為 Bugzilla 的限制而把結果擺錯位置。
+  [% ELSIF warning == "interdiff2" %]
+    在比較不同版本的 patch 差異時，可能會因為 Bugzilla 的限制而有所不正確。
+  [% ELSIF warning == "interdiff3" %]
+    在比較這些 patch 時， interdiff 發生錯誤。
+  [% END %]
+</h2>
+[% ELSE %]
+    <br><br>
+[% END %]
+
+[%# Restore Stuff %]
+<form name="checkboxform" action="attachment.cgi">
+<input type="checkbox" name="restore_indicator" class="bz_default_hidden">

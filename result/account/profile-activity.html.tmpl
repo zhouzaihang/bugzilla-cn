@@ -1,0 +1,72 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # otheruser: Bugzilla User Object; The user whose profile activity
+  #                                  we are viewing.
+  #
+  # listselectionvalues: selection values to recreate the current user list.
+  #
+  # profile_changes: An array of hashes containing the following fields:
+  #
+  #   who: string; login name of who made the change
+  #   activity_when: string; when the change was made
+  #   what: string; the description of the field which was changed
+  #   removed: string; the removed value (maybe empty string)
+  #   added: string; the added value (maybe empty string)
+  #%]
+
+[% title = BLOCK %]
+  '[% otheruser.identity FILTER html %]' 的帐号历史
+[% END %]
+
+
+[% PROCESS global/header.html.tmpl
+  title = title
+  style_urls = ['skins/standard/admin.css']
+%]
+
+[% PROCESS admin/users/listselectvars.html.tmpl
+  listselectionvalues = listselectionvalues
+%]
+
+[% columns =
+  [{name               => 'who'
+    heading            => '执行者'
+   }
+   {name               => 'activity_when'
+    heading            => '执行时间'
+   }
+   {name               => 'what'
+    heading            => '执行内容'
+    content_use_field  => 1
+   }
+   {name               => 'removed'
+    heading            => '移除'
+   }
+   {name               => 'added'
+    heading            => '增加'
+   }
+  ]
+%]
+
+[% PROCESS admin/table.html.tmpl
+  columns = columns
+  data    = profile_changes
+%]
+
+<p><a href="editusers.cgi?action=edit&amp;userid=
+  [%- otheruser.id FILTER uri %]"
+  title="编辑使用者 '[% otheruser.login FILTER html %]' ">编辑此使用者</a>，或是<a
+  title="搜寻使用者" href="editusers.cgi">搜寻其他帐号</a>
+  [% IF listselectionvalues.matchtype != 'exact' %]，或是<a title="回到使用者列表"
+        href="editusers.cgi?action=list[% INCLUDE listselectionurlparams %]">回到使用者列表</a>
+  [% END %]。
+</p>
+
+[% PROCESS global/footer.html.tmpl %]

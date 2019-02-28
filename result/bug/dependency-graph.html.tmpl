@@ -1,0 +1,89 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # bug_id: integer. The number of the bug(s).
+  # multiple_bugs: boolean. True if bug_id contains > 1 bug number.
+  # showsummary: boolean. True if we are showing bug summaries.
+  # rankdir: string. "TB" if we are ranking top-to-bottom,
+                     "LR" if left-to-right.
+  # image_url: string. The URL of the graphic showing the dependencies.
+  # map_url: string. The URL of the map file for the image.  (Optional)
+  # image_map: string. The image map for the graphic showing the
+                       dependencies. (Optional)
+  #%]
+
+[% title = "依赖关系图"
+   header = title
+ %]
+
+[% IF NOT multiple_bugs %]
+  [% filtered_desc = short_desc FILTER html %]
+  [% title = "$terms.bug $bug_id 的${title}"
+     header = "$terms.bug <a href=\"show_bug.cgi?id=$bug_id\">$bug_id</a> 的 $header"
+     subheader = filtered_desc
+   %]
+[% END %]
+
+[% PROCESS global/header.html.tmpl %]
+
+[% image_map %]
+
+<p>
+  绿色的圆圈代表开启的 [% terms.bugs %] 。
+</p>
+
+[% IF image_map %]
+  <img src="[% image_url %]" alt="依赖关系图" usemap="#imagemap">
+[% ELSE %]
+  <a href="[% map_url %]">
+    <img src="[% image_url %]" alt="依赖关系图" ismap="ismap">
+  </a>
+[% END %]
+
+<hr>
+
+<form action="showdependencygraph.cgi" method="GET">
+  <table>
+    <tr>
+      <th><label for="id">[% terms.Bug %] 编号</label>：</th>
+      <td><input id="id" name="id" value="[% bug_id %]"></td>
+      <td>
+        <input type="checkbox" id="showsummary" name="showsummary" [% " checked" IF showsummary %]>
+        <label for="showsummary">显示所有已呈现的 [% terms.bugs %] 的摘要</label>
+      </td>
+    </tr>
+
+    <tr>
+      <th><label for="display">呈现：</label></th>
+      <td colspan="2">
+        <select id="display" name="display">
+          <option value="tree"[% 'selected="selected"' IF (!display || display == "tree") %]>
+            将 [% terms.bugs %] 限制在和输入的 [% terms.bugs %] 有直接关系</option>
+          <option value="web" [% 'selected="selected"' IF display == "web" %]>
+            显示和输入的 [% terms.bugs %] 有任何关系的 [% terms.bugs %]</option>
+        </select>
+      </td>
+    </tr>
+
+    <tr>
+      <th><label for="rankdir">排序：</label></th>
+      <td colspan="2">
+        <select id="rankdir" name="rankdir">
+          <option value="TB"[% " selected" IF rankdir == "TB" %]>由上而下</option>
+          <option value="BT"[% " selected" IF rankdir == "BT" %]>由下而上</option>
+          <option value="LR"[% " selected" IF rankdir == "LR" %]>由左至右</option>
+          <option value="RL"[% " selected" IF rankdir == "RL" %]>由右至左</option>
+        </select>
+      </td>
+    </tr>
+  </table>
+  <input type="submit" id="change" value="变更参数">
+</form>
+
+[% PROCESS global/footer.html.tmpl %]

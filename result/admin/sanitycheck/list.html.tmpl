@@ -1,0 +1,24 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[% PROCESS global/header.html.tmpl title = "健全度测试"
+                                   style_urls = ['skins/standard/admin.css'] %]
+
+<div>
+  <p>
+    Bugzilla 正在检查你的资料库的参考完整性。需要数分钟才能完成。
+  </p>
+
+  <p>
+    如果有任何错误，将会以<span class="alert">类似这样的方式强调</span>。
+    将会针对找到的错误，显示一些允许你简易修复该错误的连结。
+    修复这些错误后，将会重新执行此一 script （所以可能会花比第一次执行还久的时间）。
+  </p>
+</div>
+
+<hr>

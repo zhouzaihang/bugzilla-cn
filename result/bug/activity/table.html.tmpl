@@ -1,0 +1,115 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # operations: array of hashes. May be empty. Each has has three members:
+  #   who: string. who performed the operation
+  #   when: string. when they performed it
+  #   changes: hash. Details of what they changed. This hash has three
+  #            compulsory and one optional member:
+  #     field: string. The name of the field
+  #     removed: string. What was removed from the field
+  #     added: string. What was added to the field
+  #     attach_id: integer. If the change was adding an attachment, its id.
+  # incomplete_data: boolean. True if some of the data is incomplete (because
+  #                  it was affected by an old Bugzilla bug.)
+  #%]
+
+[% PROCESS bug/time.html.tmpl %]
+
+[% IF incomplete_data %]
+  <p>
+    在 <a href="http://www.bugzilla.org/">Bugzilla</a> 里，曾经有过这样的问题：如果有大量的寄件副本清单或依赖性关系，会造成活动历史资料遗失。这已经修复了，但是已无法再次出现在你的活动历史表格中。无法确定的变更会以 '?' 字元做为开头。
+  </p>
+[% END %]
+
+[% IF operations.size > 0 %]
+  <table id="bug_activity">
+    <tr class="column_header">
+      <th>变更者</th>
+      <th>变更时间</th>
+      <th>变更内容</th>
+      <th>删除</th>
+      <th>新增</th>
+    </tr>
+
+    [% FOREACH operation = operations %]
+      <tr>
+        <td rowspan="[% operation.changes.size %]">
+          [% operation.who FILTER email FILTER html %]
+        </td>
+        <td rowspan="[% operation.changes.size %]">
+          [% operation.when FILTER time %]
+        </td>
+        [% FOREACH change = operation.changes %]
+          [% "</tr><tr>" IF loop.index > 0 %]
+            <td>
+              [% IF change.attachid %]
+                <a href="attachment.cgi?id=[% change.attachid %]">
+                附件 #[% change.attachid %]</a>
+              [% END %]
+              [% IF change.comment.defined %]
+                 [% comment_desc = field_descs.${change.fieldname} %]
+                 [% comment_num = "意见 $change.comment.count" FILTER bug_link(bug.bug_id, comment_num => change.comment.count) %]
+                 [% comment_desc.replace('^(意见 )?', "$comment_num ") FILTER none %]
+              [% ELSE %]
+                [%+ field_descs.${change.fieldname} FILTER html %]
+              [% END %]
+            </td>
+            [% PROCESS change_column change_type = change.removed %]
+            [% PROCESS change_column change_type = change.added %]
+            <td>
+              [% IF change.added.defined %]
+                [% IF change.fieldname == 'estimated_time' ||
+                      change.fieldname == 'remaining_time' ||
+                      change.fieldname == 'work_time' %]
+                  [% PROCESS formattimeunit time_unit=change.added %]
+                [% ELSIF change.fieldname == 'blocked' ||
+                         change.fieldname == 'dependson' %]
+                  [% change.added FILTER bug_list_link FILTER none %]
+                [% ELSE %]
+                  [% display_value(change.fieldname, change.added) FILTER email FILTER html %]
+                [% END %]
+              [% ELSE %]
+                &nbsp;
+              [% END %]
+            </td>
+        [% END %]
+      </tr>
+    [% END %]
+  </table>
+[% ELSE %]
+  <p>
+    尚未对此 [% terms.bug %] 做出变更。
+  </p>
+[% END %]
+
+[% BLOCK change_column %]
+  <td>
+    [% IF change_type.defined %]
+      [% IF change.fieldname == 'estimated_time' ||
+            change.fieldname == 'remaining_time' ||
+            change.fieldname == 'work_time' %]
+        [% PROCESS formattimeunit time_unit=change_type %]
+      [% ELSIF change.fieldname == 'blocked' ||
+               change.fieldname == 'dependson' %]
+        [% change_type FILTER bug_list_link FILTER none %]
+      [% ELSIF change.fieldname == 'assigned_to' ||
+               change.fieldname == 'reporter' ||
+               change.fieldname == 'qa_contact' ||
+               change.fieldname == 'cc' ||
+               change.fieldname == 'flagtypes.name' %]
+        [% display_value(change.fieldname, change_type) FILTER email FILTER html %]
+      [% ELSE %]
+        [% display_value(change.fieldname, change_type) FILTER html FILTER html_line_break %]
+      [% END %]
+    [% ELSE %]
+      &nbsp;
+    [% END %]
+  </td>
+[% END %]

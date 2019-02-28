@@ -1,0 +1,51 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[% PROCESS global/header.html.tmpl
+  title = "删除分类"
+  style_urls = ['skins/standard/admin.css']
+%]
+
+<table id="admin_table">
+  <tr class="column_header">
+    <th>栏位</th>
+    <th>值</th>
+  </tr>
+  <tr>
+    <td>分类</td>
+    <td>[% classification.name FILTER html %]</td>
+  </tr>
+  <tr>
+    <td>描述</td>
+    <td>
+      [% IF classification.description %]
+        [% classification.description FILTER html_light %]
+      [% ELSE %]
+        <span class="warning">没有描述</span>
+      [% END %]
+    </td>
+  </tr>
+  <tr>
+    <td>排序键</td>
+    <td>[% classification.sortkey FILTER html %]</td>
+  </tr>
+</table>
+
+<h2>确认</h2>
+
+<p>你确定要删除此一分类吗？</p>
+<form method=post action="editclassifications.cgi">
+  <input type=submit value="是的，删除">
+  <input type=hidden name="action" value="delete">
+  <input type=hidden name="classification" value="[% classification.name FILTER html %]">
+  <input type="hidden" name="token" value="[% token FILTER html %]">
+</form>
+
+[% PROCESS admin/classifications/footer.html.tmpl %]
+
+[% PROCESS global/footer.html.tmpl %]

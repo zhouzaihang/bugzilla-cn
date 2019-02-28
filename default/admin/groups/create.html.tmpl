@@ -1,0 +1,103 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # none
+  #%]
+
+[% PROCESS global/header.html.tmpl
+  title = "新增群組"
+  subheader = "此頁面允許你新增一個使用者群組。"
+  style_urls = ['skins/standard/admin.css']
+  doc_section = "administering/groups.html#creating-groups"
+%]
+
+<form method="post" action="editgroups.cgi">
+  <table id="admin_table_edit">
+    <tr>
+      <th>群組名稱：</th>
+      <td><input size="60" maxlength="255" name="name" required></td>
+    </tr>
+    <tr>
+      <th>描述：</th>
+      <td><input size="60" name="desc" required></td>
+    </tr>
+    <tr>
+      <th>使用者正規表達式：</th>
+      <td><input size="60" name="regexp"></td>
+    </tr>
+    <tr>
+      <th>圖示網址：</th>
+      <td><input type="text" size="60" id="icon_url" name="icon_url"></td>
+    </tr>
+    <tr>
+      <th>Use For [% terms.Bugs %]:</th>
+      <td><input type="checkbox" name="isactive" value="1" checked></td>
+    </tr>
+    [% Hook.process('field') %]
+  </table>
+
+  <input type="checkbox" id="insertnew" name="insertnew" value="1"
+    [% IF Param("makeproductgroups") %] checked[% END %]>
+  <label for="insertnew">將新的群組插入所有已存在的產品中。</label>
+  <p>
+  <input type="submit" id="create" value="新增">
+  <input type="hidden" name="action" value="new">
+  <input type="hidden" name="token" value="[% token FILTER html %]">
+</form>
+
+<hr>
+
+<p>
+   <b>名稱</b><br>
+   用於 B[%%]ugzilla&rarr;user&rarr;in_group() 函數，以及所有自訂的 cgi 檔案中。<br>
+   也可以用於以電子郵件送出 [% terms.bugs %] 時，限制 [% terms.bug %] 於特定的群組中。
+</p>
+
+<p>
+   <b>描述</b><br>
+   於 [% terms.bug %] 的報告中顯示。<br>
+   群組成員可以選擇此 [% terms.bug %] 是否僅限制於同群組的其他成員可以看見。
+</p>
+
+
+<p>
+   <b>使用者正規表達式</b><br>
+   選填。<br>
+   若勾選，則會將符合正規表達式的所有使用者全部加至此群組。
+</p>
+
+<p>
+   <b>圖示網址</b><br>
+   選填，是用來辨識此群組的圖示的網址。<br>
+   可以是相對路徑，或是絕對路徑。將會在 [% terms.bugs %] 意見作者的旁邊顯示此圖示。
+</p>
+
+<p>
+   <b>使用於 [% terms.Bugs %]</b><br>
+   此一旗標決定此群組是否可以被用於 [% terms.bugs %] 中。<br>
+   如不選擇，使用者將無法再加入 [% terms.bugs %] 到此一群組中，不過已於此群組中的
+   [% terms.bugs %] 並不會被影響。這麼做會比刪除該群組還要好一點。<br>
+   <b>注意：如果你在新增群組，那麼你應該希望此群組可以接受 [% terms.bugs %]，因此你應該勾選此選項。</b>
+</p>
+
+[% IF Param("makeproductgroups") %]
+  <p>
+    預設值會把新的群組和現有的產品全數做出關連。<br>
+    若不勾選「將新的群組插入所有已存在的產品中」選項，則只有在該群組的權限被加入一項產品時，才會對該群組產生關連。
+  </p>
+[% ELSE %]
+  <p>
+    勾選「將新的群組插入所有已存在的產品中」選項時，會把新的群組和現有的產品全數做出關連。<br>
+    若維持不勾選，則只有在該群組的權限被加入一項產品時，才會對該群組產生關連。
+  </p>
+[% END %]
+
+<p>回到<a href="editgroups.cgi">群組列表</a>。
+
+[% PROCESS global/footer.html.tmpl %]

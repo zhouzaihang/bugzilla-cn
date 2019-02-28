@@ -1,0 +1,158 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  #
+  # message:             message tag specifying a global/messages.html.tmpl
+  #                      message
+  # listselectionvalues: selection values to recreate the current user list.
+  # editusers:           is viewing user member of editusers?
+  # otheruser:           Bugzilla::User object of viewed user.
+  # groups:              array of group information (name, grant type,
+  #                      canbless) for viewed user.
+  #%]
+
+[% title = BLOCK %]编辑使用者 [% otheruser.identity FILTER html %][% END %]
+
+[% PROCESS global/header.html.tmpl
+  title = title
+  message = message
+  style_urls = ['skins/standard/admin.css']
+  doc_section = "administering/users.html#modifying-users"
+  javascript_urls = [ 'js/field.js' ]
+%]
+
+[% PROCESS admin/users/listselectvars.html.tmpl
+  listselectionvalues = listselectionvalues
+%]
+
+<form method="post" action="editusers.cgi">
+<table id="admin_table_edit">
+  [% PROCESS admin/users/userdata.html.tmpl
+    editform  = 1
+    editusers = editusers
+    otheruser = otheruser
+  %]
+  [% IF groups.size %]
+    <tr>
+      <th>浏览群组：</th>
+      <td>
+        <table id="group_membership">
+          <tr>
+            [% IF editusers %]
+              <th colspan="3">
+                可替其他使用者设定这些权限
+              </th>
+            [% END %]
+          </tr>
+          <tr>
+            [% IF editusers %]
+              <th class="checkbox">|</th>
+            [% END %]
+            <th colspan="2">使用者是下列群组的成员</th>
+          </tr>
+          [% FOREACH group = groups %]
+            [% perms = permissions.${group.id} %]
+            <tr class="[% 'in' IF perms.regexpmember || perms.derivedmember %]direct">
+              [% IF editusers %]
+                <td class="checkbox">
+                  [% '[' IF perms.indirectbless %]
+                  [% %]<input type="checkbox"
+                              name="bless_[% group.id %]"
+                              value="1"
+                              [% ' checked="checked"' IF perms.directbless %]>
+                  [% ']' IF perms.indirectbless %]</td>
+              [% END %]
+              <td class="checkbox">
+                [% '[' IF perms.derivedmember %]
+                [% '*' IF perms.regexpmember %]
+                [%%]<input type="checkbox"
+                           id="group_[% group.id %]"
+                           name="group_[% group.id %]"
+                           value="1"
+                           [% ' checked="checked"' IF perms.directmember %]>
+                [% '*' IF perms.regexpmember %]
+                [% ']' IF perms.derivedmember %]</td>
+              <td class="groupname">
+                <label for="group_[% group.id %]">
+                  <strong>[% group.name FILTER html %] ：</strong>
+                  [%+ group.description FILTER html_light %]
+                </label>
+              </td>
+            </tr>
+          [% END %]
+        </table>
+      </td>
+    </tr>
+  [% END %]
+
+  <tr>
+    <th>产品负责数：</th>
+    <td>
+      [% IF otheruser.product_responsibilities.size %]
+        [% PROCESS admin/users/responsibilities.html.tmpl otheruser = otheruser %]
+      [% ELSE %]
+        <em>无</em>
+      [% END %]
+    </td>
+  </tr>
+
+  <tr>
+    <th>上次登入：</th>
+    <td>
+      [% IF otheruser.last_seen_date %]
+        [% otheruser.last_seen_date FILTER html %]
+      [% ELSE %]
+        <em>从未登入</em>
+      [% END %]
+    </td>
+  </tr>
+</table>
+
+<p>
+  <input type="submit" id="update" value="储存变更">
+  <input type="hidden" name="userid" value="[% otheruser.id %]">
+  <input type="hidden" name="action" value="update">
+  <input type="hidden" name="token" value="[% token FILTER html %]">
+  [% INCLUDE listselectionhiddenfields %]
+
+  或者<a href="editusers.cgi?action=activity&amp;userid=[% otheruser.id %]"
+        title="浏览'
+        [%- otheruser.login FILTER html %]'的帐号历史">浏览帐号历史</a>
+</p>
+</form>
+<p>
+  属于所有群组的使用者以打勾或灰色线条显示。灰色线条代表非直接的成员，可能是来自其他群组（以中括号 [] 标记），或是来自正规表达式（以星号 * 标记）。
+</p>
+[% IF editusers %]
+  <p>
+    在「可替其他使用者设定这些权限」勾选框旁的中括号指出因属于另一群组的成员，而有 bless 使用者（在群组中新增成员）的能力。
+  </p>
+[% END %]
+
+[% IF Param('allowuserdeletion') && editusers %]
+  <form method="post" action="editusers.cgi">
+  <p>
+    <input type="submit" id="delete" value="删除使用者">
+    <input type="hidden" name="action" value="del">
+    <input type="hidden" name="userid" value="[% otheruser.id %]">
+    [% INCLUDE listselectionhiddenfields %]
+  </p>
+  </form>
+[% END %]
+
+<p>
+  你也可以[% IF editusers %]<a
+  href="editusers.cgi?action=add[% INCLUDE listselectionurlparams %]">新增使用者</a>，[% END %]
+  [% IF listselectionvalues.matchtype != 'exact' %]回到<a
+  href="editusers.cgi?action=list[% INCLUDE listselectionurlparams %]">使用者列表</a>，[% END %]
+  [% IF editusers OR listselectionvalues %]或是[% END %]<a
+  href="editusers.cgi">搜寻其他使用者</a>。
+</p>
+
+[% PROCESS global/footer.html.tmpl %]

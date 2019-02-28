@@ -1,0 +1,90 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # field: object; the field the value is being created for
+  #%]
+
+[% title = BLOCK %]
+  在欄位 '[% field.description FILTER html %]' ([% field.name FILTER html %]) 新增數值
+[% END %]
+[% PROCESS global/header.html.tmpl
+  title = title
+  style_urls = ['skins/standard/admin.css']
+%]
+
+<p>
+  此頁面允許你在 '[% field.description FILTER html %]' 欄位新增一個數值。
+</p>
+
+<form method="post" action="editvalues.cgi">
+  <table id="admin_table_edit">
+    <tr>
+      <th><label for="value">數值：</label></th>
+      <td>
+        <input id="value" name="value" size="30"
+               maxlength="[% constants.MAX_FIELD_VALUE_SIZE FILTER none %] required">
+      </td>
+    </tr>
+    <tr>
+      <th><label for="sortkey">排序鍵：</label></th>
+      <td><input id="sortkey" name="sortkey" size="6" maxlength="6"></td>
+    </tr>
+    [% IF field.name == "bug_status" %]
+      <tr>
+        <th><label for="is_open">狀態種類：</label></th>
+        <td>
+          <input type="radio" id="open_status" name="is_open" value="1" checked="checked">
+          <label for="open_status">開啟</label><br>
+          <input type="radio" id="closed_status" name="is_open" value="0">
+          <label for="closed_status">關閉（需要有解決方案）</label>
+        </td>
+      </tr>
+      <tr>
+        <th>&nbsp;</th>
+        <td>
+          注意：開啟／關閉的屬性僅能於建立狀態時設定。之後無法編輯。
+        </td>
+      </tr>
+    [% END %]
+    [% IF field.value_field %]
+      <tr>
+        <th>
+          <label for="visibility_value_id">只在
+           [%+ field.value_field.description FILTER html %] 設定為以下數值時出現：
+          </label>
+        </th>
+        <td>
+          <select name="visibility_value_id" id="visibility_value_id">
+            <option></option>
+            [% FOREACH field_value = field.value_field.legal_values %]
+              [% NEXT IF field_value.name == '' %]
+              <option value="[% field_value.id FILTER none %]">
+                [% IF field.value_field.name == 'component' %]
+                  [% field_value.product.name FILTER html %]：
+                [% END %]
+                [%- field_value.name FILTER html -%]
+              </option>
+            [% END %]
+          </select>
+          <span class="bz_info">（若不設定，則此數值將永遠顯示。）</span>
+        </td>
+      </tr>
+    [% END %]
+  </table>
+  <input type="submit" id="create" value="新增">
+  <input type="hidden" name="action" value="new">
+  <input type="hidden" name='field' value="[% field.name FILTER html %]">
+  <input type="hidden" name="token" value="[% token FILTER html %]">
+</form>
+
+[% PROCESS admin/fieldvalues/footer.html.tmpl
+    no_add_link = 1
+ %]
+
+[% PROCESS global/footer.html.tmpl %]

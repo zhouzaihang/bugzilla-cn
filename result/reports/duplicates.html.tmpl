@@ -1,0 +1,155 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # sortby: string. the column on which we are sorting the buglist.
+  # reverse: boolean. True if we are reversing the current sort.
+  # maxrows: integer. Max number of rows to display.
+  # changedsince: integer. The number of days ago for the changedsince column.
+  # openonly: boolean. True if we are only showing open bugs.
+  # product: array of strings. The set of products we check for dups.
+  #
+  # Additionally, you need to fulfill the interface to
+  # duplicates-table.html.tmpl.
+  #%]
+
+[% IF product.size %]
+  [% title = BLOCK %]
+    产品 [% query_products.join(', ') FILTER html %]
+    最常回报的 [% terms.Bugs %]
+  [% END %]
+[% ELSE %]
+  [% title = "最常回报的 $terms.Bugs" %]
+[% END%]
+
+[% PROCESS global/header.html.tmpl title = title %]
+
+<p>
+  <a href="#explanation">这份资料是什么？</a>
+  <br>
+  <a href="#params">变更参数</a>
+</p>
+
+[% PROCESS "reports/duplicates-table.html.tmpl" %]
+
+[%# *** Parameters *** %]
+
+[% bug_ids_string = bug_ids.join(',') %]
+
+<h3 id="params">变更参数</h3>
+
+<form method="get" action="duplicates.cgi">
+  <input type="hidden" name="sortby" value="[% sortby FILTER html %]">
+  <input type="hidden" name="reverse" value="[% reverse FILTER html %]">
+  <input type="hidden" name="bug_id" value="[% bug_ids_string FILTER html %]">
+  <table>
+    <tr>
+      <td>限制于下列产品：</td>
+      <td>
+        [% INCLUDE "global/product-select.html.tmpl"
+          id       => "product"
+          name     => "product"
+          multiple => 5
+          value    => product
+        %]
+      </td>
+    </tr>
+
+    <tr>
+      <td>在排序或限制时，对...有效：</td>
+      <td>
+        <input type="radio" name="sortvisible" id="entirelist" value="0"
+          [% ' checked="checked"' IF NOT sortvisible %]>
+        <label for="entirelist">
+          整份清单
+        </label>
+        <br>
+        <input type="radio" name="sortvisible" id="visiblelist" value="1"
+          [% ' checked="checked"' IF sortvisible %]>
+        <label for="visiblelist">
+          目前可见的清单
+        </label>
+      </td>
+     </tr>
+
+    <tr>
+      <td><label for="maxrows">最大列数：</label></td>
+      <td>
+        <input size="4" name="maxrows" id="maxrows"
+           value="[% maxrows FILTER html %]">
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        <label for="changedsince">栏位在最近几天变更：</label>
+      </td>
+      <td>
+        <input size="4" name="changedsince" id="changedsince"
+           value="[% changedsince FILTER html %]"> 天
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        <label for="openonly">
+          只显示开启的 [% terms.bugs %] ：
+        </label>
+      </td>
+      <td>
+        <input type="checkbox" name="openonly" id="openonly" value="1"
+          [% ' checked="checked"' IF openonly %]>
+      </td>
+    </tr>
+
+  </table>
+
+  <input type="submit" id="change" value="变更">
+</form>
+
+<form method="post" action="buglist.cgi">
+  <input type="hidden" name="bug_id" value="[% bug_ids_string FILTER html %]">
+  或者以<input type="submit" id="list" value="[% terms.bug %] 清单">呈现即可。
+  (注意：顺序可能不一样。)
+</form>
+
+<hr>
+
+<h3 id="explanation">
+  什么是「最常回报的 [% terms.Bugs %] 」？
+</h3>
+
+<p>
+  最常回报的 [% terms.Bugs %] 页面列出目前状态为开启，且最常被回报的
+  [%+ terms.bugs %] 清单。此清单产生方式为计算被直接或间接标记为重复的
+  [%+ terms.bugs %] 数量。提供此清单的目的是将输入 [% terms.Bugzilla %]
+  的重复 [% terms.bugs %] 数量减到最低，以省下品保工程师分类 [% terms.bugs %] 的时间。
+</p>
+
+<b>我如何使用这份清单？</b>
+
+<ul>
+  <li>检视最常回报的 [% terms.bugs %] 清单。</li>
+  <li>如果你的问题列在上面：</li>
+
+  <ul>
+    <li>点选 [% terms.bug %] 编号以确认你找到的是同一个
+        [% terms.bug %] 。如果你有额外的资讯（例如测试结果）时，可随时发表意见。
+    </li>
+  </ul>
+
+  <li>如果你的问题不在上面：</li>
+
+  <ul>
+    <li>在已存在的 [% terms.bug %] 中<a href="query.cgi">尝试搜寻是否有类似的 [% terms.bug %]</a>。</li>
+    <li>如果你在 [% terms.Bugzilla %] 中找到了你的问题，且有新的或额外的资讯可提供时，可随时发表意见。</li>
+    <li>如果你在 [% terms.Bugzilla %] 并未找到你的问题，<a href="enter_bug.cgi">新增一个 [% terms.bug %]</a> 。</li>
+  </ul>
+</ul>
+
+[% PROCESS global/footer.html.tmpl %]

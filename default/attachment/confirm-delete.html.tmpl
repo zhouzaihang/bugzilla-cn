@@ -1,0 +1,79 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # a: attachment object; attachment the user wants to delete.
+  # token: string; The token used to identify the session.
+  #%]
+
+[% title = BLOCK %]
+  刪除 [% terms.Bug %] [%+ a.bug_id FILTER html %] 的附件 [% a.id FILTER html %]
+[% END %]
+
+[% PROCESS global/header.html.tmpl
+  title = title
+  style_urls = ['skins/standard/admin.css']
+  doc_section = "using/editing.html#attachments"
+%]
+
+<table id="admin_table">
+  <tr class="column_header">
+    <th>欄位</th>
+    <th>值</th>
+  </tr>
+  <tr>
+    <td>附件編號：</td>
+    <td>
+      <a href="attachment.cgi?id=[% a.id FILTER html %]">[% a.id FILTER html %]</a>
+    </td>
+  </tr>
+  <tr>
+    <td>檔案名稱：</td>
+    <td>[% a.filename FILTER html %]</td>
+  </tr>
+  <tr>
+    <td>描述：</td>
+    <td>[% a.description FILTER html %]</td>
+  </tr>
+  <tr>
+    <td>此附件位於 [% terms.Bug %] 中：</td>
+    <td>[% a.bug_id FILTER bug_link(a.bug_id) FILTER none %]</td>
+  </tr>
+  <tr>
+    <td>建立者：</td>
+    <td>[% a.attacher.identity FILTER html %]</td>
+  </tr>
+  <tr>
+    <td>建立日期：</td>
+    <td>[% a.attached FILTER time %]</td>
+  </tr>
+</table>
+
+<h2>確認</h2>
+
+<p class="confirmation">
+  此附件的內容將會以<b>無法回復的</b>方式刪除。
+</p>
+
+<p>你確定要刪除此附件嗎？</p>
+
+<form action="attachment.cgi" method="POST">
+  <label for="reason">刪除原因：</label>
+  <input type="text" id="reason" name="reason" value="" size="80" maxlength="200">
+  <br>
+  <input type="submit" value="是的，刪除" id="delete">
+  <input type="hidden" name="action" value="delete">
+  <input type="hidden" name="id" value="[% a.id FILTER html %]">
+  <input type="hidden" name="token" value="[% token FILTER html %]">
+</form>
+
+<p>
+  不，取消刪除，並回到[%+ "$terms.bug " _ a.bug_id FILTER bug_link(a.bug_id) FILTER none %] 。
+</p>
+
+[% PROCESS global/footer.html.tmpl %]

@@ -1,0 +1,109 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[% DEFAULT qs_suffix = "" %]
+[% USE Bugzilla %]
+
+<ul class="links">
+  <li><a href="./">首页</a></li>
+  <li><span class="separator">| </span><a href="enter_bug.cgi">输入新的 [% terms.bug %]</a></li>
+  <li><span class="separator">| </span><a href="describecomponents.cgi">浏览</a></li>
+  <li><span class="separator">| </span><a href="query.cgi">搜寻</a></li>
+
+  <li class="form">
+    <span class="separator">| </span>
+    <form action="buglist.cgi" method="get"
+        onsubmit="if (this.quicksearch.value == '')
+                  { alert('请至少输入一个字串来搜寻。');
+                    return false; } return true;">
+    <input type="hidden" id="no_redirect[% qs_suffix FILTER html %]" name="no_redirect" value="0">
+    <script type="text/javascript">
+      if (history && history.replaceState) {
+        var no_redirect = document.getElementById("no_redirect[% qs_suffix FILTER js %]");
+        no_redirect.value = 1;
+      }
+    </script>
+    <input class="txt" type="text" id="quicksearch[% qs_suffix FILTER html %]" name="quicksearch"
+           title="快速搜寻" value="[% quicksearch FILTER html %]">
+    <input class="btn" type="submit" value="搜寻"
+           id="find[% qs_suffix FILTER html %]">
+    [%-# Work around FF bug: keep this on one line %]</form>
+  <a href="page.cgi?id=quicksearch.html" title="快速搜寻说明">[?]</a></li>
+
+  <li><span class="separator">| </span><a href="report.cgi">报告</a></li>
+
+  <li>
+    [% IF Param('shutdownhtml') || Bugzilla.has_flags %]
+      <span class="separator">| </span>
+      [% IF user.id %]
+        <a href="request.cgi?requester=[% user.login FILTER uri %]&amp;requestee=
+                 [% user.login FILTER uri %]&amp;do_union=1&amp;group=type">我的要求</a>
+      [% ELSE %]
+        <a href="request.cgi">要求</a>
+      [% END %]
+    [% END %]
+  [%-# Work around FF bug: keep this on one line %]</li>
+
+  [% Hook.process('action-links') %]
+
+  [% IF user.login %]
+    <li><span class="separator">| </span><a href="userprefs.cgi">偏好设定</a></li>
+    [% IF user.can_administer %]
+      <li><span class="separator">| </span><a href="admin.cgi">管理者介面</a></li>
+    [% END %]
+
+    [% PROCESS link_to_documentation %]
+
+    <li>
+      <span class="separator">| </span>
+      [% IF user.authorizer.can_logout %]
+        <a href="index.cgi?logout=1">登出</a>
+      [% ELSE %]
+        登入为：
+      [% END %]
+      [% IF sudoer %]
+        [%+ sudoer.login FILTER html %] (<b>sudo 使用者
+        [%+ user.login FILTER html %] 中</b>
+        <a href="relogin.cgi?action=end-sudo">结束 sudo </a>)
+      [% ELSE %]
+        [%+ user.login FILTER html %]
+      [% END %]
+    [%-# Work around FF bug: keep this on one line %]</li>
+  [% ELSE %]
+
+    [% PROCESS link_to_documentation %]
+
+    [% IF Param('createemailregexp')
+          && user.authorizer.user_can_create_account %]
+      <li id="new_account_container[% qs_suffix FILTER html %]">
+        <span class="separator">| </span>
+        <a href="createaccount.cgi">新增帐号</a>
+      </li>
+    [% END %]
+
+    [%# Only display one login form when we're on a LOGIN_REQUIRED page. That
+      # way, we're guaranteed that the user will use the form that has
+      # hidden_fields in it (the center form) instead of this one. Also, it's
+      # less confusing to have one form (as opposed to  three) when you're
+      # required to log in.
+      #%]
+    [% IF user.authorizer.can_login && !Bugzilla.page_requires_login %]
+      [% PROCESS "account/auth/login-small.html.tmpl" %]
+    [% END %]
+  [% END %]
+</ul>
+
+[% Hook.process("link-row") %]
+[% BLOCK link_to_documentation %]
+    [% IF doc_section %]
+      <li>
+        <span class="separator">| </span>
+        <a href="[% docs_urlbase _ doc_section FILTER html %]" target="_blank">帮助</a>
+      </li>
+    [% END %]
+[% END %]

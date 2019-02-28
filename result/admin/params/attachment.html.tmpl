@@ -1,0 +1,49 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%
+   title = "附件"
+   desc = "设定附件选项"
+%]
+
+[% param_descs = {
+  allow_attachment_display =>
+    "设定为「开」时，若使用者的浏览器支援附件的 MIME 类型时，将可直接从浏览器浏览附件。<br>" _
+    "设定为「关」时，则不论使用者的浏览器是否支援该 MIME 类型，都必须下载附件后才能浏览。" _
+    "<p>这是一个安全性限制的考量。如果直接支援自浏览器浏览附件时，可能会有恶意使用者上传有害的附件。</p>" _
+    "<p>若你将此参数设定为「开」，强烈建议你也设定 <var>attachment_base</var> 参数。",
+
+  attachment_base =>
+    "当 <var>allow_attachment_display</var> 参数设定为「开」时，可能会有有害的附件存取你的 cookies ，" _
+    "或是使用你的帐号攻击 Bugzilla 。" _
+    "<p>如果你要避免前述状况而想增加附件的安全性，将此参数设定为不同于 <var>urlbase</var> " _
+    "或 <var>sslbase</var> 参数的网址。也就是说，" _
+    "设定一组不相同的域名，但透过 DNS 解析后仍可连到同一台安装 Bugzilla 的机器。</p>" _
+    "<p>要注意的是，如果你已经设定了" _
+    " <a href=\"editparams.cgi?section=advanced#cookiedomain\"><var>cookiedomain</var> " _
+    "这个参数时，你应该要把 <var>attachment_base</var> 设定为" _
+    "<em>不</em>符合 <var>cookiedomain</var> 的域名。</p>" _
+    "<p>当你浏览附件时，为了增强安全性，你可以在网址中插入 <var>%bugid%</var> ，" _
+    "将会被系统自动替换为该附件所在的 $terms.bug 的编号中。这将会限制浏览附件的同时，" _
+    "只能浏览其他同属于同一个 $terms.bug 的附件。记得，这些可能出现的域名" _
+    "（例如 <kbd>1234.your.domain.com</kbd> ）都必须指向同一台安装 Bugzilla 的机器。",
+
+  allow_attachment_deletion => "设定为「开」时，管理者可以删除附件内容。",
+
+  maxattachmentsize => "允许储存于资料库的附件档案大小的最大值 (KB) 。<br>"  _
+                       "如果所附加的档案大小比指定的值大， Bugzilla 会看" _
+                       "<a href=\"#maxlocalattachment\"><var>maxlocalattachment</var>" _
+                       "的设定值，决定档案是否可以储存于本地伺服器中。" _
+                       "如果档案大小超过这两个设定值时，该附件会被拒绝。" _
+                       "若将两个设定值均设定为 0 ，则不允许附加附件。",
+
+  maxlocalattachment => "允许储存于本地伺服器的附件档案大小的最大值 (MB) 。<br>" _
+                        "如果设定的比" _
+                        "<a href=\"#maxattachmentsize\"><var>maxattachmentsize</var> 还小，" _
+                        "那么附件将永远不会被储存在本地档案系统中。" }
+%]

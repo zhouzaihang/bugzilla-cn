@@ -1,0 +1,88 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[% PROCESS global/header.html.tmpl
+  title = "簡單搜尋"
+  style_urls = ['skins/standard/buglist.css']
+  doc_section = "using/finding.html"
+%]
+
+[% WRAPPER search/tabs.html.tmpl %]
+
+<p>
+輸入字串來尋找一個特定的 [% terms.bug %] 。 Bugzilla  將會以那些字串來搜尋 [% terms.bug %]
+的描述和意見，並以相關度的高低列出符合的 [% terms.bugs %] 。
+</p>
+
+<p>
+例如說，你在找的 [% terms.bug %] 的特徵是「當瀏覽內嵌 flash 動畫的安全性網站時，瀏覽器會當掉」的話，可以輸入"當掉 安全性網站 SSL flash"。
+</p>
+
+<form name="queryform" method="get" action="buglist.cgi">
+<input type="hidden" name="query_format" value="specific">
+<input type="hidden" name="order" value="Importance">
+<input type="hidden" id="no_redirect" name="no_redirect" value="0">
+<script type="text/javascript">
+  if (history && history.replaceState) {
+    var no_redirect = document.getElementById("no_redirect");
+    no_redirect.value = 1;
+  }
+</script>
+
+<table class="bz_simple_search_form">
+  <tr>
+    <th>
+      <label for="bug_status">[% field_descs.bug_status FILTER html %]：</label>
+    </th>
+    <td>
+      <select name="bug_status" id="bug_status">
+        [% statuses = [ { name = 'open', label = "開啟" },
+                        { name = 'closed', label = "關閉" },
+                        { name = 'all', label = "全部" } ] %]
+        [% FOREACH status = statuses %]
+            <option value="__[% status.name %]__"
+                  [% " selected" IF default.bug_status.0 == "__${status.name}__" %]>
+            [% status.label FILTER html %]
+          </option>
+        [% END %]
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <th>
+      <label for="product">[% field_descs.product FILTER html %]：</label>
+    </th>
+    <td>
+      [% INCLUDE "global/product-select.html.tmpl"
+         id   => "product"
+         name => "product"
+         add  => "全部"
+      %]
+    </td>
+  </tr>
+  <tr>
+    <th>
+      <label for="content">字串：</label>
+    </th>
+    <td>
+      <input name="content" size="40" id="content" autofocus
+             value="[% default.content.0 FILTER html %]"
+             [%- " required" UNLESS Param('search_allow_no_criteria') %]>
+    </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><input type="submit" id="search" value="搜尋"></td>
+  </tr>
+</table>
+</form>
+
+[% END %]
+
+[% PROCESS global/footer.html.tmpl %]
+

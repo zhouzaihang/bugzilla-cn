@@ -1,0 +1,160 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # group: A Bugzilla::Group object representing the group that is
+  #        about to be deleted.
+  # shared_queries: int; The number of queries being shared with this
+  #                 group.
+  #%]
+
+[% title = BLOCK %]删除群组 '[% group.name FILTER html %]'[% END %]
+[% PROCESS global/header.html.tmpl
+  title = title
+  style_urls = ['skins/standard/admin.css']
+  doc_section = "administering/groups.html"
+%]
+
+<table id="admin_table">
+  <tr class="column_header">
+    <th>栏位</th>
+    <th>值</th>
+  </tr>
+  <tr>
+    <td>编号</td>
+    <td>[% group.id FILTER html %]</td>
+  </tr>
+  <tr>
+    <td>名称</td>
+    <td>[% group.name FILTER html %]</td>
+  </tr>
+  <tr>
+    <td>描述</td>
+    <td>[% group.description FILTER html_light %]</td>
+  </tr>
+</table>
+
+<form method="post" action="editgroups.cgi">
+  [% IF group.members_non_inherited.size %]
+    <p><b>[% group.members_non_inherited.size FILTER html %]
+      位使用者直属于此群组。你无法在群组中还有使用者时删除它。</b>
+
+    <br><a href="editusers.cgi?action=list&amp;groupid=
+                 [%- group.id FILTER uri %]&amp;grouprestrict=1">显示有哪些使用者</a>
+    - <label><input type="checkbox" name="removeusers">删除此群组中的所有使用者。</label></p>
+  [% END %]
+
+  [% IF group.granted_by_direct(constants.GROUP_MEMBERSHIP).size %]
+    <p><b>此群组的成员继承了下列群组的成员资格：</b></p>
+    <ul>
+      [% FOREACH grantor = group.granted_by_direct(constants.GROUP_MEMBERSHIP) %]
+        <li>[% grantor.name FILTER html %]</li>
+      [% END %]
+    </ul>
+  [% END %]
+
+  [% IF group.bugs.size %]
+    <p><b>[% group.bugs.size FILTER html %] 个 [% terms.bug %] 回报属于只有此群组可浏览。
+     你无法在群组中还有[% terms.bugs %]时删除它。</b>
+
+    <br><a href="buglist.cgi?field0-0-0=bug_group&amp;type0-0-0=equals&amp;value0-0-0=
+                 [%- group.name FILTER uri %]">显示有哪些 [% terms.bugs %]</a>
+    - <label><input type="checkbox" name="removebugs">删除此群组中所有的[% terms.bugs %]限制。</label><p>
+
+    <p><b>注意：</b>这可能会使不公开的[% terms.bugs %]变为公开。<br>
+       <b>强烈</b>建议在勾选前，先浏览在此群组中的[% terms.bugs %]。</p>
+  [% END %]
+
+  [% IF group.products.size %]
+    <p><b>此群组和以下产品仍有关系：</b></p>
+    [% SET any_hidden = 0 %]
+    <ul>
+      [% FOREACH data = group.products %]
+
+        [% SET active = [] %]
+        [% FOREACH control = data.controls.keys.sort %]
+          [% NEXT IF !data.controls.$control %]
+          [% IF control == 'othercontrol' OR control == 'membercontrol' %]
+            [% SWITCH data.controls.$control %]
+              [% CASE constants.CONTROLMAPMANDATORY %]
+                [% SET type = "Mandatory" %]
+              [% CASE constants.CONTROLMAPSHOWN %]
+                [% SET type = "Shown" %]
+              [% CASE constants.CONTROLMAPDEFAULT %]
+                [% SET type = "Default" %]
+            [% END %]
+            [% active.push("$control: $type") %]
+          [% ELSE %]
+            [% active.push(control) %]
+          [% END %]
+        [% END %]
+
+        [% SET hidden = 0 %]
+        [% IF data.controls.othercontrol == constants.CONTROLMAPMANDATORY
+              AND data.controls.membercontrol == constants.CONTROLMAPMANDATORY
+              AND data.controls.entry
+        %]
+          [% SET hidden = 1 %]
+        [% END %]
+
+        <li><a href="editproducts.cgi?action=editgroupcontrols&amp;product=
+                    [%- data.product.name FILTER uri %]">
+          [%- data.product.name FILTER html %]</a>
+          ([% active.join(', ') FILTER html %])
+          [% IF hidden %]
+            <strong>警告：此产品目前设定为隐藏。
+            删除此群组后，若无其他合适的群组时，将导致此产品变为公开。
+            </strong>
+          [% END %]</li>
+      [% END %]
+    </ul>
+
+    <p><label><input type="checkbox" name="unbind">删除此群组，并移除这些权限控管。</label></p>
+  [% END %]
+
+  [% IF group.flag_types.size %]
+    <p><b>此群组限制谁可以对特定类型的旗标做变更。<br>
+       你无法在使用旗标类型时删除此群组。</b>
+
+    <br><a href="editflagtypes.cgi?action=list&amp;group=[% gid FILTER html %]">显示有哪些类型</a>
+    - <input type="checkbox" name="removeflags">删除此群组中的所有旗标类型。</p>
+
+    <br><a href="editflagtypes.cgi?action=list&amp;group=
+                 [%- group.id FILTER uri %]">显示有哪些类型</a>
+    - <label><input type="checkbox" name="removeflags">删除此群组中的所有旗标类型。</label></p>
+  [% END %]
+
+  [% IF shared_queries %]
+    <p>
+      <b>有 [% shared_queries %] 个已储存的搜寻分享给此一群组。</b><br>
+      如果你删除此群组，所有已储存的搜寻都会再次设定为私人状态。
+    </p>
+  [% END %]
+
+  <h2>确认</h2>
+
+  <p class="confirmation">
+    你确定要删除此一群组吗？
+  </p>
+  [% IF group.users.size || group.bugs.size || group.products.size
+        || group.flags.size
+  %]
+    <p><b>你必须勾选以上所有勾选框，或更正已指出的问题后，才能继续。</b></p>
+  [% END %]
+
+  <p>
+    <input type="submit" id="delete" value="是的，删除">
+    <input type="hidden" name="action" value="delete">
+    <input type="hidden" name="group" value="[% group.id FILTER html %]">
+    <input type="hidden" name="token" value="[% token FILTER html %]">
+  </p>
+</form>
+
+回到<a href="editgroups.cgi">群组清单</a>。
+
+[% PROCESS global/footer.html.tmpl %]

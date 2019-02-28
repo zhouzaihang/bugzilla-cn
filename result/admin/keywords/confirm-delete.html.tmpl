@@ -1,0 +1,37 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # keyword: A Bugzilla::Keyword object.
+  #%]
+
+[% PROCESS global/header.html.tmpl
+  title = "删除关键字"
+  style_urls = ['skins/standard/admin.css']
+%]
+
+<h2>确认</h2>
+
+<p class="confirmation">
+  有 [% keyword.bug_count FILTER html %] 个 [% terms.bugs %] 设定了关键字 <em>[% keyword.name FILTER html %]</em> 。
+</p>
+
+<p>
+  你确定要删除此关键字吗？
+</p>
+
+<form method="post" action="editkeywords.cgi">
+  <input type="hidden" name="id" value="[% keyword.id FILTER html %]">
+  <input type="hidden" name="action" value="delete">
+  <input type="hidden" name="token" value="[% token FILTER html %]">
+  <input type="submit" id="delete" value="是的，删除">
+</form>
+
+<p><a href="editkeywords.cgi">编辑其他关键字</a>。</p>
+
+[% PROCESS global/footer.html.tmpl %]

@@ -1,0 +1,46 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%
+   title = "群组安全性"
+   desc = "设定群组安全性"
+%]
+
+[% param_descs = {
+  makeproductgroups => "若设为开， Bugzilla 将会对资料库中的每项产品做出 $terms.bug 的群组关连，" _
+                       "并用于查询 $terms.bugs 中。",
+
+  chartgroup => "设定可以使用「新图表」功能的使用者群组名称。" _
+                "在对不受信任的大众启用此功能前，管理者应该确认所有公开的分类及系列定义并不会洩漏机密资讯。" _
+                "若设为空白，则不允许任何使用者使用该功能。",
+
+  insidergroup => "设定可以看见并更改不公开的意见及附件的使用者群组名称。",
+
+  timetrackinggroup => "设定可以看见并更改时间追踪资讯的使用者群组名称。",
+
+  querysharegroup => "设定可以分享己储存的搜寻给其他人的使用者群组名称。",
+
+  comment_taggers_group => "设定可以对意见下标籤的使用者群组名称。" _
+                           "若设为空白，则会停用对意见下标籤的功能。",
+
+  debug_group => "在查看 $terms.bug 清单和报告时，可以看见实际产生的 SQL 内容的使用者群组名称。",
+
+  usevisibilitygroups => "是否要限制特定群组的成员才能看见使用者？",
+
+  strict_isolation => "当使用者被禁止编辑一项产品中的 $terms.bug 时，" _
+                      "也不允许使用者被分配、被设为 QA 连络人、被加入寄件副本清单、变更依赖关系" _
+                      "或其他任何和 $terms.bug 有关的活动。",
+
+  or_groups => "当一个 $terms.bug 在多个群组中时，定义它的可见度。" _
+               "设定为开 (ON) 时（建议选项），使用者只要符合该 $terms.bug 属于的任何一个群组，" _
+               "即有权限浏览。" _
+               "设定为关 (OFF) 时，使用者必须符合该 $terms.bug 属于的所有权组，才有权限浏览。" _
+               "注意：不管设定为何，如果该使用者本身的角色就和该 $terms.bug 有关时" _
+               "（例如该使用者是 $terms.bug 的回报者），此状况也有可能影响他们的浏览权限。",
+ }
+%]

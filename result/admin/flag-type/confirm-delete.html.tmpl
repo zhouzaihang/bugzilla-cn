@@ -1,0 +1,40 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[% title = BLOCK %]确认删除旗标类型 '[% flag_type.name FILTER html %]'[% END %]
+
+[% PROCESS global/header.html.tmpl
+  title = title
+  style_urls = ['skins/standard/admin.css']
+  doc_section = "administering/flags.html#deleting-a-flag"
+%]
+
+<p>
+[% IF flag_type.flag_count %]
+    目前在类型 [% flag_type.name FILTER html %] 下有 [% flag_type.flag_count %]
+    种旗标。如果你删除此一旗标类型，这些旗标也都会被删除。
+  [% END %]
+
+  除了删除以外，你也可以选择<a
+  href="editflagtypes.cgi?action=deactivate&amp;id=[% flag_type.id %]&amp;token=
+  [%- token FILTER html %]">停用</a>。如果选择停用，那么此一旗标类型
+  [%- IF flag_type.flag_count %]以及这些旗标[% END %]仍会储存在资料库中，但不会在
+  Bugzilla 使用者介面里显示。
+</p>
+
+<p class="confirmation">
+  你确定要删除此一旗标类型吗？
+</p>
+
+<p>
+  <a href="editflagtypes.cgi?action=delete&amp;id=[% flag_type.id %]&amp;token=
+           [%- token FILTER html %]">是的，删除</a> -
+  <a href="editflagtypes.cgi">不，不要删除</a>
+</p>
+
+[% PROCESS global/footer.html.tmpl %]

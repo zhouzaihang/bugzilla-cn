@@ -1,0 +1,50 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# Remember to PROCESS rather than INCLUDE this template. %]
+
+[% setting_descs = {
+   "comment_sort_order"          => "浏览一个 $terms.bug 时，以此顺序列出意见",
+   "csv_colsepchar"              => "CSV 档案的栏位分隔字元",
+   "display_quips"               => "在每个 $terms.bug 清单上方显示智语",
+   "zoom_textareas"              => "自动放大使用中的文字框（需要 JavaScript ）",
+   "newest_to_oldest"            => "从新到旧",
+   "newest_to_oldest_desc_first" => "从新到旧，但保留描述于上方",
+   "off"                         => "关",
+   "oldest_to_newest"            => "从旧到新",
+   "on"                          => "开",
+   "post_bug_submit_action"      => "在变更一个 $terms.bug 之后",
+   "next_bug"                    => "列出我的清单中的下一个 $terms.bug",
+   "same_bug"                    => "显示更新后的 $terms.bug",
+   "standard"                    => "古典",
+   "skin"                        => "$terms.Bugzilla 的基本外观设定（布景主题）",
+   "nothing"                     => "什么也不做",
+   "state_addselfcc"             => "将我自动加到我变更的 $terms.bugs 的寄件副本清单中",
+   "always"                      => "总是",
+   "never"                       => "总不",
+   "cc_unless_role"              => "仅在当我并非其中相关人员时",
+   "lang"                        => "在电子邮件中用的语言",
+   "quote_replies"               => "当点选「回应」时，引用相关的意见",
+   "quoted_reply"                => "引用全部意见",
+   "simple_reply"                => "仅参照意见的编号",
+   "comment_box_position"        => "「附加的意见」的 box position",
+   "before_comments"             => "在其他意见之前",
+   "after_comments"              => "在其他意见之后",
+   "timezone"                    => "用来显示日期和时间的时区",
+   "local"                       => "和伺服器相同",
+   "quicksearch_fulltext"        => "执行快速搜寻时也搜寻意见（会较慢）",
+   "email_format"                => "喜好的电子邮件格式",
+   "html"                        => "HTML",
+   "text_only"                   => "纯文字",
+   "requestee_cc"                => "自动将我加入要求我检视的 $terms.bugs 的寄件副本清单",
+   "bugmail_new_prefix"          => "当有新的 $terms.bug 时，在信件通知的主旨加上「新增：」",
+   "possible_duplicates"         => "在回报一个新的 $terms.bug 时显示可能重复的 $terms.bug", 
+  }
+%]
+
+[% Hook.process('settings') %]

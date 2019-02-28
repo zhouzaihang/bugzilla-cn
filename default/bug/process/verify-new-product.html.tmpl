@@ -1,0 +1,223 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # product: object; the new product.
+  # versions: array; versions for the new product.
+  # components: array; components for the new product.
+  # milestones: array; milestones for the new product.
+  # defaults: hash; keys are names of fields, values are defaults for
+  #   those fields
+  #
+  # verify_bug_groups: If groups need to be confirmed in addition to fields.
+  #%]
+
+[% PROCESS global/header.html.tmpl
+  title = '認證新產品的詳細資料...'
+  style_urls = ['skins/standard/buglist.css']
+%]
+
+<form action="process_bug.cgi" method="post">
+
+[% SET exclude_items = ['version', 'component', 'target_milestone'] %]
+[% IF verify_bug_groups %]
+  [% exclude_items.push('groups', 'defined_groups') %]
+[% END %]
+[% Hook.process('exclude') %]
+
+[% PROCESS "global/hidden-fields.html.tmpl"
+     exclude = '^' _ exclude_items.join('|') _ '$' %]
+
+<input type="hidden" name="confirm_product_change" value="1">
+
+[%# Verify the version, component, and target milestone fields. %]
+<h3>認證版本、子產品
+  [%- "、目標里程碑"
+      IF Param("usetargetmilestone")
+         && bug.check_can_change_field('target_milestone', 0, 1) %]</h3>
+
+<p>
+[% IF Param("usetargetmilestone")
+   && bug.check_can_change_field('target_milestone', 0, 1)
+%]
+  你正在將 [% terms.bug %] 移至產品 <b>[% product.name FILTER html %]</b> ，因此版本、子產品，以及目標里程碑的欄位都不正確了。<br>
+  請現在立即設定正確的版本、子產品，以及目標里程碑：
+[% ELSE %]
+  你正在將 [% terms.bug %] 移至產品 <b>[% product.name FILTER html %]</b> ，因此版本以及子產品的欄位都不正確了。<br>
+  請現在立即設定正確的版本以及子產品：
+[% END %]
+</p>
+
+<table>
+  <tr>
+    <td>
+      <b>版本：</b><br>
+      [% IF versions.size == 1 %]
+        [% SET default_version = versions.0 %]
+      [% ELSE %]
+        [% SET default_version = defaults.version %]
+      [% END %]
+      [% PROCESS "global/select-menu.html.tmpl"
+                 name="version"
+                 options=versions
+                 default=default_version
+                 size=10 %]
+    </td>
+    <td>
+      <b>子產品：</b><br>
+      [% IF components.size == 1 %]
+        [% SET default_component = components.0 %]
+      [% ELSE %]
+        [% SET default_component = defaults.component %]
+      [% END %]
+      [% PROCESS "global/select-menu.html.tmpl"
+                 name="component"
+                 options=components
+                 default=default_component
+                 size=10 %]
+    </td>
+    [% IF Param("usetargetmilestone") %]
+      <td>
+        <b>目標里程碑：</b><br>
+      [% PROCESS "global/select-menu.html.tmpl"
+                 name="target_milestone"
+                 options=milestones
+                 default=defaults.milestone
+                 size=10 %]
+      </td>
+    [% END %]
+    [% Hook.process('field') %]
+  </tr>
+</table>
+
+[% IF verify_bug_groups %]
+  [% mandatory_groups = [] %]
+  [% optional_groups = [] %]
+
+  [% FOREACH gid = product.group_controls.keys %]
+    [% group = product.group_controls.$gid %]
+    [% NEXT UNLESS group.group.is_active %]
+
+    [% IF group.membercontrol == constants.CONTROLMAPMANDATORY
+          || (group.othercontrol ==  constants.CONTROLMAPMANDATORY && !user.in_group(group.group.name)) %]
+      [% mandatory_groups.push(group) %]
+    [% ELSIF (group.membercontrol != constants.CONTROLMAPNA && user.in_group(group.group.name))
+              || group.othercontrol != constants.CONTROLMAPNA %]
+      [% optional_groups.push(group) %]
+    [% END %]
+  [% END %]
+
+  [% IF old_groups.size || optional_groups.size || mandatory_groups.size %]
+    <h3>認證 [% terms.Bug %] 的群組</h3>
+  [% END %]
+
+  [% IF old_groups.size %]
+    <p>對 '[% product.name FILTER html %]' 產品而言，這些群組已經無效；或者你不被允許將 [% terms.bugs %] 限制於這些群組中。如果不加入其他群組的話， [%+ terms.Bugs %] 將不再被限制於這些群組，且會變為公開：<br>
+    [% FOREACH group = old_groups %]
+      <input type="checkbox" id="group_[% group.id FILTER html %]"
+             name="groups" disabled="disabled" value="[% group.name FILTER html %]">
+      <label for="group_[% group.id FILTER html %]">
+        [% group.name FILTER html %]: [% group.description FILTER html %]
+      </label>
+      <br>
+    [% END %]
+    </p>
+  [% END %]
+
+
+  [% IF optional_groups.size %]
+    <p>這些群組是選用的。你可以決定將 [% terms.bugs %] 限制在下列一或多個群組中：<br>
+    [% IF multiple_bugs %]
+      <script type="text/javascript">
+        function turn_off(myself, id) {
+            var other_checkbox = document.getElementById(id);
+            if (myself.checked && other_checkbox) {
+                other_checkbox.checked = false;
+            }
+        }
+      </script>
+
+      <table id="groups_edit_multiple">
+        <tr>
+          <th class="narrow_column">自此群組中移除 [% terms.bug %]</th>
+          <th class="narrow_column">新增 [% terms.bug %] 到此群組</th>
+          <th>群組名稱</th>
+        </tr>
+
+        [% FOREACH group = optional_groups %]
+        <tr>
+          <td class="center">
+            <input type="checkbox" name="defined_groups"
+                   id="defined_group_[% group.group.id FILTER html %]"
+                   value="[% group.group.name FILTER html %]"
+                   [% IF cgi.param("defined_groups").contains(group.group.name) %] checked="checked"[% END %]
+                   onchange="turn_off(this, 'group_[% group.group.id FILTER html %]')">
+          </td>
+          <td class="center">
+            <input type="checkbox" name="groups"
+                   id="group_[% group.group.id FILTER html %]"
+                   value="[% group.group.name FILTER html %]"
+                   [% IF cgi.param("groups").contains(group.group.name) %] checked="checked"[% END %]
+                   onchange="turn_off(this, 'defined_group_[% group.group.id FILTER html %]')">
+          </td>
+          <td>
+            [% group.group.description FILTER html %]
+          </td>
+        </tr>
+        [% END %]
+      </table>
+    [% ELSE %]
+      [% FOREACH group = optional_groups %]
+        <input type="hidden" name="defined_groups"
+               value="[% group.group.name FILTER html %]">
+        <input type="checkbox" id="group_[% group.group.id FILTER html %]"
+               name="groups"
+               [% ' checked="checked"' IF ((group.membercontrol == constants.CONTROLMAPDEFAULT && user.in_group(group.group.name))
+                   || (group.othercontrol == constants.CONTROLMAPDEFAULT && !user.in_group(group.group.name))
+                   || cgi.param("groups").contains(group.group.name)) %]
+               value="[% group.group.name FILTER html %]">
+        <label for="group_[% group.group.id FILTER html %]">
+          [% group.group.name FILTER html %]: [% group.group.description FILTER html %]
+        </label>
+        <br>
+      [% END %]
+    [% END %]
+    </p>
+  [% END %]
+
+  [% IF mandatory_groups.size %]
+    <p>這些群組是強制性的，因此 [% terms.bugs %] 將會自動被限制於這些群組：<br>
+    [% FOREACH group = mandatory_groups %]
+      <input type="checkbox" id="group_[% group.group.id FILTER html %]"
+              checked="checked" disabled="disabled"
+             name="groups" value="[% group.group.name FILTER html %]">
+      <label for="group_[% group.group.id FILTER html %]">
+        [% group.group.name FILTER html %]: [% group.group.description FILTER html %]
+      </label>
+      <br>
+    [% END %]
+    </p>
+  [% END %]
+[% END %]
+
+<input type="submit" id="change_product" value="送出">
+
+</form>
+<hr>
+
+[%# If 'id' is defined, then we are editing a single bug.
+  # Else we are editing several bugs at once. %]
+
+[% IF cgi.param('id') AND cgi.param('id').match('^\d+$') %]
+  [% id = cgi.param('id') %]
+  取消，並回到 [% "$terms.bug $id" FILTER bug_link(id) FILTER none %]
+[% ELSE %]
+  取消，並回到<a href="buglist.cgi?regetlastlist=1">上次的搜尋結果</a>
+[% END %]
+
+[% PROCESS global/footer.html.tmpl %]

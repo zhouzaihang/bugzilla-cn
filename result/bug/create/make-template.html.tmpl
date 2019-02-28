@@ -1,0 +1,29 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # url: URL to a pre-filled bug entry form.
+  # short_desc: Bug summary as entered in the form.
+  #%]
+
+[% PROCESS global/header.html.tmpl
+  title = "$terms.bug 清单的书籤"
+  header = "已建立模版"
+%]
+
+<p>
+  你可以将此连结加入书籤：
+  &ldquo;<a href="enter_bug.cgi?[% url FILTER html %]">
+  [% IF short_desc %]
+    [% short_desc FILTER html %]
+  [% ELSE %]
+    [% terms.Bug %] 输入模版
+  [% END %]</a>&rdquo;。此书籤将会以你要求的初始化栏位，载入<em>输入 [% terms.Bug %] </em>的页面。
+</p>
+
+[% PROCESS global/footer.html.tmpl %]

@@ -1,0 +1,28 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%
+   title = "管理者权限"
+   desc = "设定帐号权限"
+%]
+
+[% param_descs = {
+  allowbugdeletion => "在编辑产品及子产品的页面删除一项产品或子产品时，<br>" _
+                      "可以删除所有相关的 $terms.bugs 。",
+
+  allowemailchange => "使用者可以透过偏好设定变更电子邮件地址。<br>" _
+                      "注意：变更电子邮件地址需要寄信到原地址以及新地址做确认，<br>" _
+                      "因此使用此选项将会使使用者无法输入无效的电子邮件。",
+
+  allowuserdeletion => "可以删除使用者帐号。<br>" _
+                       "Bugzilla 会在执行删除时警告，以免发生误删。<br>" _
+                       "因此当需要删除使用者帐号时，须将此选项开启。",
+
+  last_visit_keep_days => "当使用者浏览特定的 ${terms.bugs} 时，此选项控制 " _
+                          "$terms.Bugzilla 要记得多少天。"}
+%]

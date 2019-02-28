@@ -1,0 +1,82 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+From: [% Param('mailfrom') %]
+To: [% emailaddress %]
+Subject: [% PROCESS subject %]
+X-Bugzilla-Type: admin
+
+[% remoteaddress %] [% PROCESS subject %]。
+
+如果你沒有做出此項請求，可能是單純的操作錯誤，或是有人正嘗試破解你的 [% terms.Bugzilla %] 帳號。
+
+檢視以下資訊，必要時將此信件轉寄給[% Param('maintainer') %]。
+
+           Token： [% token %]
+      Token 類型： [% tokentype %]
+          使用者： [% emailaddress %]
+        發布日期： [% issuedate FILTER time("%Y-%m-%d %H:%M:%S %Z", timezone) %]
+        事件資料： [% eventdata %]
+        取消原因： [% PROCESS cancelactionmessage %]
+
+[% BLOCK subject %]
+  [% IF tokentype == 'new_account' %]
+    已取消建立使用者帳號
+  [% ELSIF tokentype == 'password' %]
+    已取消密碼變更的要求
+  [% ELSIF tokentype == 'emailnew' OR tokentype == 'emailold' %]
+    已取消變更電子郵件的要求
+  [% ELSE %]
+    已取消[% tokentype %]的 token
+  [% END %]
+[% END %]
+
+[% BLOCK cancelactionmessage %]
+  [% IF    cancelaction == 'account_exists' %]
+    帳號 [% email %] 已存在。
+
+  [% ELSIF cancelaction == 'email_change_canceled' %]
+    將 [% old_email %] 帳號的電子郵件地址變更為 [% new_email %] 的請求已被取消。
+
+  [% ELSIF cancelaction == 'email_change_canceled_reinstated' %]
+    將你的帳號的電子郵件地址變更為 [% new_email %] 的請求已被取消。已恢復原帳號的舊有設定。
+
+  [% ELSIF cancelaction == 'emailold_change_canceled' %]
+    將你的帳號的電子郵件地址變更為 [% new_email %] 的請求已被取消。
+
+  [% ELSIF cancelaction == 'password_change_canceled' %]
+    你要求取消。
+
+  [% ELSIF cancelaction == 'account_creation_canceled' %]
+    已取消建立使用者帳號 [% emailaddress %] 。
+
+  [% ELSIF cancelaction == 'user_logged_in' %]
+    你已登入。
+
+  [% ELSIF cancelaction == 'wrong_token_for_changing_passwd' %]
+    你已經使用 token 來變更密碼。
+
+  [% ELSIF cancelaction == 'wrong_token_for_cancelling_email_change' %]
+    你已經使用 token 來取消電子郵件的變更。
+
+  [% ELSIF cancelaction == 'wrong_token_for_confirming_email_change' %]
+    你已經使用 token 來確認電子郵件的變更。
+
+  [% ELSIF cancelaction == 'wrong_token_for_creating_account' %]
+    你已經使用 token 來建立一個新的帳號。
+
+  [% ELSE %]
+    [%# Give sensible error if the cancel-token function is used incorrectly.
+      #%]
+    你不正確地使用 Bugzilla 的取消 token 功能。
+    你輸入了字串 '[% cancelaction %]' 。
+    正確的用法是輸入一個標籤，並且在 <kbd>cancel-token.txt.tmpl</kbd> 檔案中定義該標籤。
+
+    如果你是一個 [% terms.Bugzilla %] 的使用者，但卻看到此一訊息時，請將它轉寄給 [% Param('maintainer') %] 。
+  [% END %]
+[% END %]

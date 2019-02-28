@@ -1,0 +1,148 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# Remember to PROCESS rather than INCLUDE this template. %]
+
+[% SET search_descs = {
+  "noop"           => "---",
+  "equals"         => "等于",
+  "notequals"      => "不等于",
+  "anyexact"       => "等于任何一个字串",
+  "substring"      => "包含该字串",
+  "casesubstring"  => "包含该字串 (大小写符合)",
+  "notsubstring"   => "不包含该字串",
+  "anywordssubstr" => "包含任一字串",
+  "allwordssubstr" => "包含所有字串",
+  "nowordssubstr"  => "不包含任一字串",
+  "regexp"         => "包含正规表达式",
+  "notregexp"      => "不包含正规表达式",
+  "lessthan"       => "小于",
+  "lessthaneq"     => "小于等于",
+  "greaterthan"    => "大于",
+  "greaterthaneq"  => "大于等于",
+  "anywords"       => "包含任何一个字",
+  "allwords"       => "包含所有字",
+  "nowords"        => "不包含任何字",
+  "changedbefore"  => "在...之前被变更",
+  "changedafter"   => "在...之后被变更",
+  "changedfrom"    => "从...变更",
+  "changedto"      => "变更为...",
+  "changedby"      => "被...变更",
+  "matches"        => "符合",
+  "notmatches"     => "不符合",
+  "isempty"        => "是空的",
+  "isnotempty"     => "不是空的",
+} %]
+
+[% field_types = {
+  ${constants.FIELD_TYPE_UNKNOWN}       => "未知的类别",
+  ${constants.FIELD_TYPE_FREETEXT}      => "任意文字",
+  ${constants.FIELD_TYPE_INTEGER}       => "整数",
+  ${constants.FIELD_TYPE_SINGLE_SELECT} => "下拉式选单",
+  ${constants.FIELD_TYPE_MULTI_SELECT}  => "多选式选单",
+  ${constants.FIELD_TYPE_TEXTAREA}      => "文字输入框",
+  ${constants.FIELD_TYPE_DATETIME}      => "日期／时间",
+  ${constants.FIELD_TYPE_DATE}          => "日期",
+  ${constants.FIELD_TYPE_BUG_ID}        => "$terms.Bug 编号"
+} %]
+
+[% IF in_template_var %]
+  [% PROCESS "global/value-descs.none.tmpl" %]
+  [% SET vars.value_descs = value_descs %]
+  [% SET vars.terms = terms %]
+
+  [%# field_descs is loaded as a global template variable and cached
+    # across all templates--see VARIABLES in Bugzilla/Template.pm.
+    #%]
+  [% vars.field_descs = {
+    "[Bug creation]"          => "[建立 $terms.Bug 时]",
+    "actual_time"             => "实际小时数",
+    "alias"                   => "别名",
+    "assigned_to"             => "负责人",
+    "assigned_to_realname"    => "负责人真实姓名",
+    "attach_data.thedata"     => "附件资料",
+    "attachments.description" => "附件描述",
+    "attachments.filename"    => "附件档名",
+    "attachments.mimetype"    => "附件的 MIME 类别",
+    "attachments.ispatch"     => "附件是 patch",
+    "attachments.isobsolete"  => "附件已废弃",
+    "attachments.isprivate"   => "附件不公开",
+    "attachments.submitter"   => "附件建立者",
+    "blocked"                 => "会挡掉这些 $terms.Bug",
+    "bug_file_loc"            => "网址",
+    "bug_group"               => "群组",
+    "bug_id"                  => "$terms.Bug 编号",
+    "bug_severity"            => "严重程度",
+    "bug_status"              => "状态",
+    "changeddate"             => "修改日期",
+    "cc"                      => "寄件副本",
+    "classification"          => "分类",
+    "cclist_accessible"       => "可用的寄件副本清单",
+    "commenter"               => "意见发表人",
+    "component_id"            => "子产品编号",
+    "component"               => "子产品",
+    "content"                 => "内容",
+    "creation_ts"             => "建立 $terms.Bug 的时间",
+    "days_elapsed"            => "距上次 $terms.bug 变更已过几天",
+    "deadline"                => "截止期限",
+    "delta_ts"                => "已变更",
+    "dependson"               => "要先修好这些 $terms.Bug",
+    "dup_id"                  => "重复的",
+    "estimated_time"          => "原先估计时间",
+    "everconfirmed"           => "是否确认",
+    "flagtypes.name"          => "旗标",
+    "keywords"                => "关键字",
+    "last_visit_ts"           => "最后拜访",
+    "longdesc"                => "意见",
+    "longdescs.count"         => "意见数量",
+    "longdescs.isprivate"     => "意见不公开",
+    "newcc"                   => "寄件副本",
+    "op_sys"                  => "作业系统",
+    "opendate"                => "开启日",
+    "owner_idle_time"         => "自负责人接受后过了多久时间",
+    "percentage_complete"     => "完成度 (%)",
+    "priority"                => "优先程度",
+    "product_id"              => "产品编号",
+    "product"                 => "产品",
+    "qa_contact"              => "QA 连络人",
+    "qa_contact_realname"     => "QA 连络人真实姓名",
+    "remaining_time"          => "剩馀时数",
+    "rep_platform"            => "硬体平台",
+    "reporter"                => "回报者",
+    "reporter_accessible"     => "可浏览的回报者",
+    "reporter_realname"       => "回报者真实姓名",
+    "requestees.login_name"   => "旗标要求者",
+    "resolution"              => "解决方案",
+    "see_also"                => "也请参考",
+    "setters.login_name"      => "旗标设定者",
+    "setting"                 => "设定",
+    "settings"                => "设定",
+    "short_desc"              => "摘要",
+    "short_short_desc"        => "摘要",
+    "status_whiteboard"       => "状态白板",
+    "tag"                     => "个人标籤",
+    "target_milestone"        => "目标里程碑",
+    "version"                 => "版本",
+    "work_time"               => "已工作时数"
+  } %]
+
+  [%# Also include any custom fields or fields which don't have a
+      Description here, by copying their Description from the
+      database. If you want to override this for your language
+      or your installation, just use a hook. %]
+  [% UNLESS Param('shutdownhtml') %]
+    [% FOREACH bz_field = bug_fields.values %]
+      [% SET vars.field_descs.${bz_field.name} = bz_field.description
+         IF !vars.field_descs.${bz_field.name}.defined %]
+    [% END %]
+  [% END %]
+
+  [% PROCESS "bug/field-help.none.tmpl" %]
+[% END %]
+
+[% Hook.process("end") %]

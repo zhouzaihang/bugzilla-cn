@@ -1,0 +1,26 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[% INCLUDE global/header.html.tmpl title = "文字连结化" %]
+
+<p>
+  如果你输入一些文字，此表格会自动将它转为标准的 Bugzilla 意见格式。也就是说，有效的 [% terms.bug %] 数字、网址、电子邮件信箱等等都会被加上适当的 HTML 连结。
+</p>
+
+<form action="page.cgi" method="post">
+  [% INCLUDE global/textarea.html.tmpl
+    name    = 'text'
+    minrows = 20
+    cols    = constants.COMMENT_COLS
+  %]
+  <br>
+  <input type="hidden" name="id" value="linked.html">
+  <input type="submit" id="linkify" value="连结化">
+</form>
+
+[% INCLUDE global/footer.html.tmpl %]

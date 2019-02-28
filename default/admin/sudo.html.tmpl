@@ -1,0 +1,80 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[% PROCESS global/header.html.tmpl
+   title = "開始 sudo"
+   generate_api_token = 1
+   style_urls = ['skins/standard/admin.css']
+   doc_section = "administering/users.html#impersonating-users"
+ %]
+
+[% DEFAULT target_login = "" %]
+
+<p>
+  Bugzilla 的 <b>sudo</b> 功能允許你暫時 sudo 其他使用者的帳號。當執行
+  sudo 時，你所做的所有動作將視同為你以該使用者的身份登入進行的動作。
+</p>
+
+<p class="areyoureallyreallysure">
+  這是個強大的功能，使用它時必須十分小心。所有的動作將會完全被記錄。
+</p>
+
+<form action="relogin.cgi" method="POST">
+  <p>
+    要開始 sudo ，[% IF Param('usemenuforusers') %]選擇[% ELSE %]輸入[% END %]<label for="target_login">使用者帳號
+    (<u>U</u>)</label> ：
+    [% INCLUDE global/userselect.html.tmpl
+       id => "target_login"
+       name => "target_login"
+       value => target_login_default
+       accesskey => "u"
+       size => 30
+       mandatory => 1
+    %]
+  </p>
+
+  [% IF !Param('usemenuforusers') %]
+    <p>
+      使用者帳號必須完全輸入正確。不會執行符合字串的搜尋。
+    </p>
+  [% END %]
+
+  <p>
+    接下來，請花點時間解釋<label for="reason">你為什麼這麼做：<br>
+    <input type="text" id="reason" name="reason" size="80" maxlength="200"
+           value="[% reason_default FILTER html %]">
+  </p>
+
+  <p>
+    以上的原因將會以電子郵件通知被你 sudo 的使用者。你也可以不填，不過使用者仍舊會知道你曾經 sudo 過。
+  </p>
+
+  [% IF user.authorizer.can_login %]
+    <p>
+      最後，輸入<label for="Bugzilla_password">你的 [% terms.Bugzilla %] 密碼</label>：
+      <input type="hidden" name="Bugzilla_login" value="[% user.login FILTER html %]">
+      <input type="password" id="Bugzilla_password" name="Bugzilla_password" size="20" required>
+      <input type="hidden" name="Bugzilla_login_token"
+             value="[% login_request_token FILTER html %]">
+      <br>
+      這麼做有兩個原因。<br>
+      第一，這可以減少其他人使用你已經登入的帳號做壞事的機會。<br>
+      第二，讓你再次考慮是否真的需要使用此功能。
+    </p>
+  [% END %]
+
+  <p>
+    點選以下按鍵開始 sudo ：
+    <input type="submit" id="begin_sudo" value="開始 sudo">
+    <input type="hidden" name="action" value="begin-sudo">
+    <input type="hidden" name="token" value="[% token FILTER html %]">
+  </p>
+
+</form>
+
+[% PROCESS global/footer.html.tmpl %]

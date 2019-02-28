@@ -1,0 +1,28 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[% SET reason_descs = {
+  ${constants.REL_ASSIGNEE} => "你是這個 $terms.bug 的負責人",
+  ${constants.REL_REPORTER} => "你回報了這個 $terms.bug 。",
+  ${constants.REL_QA}       => "你是這個 $terms.bug 的 QA 連絡人。",
+  ${constants.REL_CC}       => "你在這個 $terms.bug 的寄件副本清單中。",
+  ${constants.REL_GLOBAL_WATCHER} => "你正在監控所有對 $terms.bug 的變更。"
+} %]
+
+[% SET watch_reason_descs => {
+  ${constants.REL_ASSIGNEE} =>
+    "你在監控這個 $terms.bug 的負責人。",
+  ${constants.REL_REPORTER} =>
+    "你在監控這個 $terms.bug 的回報者。",
+  ${constants.REL_QA}       =>
+    "你在監控這個 $terms.bug 的 QA 連絡人。",
+  ${constants.REL_CC}       =>
+    "你在監控這個 $terms.bug 的寄件副本清單中的某個人。",
+} %]
+
+[% Hook.process('end') %]

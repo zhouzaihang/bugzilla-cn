@@ -1,0 +1,59 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%
+   title = "电子邮件"
+   desc = "电子邮件将如何寄出？"
+%]
+
+[% param_descs = {
+  mail_delivery_method => "定义电子邮件如何寄送。<br>
+                           <ul>
+                             <li>
+                               'SMTP' ，使用 SMTP 协定和远端信件伺服器沟通。
+                             </li>
+                               'Sendmail' ，使用安装于 Bugzilla 机器上，相容于 sendmain 的 MTA 。
+                               如果你想在 Windows 上使用 sendmail 功能，你必须安装第三方的 sendmail 软体。
+                             </li>
+                             <li>
+                               测试 (Test) 在 debug 时很有用，所有的电子邮件都储存在
+                               'data/mailer.testfile' 而不寄送。
+                             </li>
+                             <li>
+                               无 (None)：不寄送邮件。 Bugzilla
+                               仍会视为将相关动作视为寄送邮件，但实际上并未寄送或储存任何邮件。
+                             </li>
+                           </ul>",
+
+  mailfrom => "$terms.Bugzilla mail daemon 的电子邮件地址。有些电子邮件系统要求这必须是有效的电子邮件地址。",
+
+  use_mailer_queue => "在一个大型的 Bugzilla 专案上，由于 $terms.Bugzilla 会一次寄送所有信件的缘故，导致更新 $terms.bugs 可能会很慢。<br>" _
+                      "如果你开启此参数， Bugzilla 会把所有的信件排程后，于背景执行寄送程序。<br>" _
+                      "开启此参数前，请确认你已经安装了在 <kbd>checksetup.pl</kbd> 中列出的特定 Perl 模组，并且已执行 <code>jobqueue.pl</code> daemon ，否则 Bugzilla 并不会寄信。<br>" _
+                      "此参数不是只会影响送出的 $terms.bug 通知信，而是会影响所有 Bugzilla 的信件。",
+
+  smtpserver => "若使用 SMTP 做为邮件传递方式时， SMTP 的伺服器地址。埠号选填。" _
+                "例如： example.com 或 example.com:1234",
+
+  smtp_username => "使用于 SMTP 伺服器，供 SMTP 认证用的使用者名称。" _
+                   "如果你的 SMTP 伺服器无需认证，则此栏位留白。",
+
+  smtp_password => "使用于 SMTP 伺服器，供 SMTP 认证用的密码。" _
+                   "如果 smtp_username 参数留白时，此栏位无作用。",
+
+  smtp_ssl => "启用 SMTP 的 SSL 支援。",
+
+  smtp_debug => "若设为「开」，则将会在 Bugzilla 和 SMTP 伺服器连线发生错误时，" _
+                "会将详细资讯记录在网页伺服器的 log 档。你可以用此功能来对电子邮件的问题进行故障排除。",
+
+  whinedays => "在系统的 cronjob 提醒拥有 $terms.bug 的人之前，系统允许一个 $terms.bug 处于确认的 (CONFIRMED)状态且仍未被处理的天数。<br>" _
+               "若设为 0 ，则会停用订阅功能。",
+
+  globalwatchers => "以半形逗号 (,) 分隔的清单。此清单将会收到系统所寄出的每一封通知信。" }
+
+%]

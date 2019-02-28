@@ -1,0 +1,138 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # added_quip: string. Defined if the CGI added a quip data before
+  #                displaying anything; if defined, its value is that quip.
+  # show_quips: boolean. True if we are showing the entire quip list.
+  # quips: list of strings. Defined if and only if show_quips is true.
+  #                List of all quips.
+  #%]
+
+[% PROCESS global/header.html.tmpl
+           title = "Bugzilla 智語系統"
+           header = "新增自己的大標題"
+           style_urls = ['skins/standard/buglist.css']
+ %]
+
+<p>
+  Bugzilla 會隨機選擇一條智語做為每個 [% terms.bug %] 清單的大標題。
+</p>
+
+[% IF Param("quip_list_entry_control") != "closed" %]
+  <p>
+    你可以加長智語的清單。只要輸入聰明的、有趣的，甚至無聊的句子（但請勿輸入十八禁的或具有攻擊性的句子），然後按下「送出」鍵即可。
+    [% IF Param("quip_list_entry_control") == "moderated" AND !user.in_group('bz_quip_moderators') %]
+      注意：在智語被採用前，將先接受審核。
+    [% END %]
+  </p>
+
+  <form method="post" action="quips.cgi">
+    <input type="hidden" name="action" value="add">
+    <input type="hidden" name="token"
+           value="[% issue_hash_token(['create-quips']) FILTER html %]">
+    <input size="80" name="quip" maxlength="512" required>
+    <p>
+      <input type="submit" id="add" value="送出">
+    </p>
+  </form>
+[% ELSE %]
+  <p>現在不允許輸入新的智語。
+  </p>
+[% END %]
+
+[% IF show_quips %]
+  [% IF !user.in_group('bz_quip_moderators') %]
+    <h2>
+      已存在的智語：
+    </h2>
+    <ul>
+      [% FOREACH quipid = quipids %]
+        [% NEXT IF NOT quips.$quipid.approved %]
+        <li>[% quips.$quipid.quip FILTER html %]</li>
+      [% END %]
+    </ul>
+  [% ELSE %]
+    <h2>編輯已存在的智語：</h2>
+    <p>
+      <strong>注意：</strong>只會顯示審核通過的智語。
+      如果參數 'quip_list_entry_control' 設為<q>開</q>，將會把輸入的智語自動審核通過。
+    </p>
+    <form name="editform" method="post" action="quips.cgi">
+      <input type="hidden" name="action" value="approve">
+      <input type="hidden" name="token"
+             value="[% issue_hash_token(['approve-quips']) FILTER html %]">
+      <table id="quips">
+        <thead>
+        <tr class="column_header">
+          <th>智語</th>
+          <th>作者</th>
+          <th>動作</th>
+          <th>審核通過</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        [% FOREACH quipid = quipids %]
+          <tr>
+            <td>[% quips.$quipid.quip FILTER html %]</td>
+            <td>
+              [% userid = quips.$quipid.userid  %]
+              [% users.$userid FILTER html      %]
+              [% "未知的" IF NOT users.$userid %]
+            </td>
+            <td>
+              <a href="quips.cgi?action=delete&amp;quipid=[% quipid FILTER uri %]&amp;token=
+                 [%- issue_hash_token(['quips', quipid]) FILTER uri %]">
+                刪除
+              </a>
+            </td>
+            <td class="center">
+              <input type="hidden" name="defined_quipid_[% quipid FILTER html %]"
+                     id="defined_quipid_[% quipid FILTER html %]"
+                     value="1">
+              <input type="checkbox" name="quipid_[% quipid FILTER html %]"
+                     id="quipid_[% quipid FILTER html %]"
+                     [%- ' checked="checked"' IF quips.$quipid.approved %]>
+            </td>
+          </tr>
+        [% END %]
+        </tbody>
+      </table>
+
+      <input type="button" id="uncheck_all" value="取消全選"
+             class="bz_default_hidden" onclick="SetCheckboxes(false);">
+      <input type="button" id="check_all" value="全選"
+             class="bz_default_hidden" onclick="SetCheckboxes(true);">
+      <input type="submit" id="update" value="儲存設定">
+
+      <script type="text/javascript">
+        <!--
+        var numelements = document.forms.editform.elements.length;
+        function SetCheckboxes(value) {
+          var item;
+          for (var i=0 ; i<numelements ; i++) {
+            item = document.forms.editform.elements[i];
+            item.checked = value;
+          }
+        }
+        YAHOO.util.Dom.removeClass("check_all", "bz_default_hidden");
+        YAHOO.util.Dom.removeClass("uncheck_all", "bz_default_hidden");
+        //-->
+      </script>
+    </form>
+    <br>
+  [% END %]
+[% ELSE %]
+  <p>
+    想要全部列出的人，也可以<a
+    href="quips.cgi?action=show">瀏覽[% IF user.in_group('bz_quip_moderators') %]並編輯[% END %]整個智語的清單</a>。
+  </p>
+[% END %]
+
+[% PROCESS global/footer.html.tmpl %]

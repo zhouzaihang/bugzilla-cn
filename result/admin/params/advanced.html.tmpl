@@ -1,0 +1,59 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%
+   title = "进阶"
+   desc = "进阶设定"
+%]
+
+[% sts_desc = BLOCK %]
+  启用在 SSL 连线传送 HTTP 回应时，传送
+  <a href="http://en.wikipedia.org/wiki/Strict_Transport_Security">HSTS</a> header
+  的功能。启用此功能将会强制浏览器在拜访你指定的域名时，总是使用 SSL
+  连线，且绝对不会接受无效的认证，因而大幅增加安全性。启用此项功能的前提是：你必须启用
+  <code>ssl_redirect</code> 参数、确认
+  Bugzilla 是唯一在指定域名中执行的程式（也就是说，你的
+  <code>urlbase</code> 必须像是 <code>http://bugzilla.example.com/</code> ），
+  并且你绝对不会把 <code>ssl_redirect</code> 参数设为停用。
+  <ul>
+    <li>
+      off (关) - 不传送 HSTS header 。
+    </li>
+    <li>
+      this_domain_only - 传送 HSTS header ，但只限于目前的域名。
+    </li>
+    <li>
+      include_subdomains - 传送 HSTS header 时加入 <code>includeSubDomains</code>
+      旗标，这将会使所有子域名的安全性变更生效。当你的 <code>attachment_base</code>
+      是在 Bugzilla 主域名下的一个子域名时，这项设定就很有用了。
+    </li>
+  </ul>
+[% END %]
+
+[% param_descs = {
+  cookiedomain =>
+    "如果你的网站是 'www.foo.com' ，则把此参数设定为"
+    _ " '.foo.com' 时，将会允许 'bar.foo.com' 存取 Bugzilla"
+    _ " 的 cookie 。这对于同一个网站伺服器有多个域名，且希望共享"
+    _ " Bugzilla 的 cookie 时很有用。",
+
+  inbound_proxies =>
+    "当透过代理伺服器连线至 Bugzilla 时，"
+    _ " Bugzilla 将每个使用者都认定为该代理伺服器的 IP 位址。"
+    _ "如果在参数中输入以逗号 (,) 分隔的 IP 列表，"
+    _ "那么 Bugzilla 将会信任来自这些 IP 的 <code>X-Forwarded-For</code> Header ，"
+    _ "并使用 Header 的值来做为使用者的 IP 位址。",
+
+  proxy_url =>
+    "Bugzilla 可以自动连线到网路并撷取关于最新版的版本资讯，参考"
+    _ " <tt>upgrade_notification</tt> 参数。如果透过代理伺服器连线，"
+    _ "可能需要设定代理伺服器的网址，以免 HTTP_PROXY 环境变数无法被存取。"
+    _ "如需认证，使用 <code>http://user:pass@proxy_url/</code> 的格式。",
+
+  strict_transport_security => sts_desc,
+} %]

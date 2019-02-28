@@ -1,0 +1,95 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[% filtered_summary = bugsummary FILTER html %]
+[% header = BLOCK %]浏览 [%+ "$terms.Bug $bug.id" FILTER bug_link(bug) FILTER none %] 的所有附件[% END %]
+
+[% title = BLOCK %]
+  浏览 [% terms.Bug %] [%+ bug.bug_id FILTER html %] 的所有附件
+[% END %]
+
+[% PROCESS global/header.html.tmpl
+  title = title
+  header = header
+  subheader = filtered_summary
+  style_urls = ['skins/standard/bug.css']
+%]
+
+[% IF hide_obsolete %]
+  <div id="hidden_obsolete_message">
+    已将废弃的附件隐藏。如要检视所有附件（包括已废弃的附件），
+    <a href="attachment.cgi?bugid=[% bug.id FILTER html %]&amp;action=viewall">点此连结</a>。
+  </div>
+[% END %]
+
+[% FOREACH a = attachments %]
+<div class="viewall_frame_container">
+  <table class="viewall_desc">
+    <tr>
+      <th colspan="6" class="bz_attach_footer">附件 #[% a.id %]</th>
+    </tr>
+    <tr>
+      <td>[% a.description FILTER html FILTER obsolete(a.isobsolete) %]</td>
+
+      <td>
+        [% IF a.ispatch %]
+          <i>patch</i>
+        [% ELSE %]
+          [% a.contenttype FILTER html %]
+        [% END %]
+      </td>
+
+      <td>[% a.attached FILTER time %]</td>
+      <td>[% a.datasize FILTER unitconvert %]</td>
+
+      <td>
+        [% IF a.flags.size == 0 %]
+          <i>没有旗标</i>
+        [% ELSE %]
+          [% FOREACH flag = a.flags %]
+            [% flag.setter.nick FILTER html %]:
+            [%+ flag.type.name FILTER html %][% flag.status %]
+            [% IF flag.status == "?" && flag.requestee %]
+              ([% flag.requestee.nick FILTER html %])
+            [% END %]
+            [% ", " IF !loop.last %]
+          [% END %]
+        [% END %]
+      </td>
+
+      <td><a href="attachment.cgi?id=[% a.id %]&amp;action=edit">详细资料</a></td>
+    </tr>
+  </table>
+
+  [% IF a.is_viewable %]
+    [% IF a.contenttype == "text/html" %]
+      [%# For security reasons (clickjacking, embedded scripts), we never
+        # render HTML pages from here. The source code is displayed instead. %]
+      [% INCLUDE global/textarea.html.tmpl
+         minrows = 10
+         cols    = 80
+         defaultcontent = a.data
+         readonly = 'readonly'
+         classes = 'viewall_frame'
+      %]
+    [% ELSE %]
+      <iframe src="attachment.cgi?id=[% a.id %]" class="viewall_frame" sandbox>
+        <b>你无法在此页面浏览附件，原因为你的浏览器不支援
+        IFRAME 属性。<a href="attachment.cgi?id=[% a.id %]">以另开视窗的方式浏览附件</a>。</b>
+      </iframe>
+    [% END %]
+  [% ELSE %]
+    <p><b>
+      无法浏览附件，因为它的 MIME 类别并不是 text/* 、 image/* ，或是
+      application/vnd.mozilla.* 。<a href="attachment.cgi?id=[% a.id %]">下载该附件</a>。
+    </b></p>
+  [% END %]
+</div>
+[% END %]
+
+[% PROCESS global/footer.html.tmpl %]

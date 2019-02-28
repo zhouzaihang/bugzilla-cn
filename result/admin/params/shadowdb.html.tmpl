@@ -1,0 +1,30 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%
+   title = "Shadow 资料库"
+   desc = "增加资料库效能的选项"
+%]
+
+[% param_descs = {
+  shadowdbhost => "Shadow 资料库在的主机。",
+
+  shadowdbport => "Shadow 资料库所在的连接埠。若 <var>shadowdbhost</var> 设为空白，则会忽略此设定。" _
+                  "注意：如果主机是本地的机器，那么 MySQL 会忽略此设定，因此你必须在下方指定 socket 。",
+
+  shadowdbsock => "如果主机是本地的机器的话，此选项用来指定连线到 shadow 资料库的 socket 。" _
+                  "因为在从客户端连线到本地伺服器时， MySQL 会忽略客户端所指定的连接埠，" _
+                  "而使用它内建（在 unix 机器上）的 socket 路径连线。" _
+                  "如果设为空白，并且在 localhost 安装资料库的话， " _
+                  "<var>shadowdbport</var> 参数将被忽略。",
+
+  shadowdb => "如果不设为空白，那么这就是另一个资料库的名称，并且被 Bugzilla 用来做唯读的复制备份。" _
+              "这么做的好处是在执行又长又慢的唯读程序时，可以使用此一资料库，而不会让其他人因此锁死。" _
+              "这个资料库必须设在 <var>shadowdbhost</var> 上，且必须存在。 " _
+              "Bugzilla 并不会更新它，因此如果你使用此一参数，那么你必须替你的资料库设定复制。" }
+%]

@@ -1,0 +1,35 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  # user: The Bugzilla::User object of the user being created
+  # new_key: The API key created
+  #%]
+
+From: [% Param('mailfrom') %]
+To: [% user.email %]
+Subject: [% terms.Bugzilla %]: 已建立新的 API key
+X-Bugzilla-Type: admin
+
+[此信件为自动产生]
+
+已建立一把新的 [% terms.Bugzilla %] API key
+[% IF new_key.description %]
+  ，描述是 '[% new_key.description %]'
+[% END %]
+ 。你可以在下列网址检视及更新这把 API key ：
+
+[%+ urlbase %]userprefs.cgi?tab=apikey
+
+【重要】：如果你并未要求产生一把新的 API key ，那么你的
+[% terms.Bugzilla %] 帐号可能遭到入侵。
+如果是这样的话，请在上述网址的介面中撤销该把 API key ，并立刻更新你的密码。
+
+为了安全起见，我们并没有在这封信件中列出新的 API key 。
+
+如果你对于你的帐号有任何疑虑，请联络 [% Param('maintainer') %] 。

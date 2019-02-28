@@ -1,0 +1,54 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%# INTERFACE:
+  #%]
+
+[% DEFAULT width = 600
+           height = 350
+%]
+
+[% time = time FILTER time('%Y-%m-%d %H:%M:%S') FILTER html %]
+
+[% PROCESS global/header.html.tmpl
+  title = "图表"
+  header_addl_info = time
+%]
+
+<div class="center">
+
+  [% imageurl = BLOCK %]chart.cgi?
+    [% imagebase FILTER html %]&amp;ctype=png&amp;action=plot&amp;width=
+    [% width %]&amp;height=[% height -%]
+  [% END %]
+
+  <img alt="图形式报表结果" src="[% imageurl %]"
+    width="[% width %]" height="[% height %]">
+  <p>
+    [% sizeurl = BLOCK %]chart.cgi?
+      [% imagebase FILTER html %]&amp;action=wrap
+    [% END %]
+    <a href="[% sizeurl %]&amp;width=[% width %]&amp;height=
+             [% height + 100 %]">较高</a><br>
+    <a href="[% sizeurl %]&amp;width=[% width - 100 %]&amp;height=
+             [% height %]">较窄</a> |
+    <a href="[% sizeurl %]&amp;width=[% width + 100 %]&amp;height=
+             [% height %]">较宽</a>&nbsp;&nbsp;&nbsp;&nbsp;<br>
+    <a href="[% sizeurl %]&amp;width=[% width %]&amp;height=
+             [% height - 100 %]">较短</a><br>
+  </p>
+
+  <p>
+    <a href="chart.cgi?
+      [% imagebase FILTER html %]&amp;ctype=csv&amp;action=plot">CSV</a> |
+    <a href="chart.cgi?[% imagebase FILTER html %]&amp;action=assemble">编辑此一报表</a>
+  </p>
+
+</div>
+
+[% PROCESS global/footer.html.tmpl %]

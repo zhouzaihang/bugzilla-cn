@@ -1,0 +1,27 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%
+   title = "使用者符合政策"
+   desc = "设定你的使用者符合政策"
+%]
+
+[% param_descs = {
+  usemenuforusers => "若此选项设为「开」， Bugzilla 将会让你自清单中选择使用者，" _
+                     "而非自输入框输入。当此站台有大量使用者时，不建议使用此选项。",
+
+  ajax_user_autocompletion => "若此选项设为「开」，在特定栏位输入时，将会开启自动完成功能，" _
+                              "显示和已输入字串符合的结果清单。",
+
+  maxusermatches => "不显示超过此数字以上的搜寻符合结果。<br>" _
+                    "如果设为 1 ，将不允许模稜两可的符合结果。<br>" _
+                    "这对使用者隐私权很有帮助。<br>" _
+                    "若不限制，请设为 0 。",
+
+  confirmuniqueusermatch => "当只有一位使用者符合搜寻时，是否显示确认页。" }
+%]

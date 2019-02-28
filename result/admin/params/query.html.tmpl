@@ -1,0 +1,51 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[%
+   title = "预设查询值"
+   desc = "预设的查询值和 $terms.bug 清单"
+%]
+
+[% param_descs = {
+  quip_list_entry_control => "控制使用者加入智语的容易度。
+                              <ul>
+                                <li>
+                                  开启 (open) ：使用者可以输入智语，并会立即显示。
+                                </li>
+                                <li>
+                                  认证 (moderated) ：可以输入智语，但必须经由可认证者认证后才会显示。
+                                </li>
+                                <li>
+                                  关闭 (closed) ：不允许输入新的智语。
+                                </li>
+                              </ul>",
+
+  mybugstemplate => "这是让使用者简单列出「我所有的 $terms.bugs 」清单的网址。" _
+                    " %userid% 会被取代为该使用者的帐号。" _
+                    "特殊字元必须使用 URL 编码。",
+
+  defaultquery => "当使用者浏览「进阶搜寻」页时的预设查询。这是网址的参数格式。",
+
+  search_allow_no_criteria =>
+    "除非程式里明确允许传回所有的 $terms.bugs ，否则这个选项将可阻挡没有条件 (criteria) 的搜寻。" _
+    "当设为「关」，搜寻都必须指定一些条件，以限制传给使用者的 $terms.bugs 数量。" _
+    "当设为「开」，使用者将可以不带任何条件进行搜寻，并传回该使用者所能看到的所有 $terms.bugs 的清单。" _
+    "在资料库较大的 $terms.Bugzilla 上不建议将此选项开启。",
+
+  default_search_limit =>
+    "因为效能因素， Bugzilla 预设限制在网页介面的搜寻只回传这么多笔数。" _
+    "（此参数只影响 HTML 格式的搜寻结果； CSV 、 XML 和其他格式不在此限。）" _
+    "使用者可以在搜寻页点一个连结查看所有结果。" _
+    "<p>通常你不需要更改这个设定－－" _
+    "预设值对多数安装 $terms.Bugzilla 的使用者而言都应该可以接受。</p>",
+
+  max_search_results =>
+    "搜寻可以回传的最大 $terms.bugs 笔数。" _
+    "表格式和图形式报告不在此限。",
+
+} %]
